@@ -749,8 +749,16 @@ async def terminal(request):
 
 
 async def browser_start(request):
+    data = await read_json(request) if request.can_read_body else {}
+    url = data.get('url') if isinstance(data, dict) else None
+    if url is not None:
+        from browser_runtime import valid_browser_url
+        if not valid_browser_url(url):
+            return error('Enter an HTTP or HTTPS address (maximum 4096 characters).', 400)
     try:
         await BROWSERS.start(request[USER]['id'])
+        if url is not None:
+            await BROWSERS.open_url(request[USER]['id'], url)
     except BrowserUnavailable as exc:
         return error(str(exc), 503)
     if not session_valid(SESSIONS.get(request[TOKEN])):

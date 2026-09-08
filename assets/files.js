@@ -91,9 +91,11 @@
  }
  function pickFolder(parent){const input=document.createElement('input');input.type='file';input.multiple=true;input.webkitdirectory=true;input.onchange=()=>run(()=>uploadPaths([...input.files],parent));input.click();}
  function acceptDrop(element,parent){
-  element.addEventListener('dragover',event=>{if(!user)return;event.preventDefault();event.stopPropagation();if(element.id!=='desktop')element.classList.add('file-drop-target');event.dataTransfer.dropEffect=event.dataTransfer.types.includes('application/x-win2k-file')?'move':'copy';});
+  element.addEventListener('dragover',event=>{if(!user)return;event.preventDefault();event.stopPropagation();if(element.id!=='desktop')element.classList.add('file-drop-target');event.dataTransfer.dropEffect=event.dataTransfer.types.some(type=>['application/x-win2k-file','application/x-win2k-shortcut'].includes(type))?'move':'copy';});
   element.addEventListener('dragleave',()=>element.classList.remove('file-drop-target'));
   element.addEventListener('drop',event=>{event.preventDefault();event.stopPropagation();element.classList.remove('file-drop-target');if(!user)return;const key=event.dataTransfer.getData('application/x-win2k-file'),target=typeof parent==='function'?parent():parent;
+   const shortcut=event.dataTransfer.getData('application/x-win2k-shortcut');
+   if(shortcut){if(target==='trash')run(()=>shell.trashShortcut(shortcut));return;}
    if(key){const item=find(key);if(item)run(()=>target==='trash'?trash(item):move(item,target));}
    else if(target!=='trash'){
     const entries=[...event.dataTransfer.items].map(item=>item.webkitGetAsEntry?.()).filter(Boolean);if(entries.some(item=>item.isDirectory)){run(()=>uploadEntries(entries,target));return;}

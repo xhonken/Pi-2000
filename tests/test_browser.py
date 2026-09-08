@@ -18,11 +18,15 @@ class FakeBrowsers:
         self.sockets = sockets
         self.sessions = {}
         self.stopped = []
+        self.opened = []
 
     async def start(self, user_id):
         entry = {'socket': self.sockets[user_id], 'process': SimpleNamespace(returncode=None)}
         self.sessions[user_id] = entry
         return entry
+
+    async def open_url(self, user_id, url):
+        self.opened.append((user_id, url))
 
     async def stop(self, user_id, remove=False):
         self.sessions.pop(user_id, None)
@@ -81,6 +85,14 @@ class BrowserTests(unittest.IsolatedAsyncioTestCase):
                                   'path':request.path, 'cookie':request.headers.get('Cookie'),
                                   'authorization':request.headers.get('Authorization'),
                                   'body':await request.text()})
+
+    async def test_shortcut_url_validation_and_account_routing(self):
+        for url in ['file:///etc/passwd', 'javascript:alert(1)', '--new-window']:
+            response = await self.client.post('/api/browser/start', headers=self.owner, json={'url': url})
+            self.assertEqual(response.status, 400)
+        response = await self.client.post('/api/browser/start', headers=self.alice, json={'url': 'https://elektrokit.com/'})
+        self.assertEqual(response.status, 200)
+        self.assertEqual(app.BROWSERS.opened, [(self.alice_id, 'https://elektrokit.com/')])
 
     async def test_private_proxy_and_headers(self):
         self.assertEqual((await self.client.get('/api/browser/view/')).status, 401)

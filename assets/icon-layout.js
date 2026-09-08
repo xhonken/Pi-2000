@@ -22,6 +22,7 @@
   if(!moving||!event.dataTransfer.types.includes('application/x-win2k-icon'))return;
   // A folder or trash target handles actual file moves through the file manager.
   const target=event.target.closest('.desktop-icon');
+  if(event.dataTransfer.types.includes('application/x-win2k-shortcut')&&target?.dataset.action==='trash'){moving=null;return;}
   if(event.dataTransfer.types.includes('application/x-win2k-file')&&target&&(target.dataset.fileId||['files','trash'].includes(target.dataset.action)))return;
   if(event.target.closest('.app-window'))return;
   event.preventDefault();event.stopImmediatePropagation();

@@ -7,7 +7,19 @@ import signal
 import tempfile
 import time
 import sys
+import uuid
+from urllib.parse import urlsplit
 from resource_limits import BrowserLimits
+
+
+def valid_browser_url(url):
+    if not isinstance(url, str) or not url or len(url) > 4096 or any(ord(c) < 33 or ord(c) == 127 for c in url):
+        return False
+    try:
+        parsed = urlsplit(url)
+        return parsed.scheme in ('http', 'https') and bool(parsed.hostname) and parsed.port != 0
+    except ValueError:
+        return False
 
 
 class BrowserUnavailable(Exception):
@@ -82,7 +94,7 @@ class BrowserRuntime:
             entry = {'process': process, 'runtime': runtime, 'socket': runtime / 'stream.sock', 'last_seen': time.monotonic(), 'clients': 0}
             self.sessions[user_id] = entry
             for _ in range(300):
-                if entry['socket'].exists():
+                if entry['socket'].exists() and (runtime / 'url-ready').exists():
                     return entry
                 if process.returncode is not None:
                     await self._stop(user_id)
@@ -90,6 +102,23 @@ class BrowserRuntime:
                 await asyncio.sleep(0.1)
             await self._stop(user_id)
             raise BrowserUnavailable('The browser took too long to start.')
+
+    async def open_url(self, user_id, url):
+        if not valid_browser_url(url):
+            raise BrowserUnavailable('Enter a valid HTTP or HTTPS address.')
+        async with self.lock:
+            entry = self.sessions.get(user_id)
+            if not entry or entry['process'].returncode is not None:
+                raise BrowserUnavailable('The browser session ended. Reopen Browser.')
+            runtime = entry['runtime']
+            if not (runtime / 'url-ready').exists():
+                raise BrowserUnavailable('End your Browser session and reopen it to enable shortcuts after this update.')
+            if len(list(runtime.glob('open-*.url'))) >= 32:
+                raise BrowserUnavailable('Too many pending browser shortcuts. Try again shortly.')
+            temporary = runtime / ('pending-' + uuid.uuid4().hex)
+            temporary.write_text(url)
+            temporary.chmod(0o600)
+            temporary.rename(runtime / ('open-' + uuid.uuid4().hex + '.url'))
 
     async def _stop(self, user_id):
         entry = self.sessions.pop(user_id, None)

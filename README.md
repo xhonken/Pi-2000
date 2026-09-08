@@ -8,7 +8,7 @@ This is an independent project, not a Microsoft product and not a Windows emulat
 
 ## Versions
 
-Current numbered release: **[0.1.0-alpha.1](https://github.com/xhonken/Pi-2000/releases/tag/v0.1.0-alpha.1)**. See [all releases](https://github.com/xhonken/Pi-2000/releases), the [changelog](CHANGELOG.md), and [versioning instructions](docs/VERSIONING.md) for previous versions, release downloads and installing a specific version. Run `./scripts/version.sh` to identify your source checkout.
+Current numbered release: **[0.1.0-alpha.2](https://github.com/xhonken/Pi-2000/releases/tag/v0.1.0-alpha.2)**. See [all releases](https://github.com/xhonken/Pi-2000/releases), the [changelog](CHANGELOG.md), and [versioning instructions](docs/VERSIONING.md) for previous versions, release downloads and installing a specific version. Run `./scripts/version.sh` to identify your source checkout.
 
 ## Applications
 

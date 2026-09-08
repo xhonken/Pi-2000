@@ -104,7 +104,18 @@ set-default-source browser.monitor
                            '--ui-sidebar-show-apps=false', '--ui-sidebar-show-gamepads=false',
                            '--ui-sidebar-show-webcam=false', '--ui-sidebar-show-gaming-mode=false',
                            '--auto-gpu=false'])
+        (runtime / 'url-ready').touch()
         while not stopping and not (runtime / 'stop').exists():
+            for request in list(runtime.glob('open-*.url')):
+                url = request.read_text()
+                request.unlink(missing_ok=True)
+                # Argument array: URLs never pass through a shell or become flags.
+                from urllib.parse import urlsplit
+                if len(url) <= 4096 and urlsplit(url).scheme in ('http', 'https'):
+                    try:
+                        subprocess.run(['/usr/bin/chromium', '--user-data-dir=/home/browser/chromium', '--new-tab', url], timeout=10, check=False)
+                    except subprocess.TimeoutExpired:
+                        pass
             if any(child.poll() is not None for child in (display, pulse, wm, streamer)):
                 raise RuntimeError('Browser display, audio or streaming component stopped')
             if chromium.poll() is not None:

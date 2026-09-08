@@ -142,9 +142,9 @@ async function restoreWorkspace() {
 window.addEventListener('pagehide',()=>{
  if(account && !restoring) fetch('/api/workspace',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(workspaceData()),keepalive:true}).catch(()=>{});
 });
-shell.actions.browser=async()=>{
+shell.actions.browser=async(url)=>{
  shell.closeStart();
- if(browserWindow){browserWindow.focus();return;}
+ if(browserWindow){browserWindow.focus();if(url)await api('/browser/start','POST',{url});return;}
  const user=account, win=makeWindow('Browser','browser-window');browserWindow=win;
  win.body.innerHTML='<div class="browser-toolbar"><button class="win2k-button browser-reconnect">Reconnect</button><button class="win2k-button browser-fullscreen">Full Screen</button><button class="win2k-button browser-stop">End Session…</button><span>Tabs and logins are private to your account.</span></div><div class="browser-content"><p class="browser-loading">Starting your browser…</p></div>';
  let disposed=false,connecting=false,monitor;
@@ -154,7 +154,7 @@ shell.actions.browser=async()=>{
   win.status.textContent='Starting or reconnecting to your browser…';
   win.body.querySelector('.browser-reconnect').disabled=true;
   try{
-   const result=await api('/browser/start','POST',{});
+   const result=await api('/browser/start','POST',url?{url}:{});url=null;
    if(disposed||account!==user)return;
    const frame=document.createElement('iframe');frame.title='Your Private Browser';frame.src=result.url;
    frame.allow='autoplay; fullscreen; clipboard-read; clipboard-write';frame.allowFullscreen=true;

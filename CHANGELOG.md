@@ -6,6 +6,18 @@ User-visible changes are recorded here for each numbered release. Development be
 
 No changes recorded yet.
 
+## 0.1.0-alpha.2 — 2026-09-08
+
+### Fixed
+
+- URL shortcuts and Run open web addresses in the account's private Browser instead of a client browser tab.
+- Shortcuts support a context menu, Delete key, drag to Recycle Bin, restoration and persistent deletion state.
+- Browser URL requests accept only bounded HTTP/HTTPS URLs and are queued separately for each account without shell execution.
+
+### Update note
+
+This release changes the persistent session worker and browser supervisor. Schedule `sudo ./scripts/update.sh --restart-sessions` after finishing live jobs. This ends running SSH/browser sessions; saved browser profiles remain. Reload the desktop and reopen Browser afterward. Ordinary updates without a worker restart will not activate URL navigation in an already running worker.
+
 ## 0.1.0-alpha.1 — 2026-09-08
 
 First numbered Alpha release. This captures the existing application and its installation tooling; earlier development remains available in Git history.

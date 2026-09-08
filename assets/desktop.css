@@ -83,7 +83,7 @@ dialog header { position: sticky; top: 0; z-index: 1; }
 .check-row { display: block; margin: 12px 0; }
 .link-list { padding: 0; list-style: none; max-height: 310px; overflow: auto; border: 2px solid; border-color: #808080 white white #808080; background: white; }
 .link-list li { padding: 10px; border-bottom: 1px solid #ccc; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-.link-list a { flex: 1; min-width: 100px; overflow-wrap: anywhere; }
+.link-list [data-shortcut-id] { text-align: left; background: transparent; border: 0; color: #000080; cursor: pointer; font: inherit; flex: 1; min-width: 100px; overflow-wrap: anywhere; }
 .link-list small { display: block; color: #555; }
 .link-list button { min-width: 0; }
 .empty { background: white; border: 1px solid #808080; padding: 18px; }
