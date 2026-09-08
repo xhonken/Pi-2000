@@ -1,0 +1,10 @@
+# EXAMPLE: copy to pi2000.toml and edit before installing.
+# For a new installation without the streamed Chromium runtime. This does not uninstall an existing browser.
+# Pi-2000Web deployment settings. No passwords belong in this file.
+[network]
+public_url = "https://pi2000.local"
+tls = "internal"
+bind_address = ""
+
+[features]
+browser = false

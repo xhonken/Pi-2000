@@ -1,0 +1,22 @@
+# EXAMPLE ONLY: generated from Examples/configuration/lan-ip.toml.
+# Use the installer to keep Caddy and the application origin in sync.
+# Managed by Pi-2000Web. Edit /etc/pi2000web/config.toml, then run update.sh.
+{
+    admin unix//var/lib/caddy/win2k-admin/control.sock
+}
+
+https://192.168.1.50 {
+    tls internal
+    header {
+        X-Content-Type-Options nosniff
+        X-Frame-Options SAMEORIGIN
+        Referrer-Policy same-origin
+    }
+    handle /api/* {
+        reverse_proxy 127.0.0.1:8765
+    }
+    handle {
+        root * /srv/win2k
+        file_server
+    }
+}

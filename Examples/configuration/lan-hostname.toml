@@ -1,0 +1,10 @@
+# EXAMPLE: copy to pi2000.toml and edit before installing.
+# Ensure this name resolves to your Pi on every client. The installer does not configure DNS or mDNS.
+# Pi-2000Web deployment settings. No passwords belong in this file.
+[network]
+public_url = "https://pi2000.local"
+tls = "internal"
+bind_address = ""
+
+[features]
+browser = true

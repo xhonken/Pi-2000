@@ -1,5 +1,7 @@
 # Caddy and HTTPS for Pi-2000Web
 
+Ready-to-edit configurations and scripts are indexed in **[Examples](../Examples/README.md)**.
+
 The unified installer installs the Debian `caddy` package, uses the normal `caddy.service` and generates its dedicated configuration from `server/Caddyfile.template`. Network details come from `/etc/pi2000web/config.toml`. No project network address is embedded in the checked-in service files.
 
 The installer currently targets a dedicated Pi/website. It accepts the Debian welcome Caddyfile or its own generated configuration and refuses unrelated existing sites. `--render-dir` creates reviewable files without changing the system.

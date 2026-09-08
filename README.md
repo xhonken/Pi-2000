@@ -66,6 +66,8 @@ Set your own HTTPS address, local/public TLS mode and optional bind IP in `pi200
 
 Read the complete **[Raspberry Pi installation guide](docs/INSTALLATION.md)**, including first login, private CA trust, updates, network changes and recovery. **[Caddy and HTTPS](docs/CADDY.md)** explains LAN certificates, domain certificates and existing web servers.
 
+See **[Examples](Examples/README.md)** for named network configurations, complete Caddy examples, certificate export, installation/update scripts and backup maintenance examples.
+
 ```sh
 # Later, from your checkout:
 git pull --ff-only

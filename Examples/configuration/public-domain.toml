@@ -1,0 +1,10 @@
+# EXAMPLE: copy to pi2000.toml and edit before installing.
+# Replace this reserved example domain with your own DNS name. See docs/CADDY.md for DNS and port requirements.
+# Pi-2000Web deployment settings. No passwords belong in this file.
+[network]
+public_url = "https://desktop.example.com"
+tls = "public"
+bind_address = ""
+
+[features]
+browser = true

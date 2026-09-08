@@ -1,0 +1,10 @@
+# EXAMPLE: copy to pi2000.toml and edit before installing.
+# Replace this example IP with the reserved LAN address of your Pi.
+# Pi-2000Web deployment settings. No passwords belong in this file.
+[network]
+public_url = "https://192.168.1.50"
+tls = "internal"
+bind_address = ""
+
+[features]
+browser = true
