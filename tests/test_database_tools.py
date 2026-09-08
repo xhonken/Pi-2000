@@ -88,6 +88,11 @@ class DatabaseTests(unittest.IsolatedAsyncioTestCase):
         await self.call('/command',{'action':'query','session':sid,'sql':'SELECT 1; SELECT seq FROM seq_1_to_1001'},status=400)
         await self.call('/command',{'action':'query','session':sid,'sql':'CREATE DATABASE IF NOT EXISTS cap_test; USE cap_test; SELECT seq FROM seq_1_to_1001'},status=413)
 
+    async def test_wrong_password_has_actionable_message(self):
+        result=await self.call('/command',{'action':'test','connection':self.profile['id'],'password':'deliberately-wrong-test-password'},status=400)
+        self.assertIn('MariaDB rejected the login',result['error'])
+        self.assertNotIn('deliberately-wrong-test-password',result['error'])
+
     async def test_cancel_and_reconnect(self):
         sid=await self.connect()
         task=asyncio.create_task(self.call('/command',{'action':'query','session':sid,'sql':'SELECT SLEEP(20)'},status=400))

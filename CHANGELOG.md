@@ -4,6 +4,8 @@ User-visible changes are recorded here for each numbered release. Development be
 
 ## Unreleased
 
+- Show MariaDB connection failures in a prominent alert, report connection progress, and explain login/TLS/network errors, including unexpected proxy responses.
+
 - Add MariaDB Manager with private saved TCP/TLS connections, optional encrypted credentials, SQL workspaces, object browsing, row-edit SQL preparation, administration templates and bounded SQL/CSV import and result export. Include the credential key in verified backups. See `docs/MARIADB-MANAGER.md` for scope and limits.
 
 - Browser checks available server RAM before starting a new session; reconnecting to a running session remains possible when memory is low.

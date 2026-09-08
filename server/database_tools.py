@@ -292,7 +292,18 @@ class DatabaseTools:
             disconnected = bool(session and session['conn'].closed)
             if disconnected:
                 self.drop(data['session'])
-            return web.json_response({'error': str(exc)[:1500], 'disconnected': disconnected}, status=400)
+            detail = str(exc)[:1500]
+            cause = exc
+            while cause is not None:
+                if isinstance(cause, ssl.SSLCertVerificationError):
+                    detail = 'TLS certificate verification failed. Check the server hostname and CA certificate in Connection Properties.'
+                    break
+                cause = cause.__cause__
+            if exc.args and exc.args[0] in (1045, 1698):
+                detail = 'MariaDB rejected the login. Check the database username and password, and whether the account allows TCP connections from this Pi.'
+            elif exc.args and exc.args[0] == 2003 and detail == str(exc)[:1500]:
+                detail = 'Could not connect to MariaDB. Check the server address, port, network access and TLS settings in Connection Properties.'
+            return web.json_response({'error': detail, 'disconnected': disconnected}, status=400)
         except (OSError, ssl.SSLError, asyncio.TimeoutError) as exc:
             return web.json_response({'error': 'The database connection failed. Check host, port, network and TLS certificate.'}, status=502)
 
