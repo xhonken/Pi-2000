@@ -1,0 +1,16 @@
+[Unit]
+Description=Pi-2000Web verified local backup
+After=win2k-sessions.service
+Requires=win2k-sessions.service
+
+[Service]
+Type=oneshot
+UMask=0077
+ExecStart=/opt/win2k-admin/venv/bin/python /opt/win2k-admin/backup.py create
+ExecStopPost=-/opt/win2k-admin/venv/bin/python /opt/win2k-admin/backup.py thaw
+TimeoutStartSec=240
+Nice=15
+IOSchedulingClass=idle
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/win2k-admin /var/backups/win2k

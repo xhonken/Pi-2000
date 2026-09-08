@@ -1,0 +1,122 @@
+/* Shared classic desktop metrics. Local preferences scale every UI surface. */
+:root { --shell-height:34px; --ui-font:Tahoma,Arial,"Liberation Sans",sans-serif; --ui-size:var(--personal-font-size,13px); --face:#d4d0c8; --hilite:#fff; --shadow:#808080; --selection:#0a246a; }
+body.win2k { font-family:var(--ui-font);font-size:var(--ui-size);line-height:1.35; }
+button,input,select,textarea { font-family:var(--ui-font);font-size:inherit;border-radius:0; }
+.win2k-button,.app-body,.desktop-icon,.start-items,.taskbar,.window-body,.classic-popup { font-size:var(--ui-size); }
+.win2k-button { min-height:25px;min-width:72px;padding:3px 10px;line-height:1.25;color:#000;background:var(--face);border:1px solid;border-color:#fff #404040 #404040 #fff;box-shadow:inset -1px -1px #808080,inset 1px 1px #dfdfdf;border-radius:0; }
+.win2k-button:active:not(:disabled) { border-color:#404040 #fff #fff #404040;box-shadow:inset 1px 1px #808080; }
+button:disabled { color:#777;text-shadow:1px 1px white;cursor:default; }
+input:not([type=checkbox]):not([type=radio]),select { min-height:25px;padding:2px 5px;line-height:1.3;box-shadow:inset 1px 1px #404040;border:1px solid;border-color:#808080 #fff #fff #808080;background:white; }
+textarea { border:1px solid;border-color:#808080 #fff #fff #808080;box-shadow:inset 1px 1px #404040;padding:6px; }
+input[type=checkbox],input[type=radio] { accent-color:#0a246a;width:13px;height:13px;margin:2px 5px 2px 0;vertical-align:middle;flex-shrink:0; }
+input:focus-visible,textarea:focus-visible,select:focus-visible { outline:1px solid #295986;outline-offset:0; }
+.frame { padding:2px;border-width:1px;border-color:#dfdfdf #000 #000 #dfdfdf;box-shadow:inset 1px 1px white,inset -1px -1px #808080; }
+.win2k-titlebar { min-height:23px;padding:2px 3px;gap:5px;background:linear-gradient(90deg,#0a246a,#a6caf0);line-height:1.2;font-size:var(--ui-size); }
+.win2k-titlebar strong { white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0; }
+.app-window.inactive > .win2k-titlebar { background:linear-gradient(90deg,#808080,#c4c4c4);color:#e7e7e7; }
+.win2k-titlebar > .win2k-pixel-icon { width:16px!important;height:16px!important;min-width:16px!important; }
+.window-controls { gap:2px; }
+.window-controls .win2k-button,#close-window { width:18px;min-width:18px;height:18px;min-height:18px;padding:0;font:700 13px/15px Arial,sans-serif; }
+.app-status { padding:2px 5px;min-height:22px;margin:2px 0 0;font-size:var(--ui-size);line-height:1.3;max-height:4em;overflow:auto; }
+.app-body { background:var(--face); }
+.app-window.maximized { width:100%!important; }
+.taskbar { min-height:var(--shell-height);padding:2px 3px;gap:5px; }
+#start-button { min-height:26px;font-size:var(--ui-size);min-width:66px;padding:2px 6px; }
+#clock { font-size:var(--ui-size);padding:3px 9px;line-height:20px;min-width:67px; }
+.task-entry { min-height:26px;padding:2px 5px;max-width:200px;flex-basis:180px; }
+.task-entry::before { content:'';display:inline-block;width:16px;height:16px;background:var(--app-icon) center/contain no-repeat;vertical-align:-3px;margin-right:5px; }
+#desktop { padding:12px 8px; }
+.desktop-icon { width:100px;min-height:76px;gap:4px;padding:4px 2px; }
+.desktop-icon .win2k-pixel-icon { transform:none;margin:0 0 2px;filter:none; }
+.icon-label { line-height:1.25;text-shadow:1px 1px #214e79;padding:1px 3px; }
+.desktop-icon:hover .icon-label { background:transparent; }
+.desktop-icon:focus .icon-label { background:var(--selection);outline:1px dotted white; }
+.desktop-icon:active,.desktop-icon:focus { box-shadow:none;background:transparent;border:0; }
+/* Large icons in the first Start level; 16 px icons in category cascades. */
+#start-menu { width:min(260px,calc(100vw - 8px)); }
+.start-brand { font:24px/1 Arial,sans-serif;padding:10px 4px;background:linear-gradient(#0a246a,#397dc3); }
+.start-items { padding:2px; }
+.start-items > button,.start-items > details > summary { min-height:36px;padding:3px 6px;gap:8px; }
+.start-items .win2k-pixel-icon { flex:0 0 32px; }
+.start-items summary { list-style:none; }
+.submenu { width:max-content;min-width:230px;max-width:calc(100vw - 8px);overflow-y:auto;z-index:10001; }
+.submenu .submenu { z-index:10002; }
+.submenu > button,.submenu > a,.submenu > details > summary { display:flex;align-items:center;min-height:27px;gap:7px;padding:4px 10px 4px 5px;white-space:nowrap; }
+.submenu .win2k-pixel-icon { width:16px!important;height:16px!important;min-width:16px!important;flex-basis:16px; }
+.submenu summary .menu-arrow { margin-left:18px; }
+.submenu a::before { content:'';width:16px;height:16px;flex:none;background:var(--icon-link) center/contain no-repeat; }
+#start-search-form { margin:2px 0;padding:4px;gap:4px;border-bottom:1px solid #aaa; }
+#start-search-form input { width:100%;font-size:inherit; }
+#start-search-form button { min-width:38px;padding:2px 5px; }
+.context-menu button,.device-context button { min-height:26px;padding:4px 10px;font-size:var(--ui-size); }
+/* Application menubars and popups live outside scrollable document content. */
+.classic-menubar { display:flex;align-items:center;flex:none;min-height:24px;padding:1px 2px;gap:0;border-bottom:1px solid #999;box-shadow:0 1px white;background:var(--face);overflow-x:auto; }
+.classic-menubar > button { flex:none;padding:3px 8px;min-height:22px;border:1px solid transparent;background:transparent;color:#000;white-space:nowrap;line-height:1.2; }
+.classic-menubar > button:hover { border-color:#fff #808080 #808080 #fff; }
+.classic-menubar > button[aria-expanded=true] { border-color:#808080 #fff #fff #808080; }
+.classic-popup { position:fixed;z-index:20000;min-width:205px;max-width:calc(100vw - 8px);padding:2px;overflow:auto;background:var(--face);color:#000;border:1px solid;border-color:#fff #000 #000 #fff;box-shadow:inset -1px -1px #808080; }
+.classic-menuitem { width:100%;display:flex;align-items:center;gap:8px;min-height:26px;padding:4px 14px 4px 3px;border:0;background:transparent;text-align:left;white-space:nowrap;line-height:1.3;color:#000; }
+.classic-menuitem:hover:not(:disabled),.classic-menuitem:focus-visible { background:var(--selection);color:#fff;outline:none; }
+.menu-check { width:18px;flex:none; }
+.command-label { flex:1; }
+.command-key { margin-left:18px; }
+.classic-separator { margin:3px 3px 3px 24px;border-top:1px solid #808080;border-bottom:1px solid white; }
+.ui-menu-command { display:none!important; }
+.toolbar-hidden :is(.editor-toolbar,.file-toolbar,.explorer-toolbar,.browser-toolbar,.tool-toolbar,.sftp-toolbar) { display:none!important; }
+:is(.explorer-toolbar,.browser-toolbar,.tool-toolbar,.editor-sftp-toolbar) { flex-shrink:0;gap:4px;padding:4px;border-bottom:1px solid #aaa;box-shadow:0 1px white;align-items:center; }
+:is(.explorer-toolbar,.browser-toolbar,.tool-toolbar) > .win2k-button { min-width:0;min-height:25px;padding:3px 7px;border-color:transparent;box-shadow:none;background:transparent;white-space:nowrap; }
+:is(.explorer-toolbar,.browser-toolbar,.tool-toolbar) > .win2k-button:hover:not(:disabled) { border-color:#fff #808080 #808080 #fff; }
+:is(.explorer-toolbar,.browser-toolbar,.tool-toolbar) > .win2k-button:active:not(:disabled) { border-color:#808080 #fff #fff #808080; }
+[data-icon]::before { content:'';display:inline-block;width:16px;height:16px;margin-right:5px;vertical-align:-3px;background-position:center;background-size:contain;background-repeat:no-repeat; }
+[data-icon=save]::before { background-image:var(--icon-save); }[data-icon=sftp]::before { background-image:var(--icon-sftp); }[data-icon=folder]::before { background-image:var(--icon-folder); }[data-icon=search]::before { background-image:var(--icon-search); }
+.explorer-address,.editor-location { padding:5px 7px;min-height:28px;line-height:1.3;border-bottom:1px solid #aaa; }
+.file-list table,.users-list table,.cad-table,.system-status table { font-size:inherit; }
+.file-list th,.users-list th,.cad-table th { position:sticky;top:0;z-index:1;background:var(--face);font-weight:normal;text-align:left;border:1px solid;border-color:#fff #808080 #808080 #fff;padding:4px 7px; }
+.file-list td,.users-list td,.cad-table td { padding:5px 7px;border-bottom:1px solid #eee; }
+.file-list tr:focus-within { background:#edf3fb; }
+.file-row-name .win2k-pixel-icon { width:20px!important;height:20px!important;min-width:20px!important; }
+.file-list td:first-child>input { margin:5px 8px 0 0; }
+.file-list td:last-child { width:100px;white-space:nowrap; }
+.row-actions-trigger { min-width:85px; }
+.row-actions-trigger::after { content:'▾';margin-left:8px;font-size:10px; }
+.file-quota { font-size:var(--ui-size);padding:5px 8px; }
+.device-grid { padding:14px;gap:10px;grid-template-columns:repeat(auto-fill,minmax(105px,1fr)); }
+.device-entry { padding:6px 4px; }
+.users-help { margin:8px 10px;color:#444; }
+.user-actions small { font-size:inherit; }
+/* Editors and utilities share the same chrome, while their content stays distinct. */
+.editor-window { height:660px; }
+.editor-tree { width:220px;border-right:2px groove #ddd; }
+.editor-tree-entry { font:inherit;padding-top:4px;padding-bottom:4px;line-height:1.35; }
+.editor-tree-entry:hover { background:#eef3fa; }.editor-tree-entry.selected { background:var(--selection);color:white; }
+.editor-tabs { min-height:27px;border-bottom:1px solid #808080;padding:3px 3px 0;background:var(--face); }
+.editor-tab { border-color:#fff #808080 #808080 #fff;margin-right:2px; }.editor-tab.active { border-top:1px solid white;background:#fff; }
+.editor-tab button { padding:4px 6px; }
+.editor-code { border:1px solid;border-color:#808080 #fff #fff #808080; }
+.cad-controls { width:270px;padding:8px;font-size:var(--ui-size); }
+.cad-controls fieldset { border:1px groove #fff;padding:8px;margin-bottom:10px; }
+.cad-controls legend { padding:0 4px; }
+.cad-controls label { margin-bottom:7px; }
+.cad-controls .cad-hole-actions { display:flex;flex-wrap:wrap;gap:4px; }
+.cad-controls button { margin:0 0 3px; }
+.cad-summary,.cad-sides { padding:8px;font-size:var(--ui-size); }
+.cad-sides { background:#f1f1ed; }
+.notes-window { width:720px; }.notes-window .app-body { padding:0;gap:0; }.notes-text { border:2px inset white;margin:6px;width:calc(100% - 12px);font:var(--ui-size)/1.55 var(--ui-font);padding:10px; }.todo-form { padding:6px; }.todo-list { background:white;margin:0 6px 6px; }
+.tool-row { padding:6px 8px;gap:8px; }.tool-row > span { overflow-wrap:anywhere; }.tool-row button { min-width:0; }
+.search-results .tool-row > button:first-child { min-width:26px;width:26px;color:#9b6900; }.search-results .tool-row > button:nth-child(2) { flex:1;text-align:left;border:0;box-shadow:none;background:transparent;color:#000; }.search-results .tool-row:hover { background:#edf3fb; }.search-results .tool-row > span { color:#666;min-width:60px; }
+.preferences-form,.sftp-form { padding:12px;gap:12px; }.preferences-window h3,.activities-window h3 { font-size:inherit;margin:12px 8px 5px;padding-bottom:4px;border-bottom:1px solid #999; }.personal-sessions,.activities-list { padding:6px; }.sftp-remote { border:2px inset white;margin:0 8px; }.sftp-local { padding:10px; }
+.calculator-window { width:410px;height:560px; }.calculator-window .app-body { padding:10px; }.calculator-form input { font:20px/1.3 "Courier New",monospace;text-align:right;padding:5px; }.calculator-form output { border:1px inset #fff;font:22px/1.35 "Courier New",monospace;padding:5px;min-height:38px;margin:5px 0 9px; }.calculator-keys { gap:6px;grid-template-columns:repeat(6,minmax(0,1fr)); }.calculator-keys button { padding:6px 0;min-height:32px;color:#000080; }.calculator-keys .calculator-memory { color:#a00000; }.calculator-equals { color:#a00000;min-height:32px;padding:5px; }.calculator-help { color:#444;font-size:var(--ui-size);line-height:1.45; }.calculator-scientific { display:none; }.calculator-advanced .calculator-scientific { display:block; }.calculator-history { margin-top:5px;max-height:130px;overflow:auto; }
+.window-body { padding:16px; }.window-body h2 { font-size:1.15em; }.window-body .form-row { gap:10px;margin:10px 0; }.window-body p { line-height:1.5; }.link-list li { padding:7px; }.muted { font-size:inherit;color:#555; }
+.login-window { width:min(460px,100%); }.login-banner { min-height:138px;padding:28px 24px; }.login-intro,.login-hint { font-size:var(--ui-size); }.login-window .win2k-titlebar { min-height:23px; }
+@media (max-width:700px) {
+ .classic-menuitem { white-space:normal;min-height:32px; }.command-key { margin-left:8px; }.classic-menubar > button { padding:5px 7px; }.cad-layout { flex-direction:column; }.cad-controls { width:100%;max-height:42%;flex-shrink:0;border-right:0;border-bottom:2px groove white; }.cad-output { flex:1; }.editor-tree { width:160px;min-width:100px; }.editor-window .app-status { max-height:4em; }.sftp-form label { flex:1;min-width:140px; }
+}
+@media (pointer:coarse) {
+ :root { --shell-height:42px; }.win2k-button,input:not([type=checkbox]),select { min-height:34px; }.classic-menubar { min-height:32px; }.classic-menubar > button { min-height:30px; }.classic-menuitem,.submenu > button,.submenu > a,.submenu > details > summary { min-height:36px; }.window-controls .win2k-button { min-width:28px;min-height:26px; }.start-items > button,.start-items > details > summary { min-height:42px; }
+}
+.calculator-keys { display:block; }.calculator-memory-keys,.calculator-number-keys,.calculator-scientific-keys { display:grid;gap:6px;margin-bottom:8px; }.calculator-memory-keys { grid-template-columns:repeat(6,minmax(0,1fr)); }.calculator-number-keys { grid-template-columns:repeat(5,minmax(0,1fr)); }.calculator-scientific-keys { display:none;grid-template-columns:repeat(5,minmax(0,1fr));padding-top:8px;border-top:1px solid #808080; }.calculator-advanced .calculator-scientific-keys { display:grid; }.calculator-window { height:580px; }
+.file-list th:first-child { width:55%; }.file-list th:nth-child(2) { width:20%; }.file-list th:last-child { width:25%; }
+input[type=checkbox] { appearance:none;background:white;border:1px solid;border-color:#808080 #fff #fff #808080;box-shadow:inset 1px 1px #404040;position:relative; }
+input[type=checkbox]:checked::after { content:'';position:absolute;left:3px;top:1px;width:4px;height:7px;border-right:2px solid #000;border-bottom:2px solid #000;transform:rotate(40deg); }
+input[type=checkbox]:disabled { background:#d4d0c8; }.tool-row > button:focus-visible,.row-actions-trigger:focus-visible { outline:1px dotted #000;outline-offset:-4px; }
+.toolbar-hidden .terminal-toolbar { display:none!important; }.editor-tree-entry[data-kind]::before { content:'';display:inline-block;width:16px;height:16px;margin-right:5px;background:var(--icon-file) center/contain no-repeat;vertical-align:-3px; }.editor-tree-entry[data-kind=folder]::before { background-image:var(--icon-folder); }

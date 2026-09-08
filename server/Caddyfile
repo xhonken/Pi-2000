@@ -1,0 +1,25 @@
+{
+	admin unix//var/lib/caddy/win2k-admin/control.sock
+}
+
+http://192.168.1.250 {
+	bind 192.168.1.250
+	redir https://192.168.1.250{uri} permanent
+}
+
+https://192.168.1.250 {
+	bind 192.168.1.250
+	tls internal
+	header {
+		X-Content-Type-Options nosniff
+		X-Frame-Options SAMEORIGIN
+		Referrer-Policy same-origin
+	}
+	handle /api/* {
+		reverse_proxy 127.0.0.1:8765
+	}
+	handle {
+		root * /srv/win2k
+		file_server
+	}
+}

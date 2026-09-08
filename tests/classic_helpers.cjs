@@ -1,0 +1,2 @@
+exports.command=async(page,win,menu,label)=>{await win.locator('.classic-menubar').getByRole('menuitem',{name:menu,exact:true}).click();await page.locator('.classic-popup').getByRole('menuitem',{name:label,exact:true}).click();};
+exports.rowCommand=async(page,row,label)=>{const direct=row.getByRole('button',{name:label,exact:true});if(await direct.isVisible())return direct.click();await row.getByRole('button',{name:'Actions',exact:true}).click();await page.locator('.classic-popup').getByRole('menuitem',{name:label,exact:true}).click();};

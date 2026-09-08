@@ -1,0 +1,271 @@
+/* Win2k UI Framework v0.1.0 | Platform-independent core */
+:root {
+  --win2k-desktop: #3a6ea5;
+  --win2k-surface: #d4d0c8;
+  --win2k-light: #fff;
+  --win2k-mid: #808080;
+  --win2k-dark: #000;
+  --win2k-title-start: #0a246a;
+  --win2k-title-end: #1084d0;
+  --win2k-link: #0000ee;
+  --win2k-success: #008000;
+  --win2k-font: "Segoe UI", Tahoma, Arial, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+body.win2k,
+body:has([data-win2k-app]) {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  overflow-x: hidden;
+  background: var(--win2k-desktop);
+  color: #000;
+  font: 13px/1.45 var(--win2k-font);
+}
+
+[hidden] { display: none !important; }
+
+.win2k-app {
+  min-height: 100vh;
+  padding: 12px 12px 52px;
+}
+
+.win2k-window {
+  width: min(1180px, 100%);
+  min-height: calc(100vh - 76px);
+  margin: 0 auto;
+  padding: 2px;
+  border: 2px solid;
+  border-color: var(--win2k-light) var(--win2k-dark) var(--win2k-dark) var(--win2k-light);
+  background: var(--win2k-surface);
+  box-shadow: inset -1px -1px var(--win2k-mid), inset 1px 1px #dfdfdf;
+}
+
+.win2k-titlebar {
+  min-height: 24px;
+  padding: 3px 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(90deg, var(--win2k-title-start), var(--win2k-title-end));
+  color: #fff;
+  font-weight: 700;
+}
+
+.win2k-titlebar strong { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.win2k-window-buttons { margin-left: auto; white-space: nowrap; letter-spacing: 4px; }
+
+.win2k-menubar {
+  min-height: 27px;
+  padding: 2px 4px 3px;
+  display: flex;
+  align-items: start;
+  gap: 2px;
+  border-bottom: 1px solid var(--win2k-mid);
+  box-shadow: 0 1px var(--win2k-light);
+}
+
+.win2k-menu { position: relative; }
+.win2k-menu summary { padding: 3px 7px; list-style: none; user-select: none; }
+.win2k-menu summary::-webkit-details-marker { display: none; }
+.win2k-menu[open] summary { background: var(--win2k-title-start); color: #fff; }
+.win2k-menu-panel {
+  position: absolute;
+  z-index: 50;
+  left: 0;
+  top: 24px;
+  min-width: 210px;
+  padding: 2px;
+  border: 2px solid;
+  border-color: var(--win2k-light) var(--win2k-dark) var(--win2k-dark) var(--win2k-light);
+  background: var(--win2k-surface);
+  box-shadow: inset -1px -1px var(--win2k-mid);
+}
+
+.win2k-menu-panel :is(a,button) {
+  width: 100%;
+  min-height: 25px;
+  padding: 4px 24px 4px 8px;
+  display: block;
+  border: 0;
+  background: transparent;
+  color: #000;
+  font: inherit;
+  text-align: left;
+  text-decoration: none;
+}
+
+.win2k-menu-panel :is(a,button):hover,
+.win2k-menu-panel :is(a,button):focus { background: var(--win2k-title-start); color: #fff; outline: 0; }
+
+.win2k-content { padding: 12px; }
+
+.win2k-page-heading {
+  margin: 0 0 12px;
+  padding: 16px 18px;
+  border: 1px solid;
+  border-color: var(--win2k-mid) var(--win2k-light) var(--win2k-light) var(--win2k-mid);
+  background: #fff;
+  box-shadow: inset 1px 1px var(--win2k-dark);
+}
+
+.win2k-page-heading .eyebrow { margin: 0 0 3px; color: #006000; font-size: 12px; font-weight: 700; }
+.win2k-page-heading h1 { margin: 0; font-size: clamp(22px, 4vw, 34px); line-height: 1.15; }
+.win2k-page-heading p:last-child { max-width: 72ch; margin: 7px 0 0; color: #333; }
+
+.win2k-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.win2k-grid.metrics { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.win2k-grid .wide { grid-column: 1 / -1; }
+
+.win2k-group {
+  min-width: 0;
+  margin: 0;
+  padding: 12px;
+  border: 1px solid;
+  border-color: var(--win2k-mid) var(--win2k-light) var(--win2k-light) var(--win2k-mid);
+  background: var(--win2k-surface);
+  box-shadow: inset 1px 1px #9a9a9a;
+}
+
+fieldset.win2k-group > legend,
+.win2k-group > .win2k-legend {
+  padding: 0 5px;
+  color: #000;
+  font-weight: 700;
+}
+
+.win2k-metric strong { display: block; margin: 4px 0; color: var(--win2k-title-start); font-size: 28px; line-height: 1; }
+.win2k-metric small { color: #333; }
+
+.win2k-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 12px; }
+.win2k-form-grid .wide { grid-column: 1 / -1; }
+.win2k-form-grid label,
+.win2k-field { display: grid; gap: 4px; }
+
+.win2k :is(input,select,textarea) {
+  width: 100%;
+  min-height: 29px;
+  padding: 4px 6px;
+  border: 0;
+  border-radius: 0;
+  background: #fff;
+  color: #000;
+  box-shadow: inset 1px 1px var(--win2k-mid), inset -1px -1px var(--win2k-light), inset 2px 2px var(--win2k-dark);
+  font: inherit;
+}
+
+.win2k :is(input[type="checkbox"],input[type="radio"]) {
+  width: 15px;
+  min-height: 15px;
+  margin: 0 6px 0 0;
+  vertical-align: -2px;
+  box-shadow: none;
+}
+
+.win2k-button,
+.win2k .button {
+  min-height: 28px;
+  padding: 4px 13px;
+  border: 2px solid;
+  border-color: var(--win2k-light) var(--win2k-dark) var(--win2k-dark) var(--win2k-light);
+  border-radius: 0;
+  background: var(--win2k-surface);
+  color: #000;
+  box-shadow: inset -1px -1px var(--win2k-mid), inset 1px 1px #dfdfdf;
+  font: inherit;
+}
+
+a.win2k-button { display: inline-flex; align-items: center; color: #000; text-decoration: none; }
+
+.win2k-button:active,
+.win2k .button:active { border-color: var(--win2k-dark) var(--win2k-light) var(--win2k-light) var(--win2k-dark); box-shadow: inset 1px 1px var(--win2k-mid); }
+.win2k-button.default { outline: 1px solid #000; outline-offset: 1px; }
+.win2k-button:disabled { color: var(--win2k-mid); text-shadow: 1px 1px #fff; }
+.win2k-actions { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 8px; }
+
+.win2k-table-wrap { overflow-x: auto; border: 1px solid var(--win2k-mid); background: #fff; box-shadow: inset 1px 1px var(--win2k-dark); }
+.win2k-table { width: 100%; min-width: 640px; border-collapse: collapse; }
+.win2k-table :is(th,td) { padding: 7px 8px; border-bottom: 1px solid #a0a0a0; text-align: left; }
+.win2k-table th { background: var(--win2k-surface); box-shadow: inset -1px -1px var(--win2k-mid), inset 1px 1px #fff; }
+.win2k-status { display: inline-flex; align-items: center; gap: 5px; }
+.win2k-status::before { content: "i"; width: 15px; height: 15px; display: grid; place-items: center; border-radius: 50%; background: var(--win2k-success); color: #fff; font: 700 10px/1 var(--win2k-font); }
+
+.win2k-statusbar { min-height: 24px; margin-top: 8px; padding: 3px 6px; display: grid; grid-template-columns: 1fr minmax(130px,.35fr); gap: 3px; }
+.win2k-statusbar span { padding: 2px 5px; overflow: hidden; box-shadow: inset 1px 1px var(--win2k-mid), inset -1px -1px #fff; text-overflow: ellipsis; white-space: nowrap; }
+
+.win2k-taskbar {
+  position: fixed;
+  z-index: 100;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  min-height: 42px;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  border-top: 2px solid #fff;
+  background: var(--win2k-surface);
+  box-shadow: inset 0 1px #dfdfdf;
+}
+
+.win2k-start-button { min-width: 78px; font-weight: 700; }
+.win2k-tray { min-width: 132px; margin-left: auto; padding: 3px 7px; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; box-shadow: inset 1px 1px var(--win2k-mid), inset -1px -1px #fff; text-align: center; }
+
+.win2k-start-menu {
+  position: fixed;
+  z-index: 110;
+  left: 4px;
+  bottom: 41px;
+  width: min(320px, calc(100vw - 8px));
+  padding: 3px 3px 3px 34px;
+  border: 2px solid;
+  border-color: #fff #000 #000 #fff;
+  background: linear-gradient(90deg, var(--win2k-title-start) 0 31px, var(--win2k-surface) 31px);
+  box-shadow: inset -1px -1px var(--win2k-mid);
+}
+
+.win2k-start-menu::before { content: "WIN2K UI"; position: absolute; left: 7px; bottom: 7px; color: #fff; font-size: 17px; font-weight: 700; letter-spacing: 2px; writing-mode: vertical-rl; transform: rotate(180deg); }
+.win2k-start-list { display: grid; }
+.win2k-start-list > :is(a,button,.win2k-cascade-wrap > button) { width: 100%; min-height: 38px; padding: 7px 22px 7px 10px; border: 0; background: transparent; color: #000; font: inherit; text-align: left; text-decoration: none; }
+.win2k-start-list > :is(a,button):hover,
+.win2k-cascade-wrap > button:hover { background: var(--win2k-title-start); color: #fff; }
+.win2k-cascade-wrap { position: relative; }
+.win2k-cascade { position: absolute; left: calc(100% - 2px); bottom: 0; width: 230px; padding: 3px; border: 2px solid; border-color: #fff #000 #000 #fff; background: var(--win2k-surface); }
+.win2k-cascade a { min-height: 32px; padding: 7px; display: block; color: #000; text-decoration: none; }
+.win2k-cascade a:hover,
+.win2k-cascade a:focus { background: var(--win2k-title-start); color: #fff; }
+
+.win2k :is(a,button,input,select,textarea,summary):focus-visible { outline: 1px dotted #000; outline-offset: -4px; }
+.win2k a { color: var(--win2k-link); }
+.win2k pre { max-width: 100%; padding: 10px; overflow: auto; border: 1px solid var(--win2k-mid); background: #fff; box-shadow: inset 1px 1px var(--win2k-dark); }
+.win2k code { font-family: "Courier New", monospace; }
+
+@media (max-width: 900px) {
+  .win2k-app { padding: 4px 4px 50px; }
+  .win2k-window { min-height: calc(100vh - 58px); }
+  .win2k-grid,
+  .win2k-grid.metrics { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 600px) {
+  .win2k-content { padding: 8px; }
+  .win2k-grid,
+  .win2k-grid.metrics,
+  .win2k-form-grid { grid-template-columns: 1fr; }
+  .win2k-grid .wide,
+  .win2k-form-grid .wide { grid-column: auto; }
+  .win2k :is(input,select,textarea) { min-height: 40px; font-size: 16px; }
+  .win2k-button,
+  .win2k .button { min-height: 40px; }
+  .win2k-menu-panel { position: fixed; left: 8px; right: 8px; top: 58px; }
+  .win2k-cascade { position: fixed; left: 8px; right: 8px; bottom: 46px; width: auto; max-height: 65vh; overflow-y: auto; }
+  .win2k-statusbar { grid-template-columns: 1fr; }
+  .win2k-statusbar span:last-child { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .win2k *, .win2k *::before, .win2k *::after { scroll-behavior: auto !important; transition: none !important; animation: none !important; }
+}

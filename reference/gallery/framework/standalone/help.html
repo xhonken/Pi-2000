@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Win2k UI standalone and WordPress integration help.">
+    <title>Win2k UI Integration Help</title>
+    <link rel="stylesheet" href="../dist/win2k-ui.css">
+    <script src="../dist/win2k-ui.js" defer></script>
+  </head>
+  <body class="win2k">
+    <div class="win2k-app" data-win2k-app data-help-enabled="true" data-help-url="help.html">
+      <main class="win2k-window">
+        <header class="win2k-titlebar"><strong>Win2k UI Help - Integration guide</strong><span class="win2k-window-buttons" aria-hidden="true">_ □ ×</span></header>
+        <nav class="win2k-menubar"><details class="win2k-menu" data-win2k-menu><summary><u>F</u>ile</summary><div class="win2k-menu-panel"><a href="index.html">Back to starter</a></div></details><details class="win2k-menu" data-win2k-menu><summary><u>H</u>elp</summary><div class="win2k-menu-panel"><a href="#standalone">Standalone</a><a href="#wordpress">WordPress</a><a href="#headless">Headless</a></div></details></nav>
+        <div class="win2k-content">
+          <header class="win2k-page-heading"><p class="eyebrow">Framework help</p><h1>Choose an integration without lock-in</h1><p>The same core assets work with plain HTML, server-rendered WordPress templates or a separate frontend that reads WordPress over REST.</p></header>
+          <section class="win2k-grid">
+            <fieldset class="win2k-group" id="standalone"><legend>Standalone</legend><p>Load <code>dist/win2k-ui.css</code> and <code>dist/win2k-ui.js</code>, then write semantic HTML using the Win2k UI classes. Your application owns routing, content and persistence.</p><pre><code>&lt;link rel="stylesheet" href="win2k-ui.css"&gt;
+&lt;div class="win2k-app" data-win2k-app&gt;…&lt;/div&gt;
+&lt;script src="win2k-ui.js" defer&gt;&lt;/script&gt;</code></pre></fieldset>
+            <fieldset class="win2k-group" id="wordpress"><legend>WordPress theme</legend><p>Install the optional block theme. It loads the same core and maps WordPress templates, navigation and editor patterns to Win2k UI presentation.</p><p>Install the content plugin only if the website needs portable Project records.</p><div class="win2k-actions"><a class="win2k-button default" href="../downloads/win2k-ui-wordpress-theme-0.1.0.zip">Download theme</a><a class="win2k-button" href="../downloads/win2k-ui-content-plugin-0.1.0.zip">Download content plugin</a><a class="win2k-button" href="../docs/WORDPRESS.md">Installation guide</a></div></fieldset>
+            <fieldset class="win2k-group" id="headless"><legend>Headless WordPress</legend><p>Keep this standalone frontend and use the REST adapter to read public pages, posts or projects from WordPress. This is optional and requires additional production work for authentication, previews, cache and SEO.</p></fieldset>
+            <fieldset class="win2k-group"><legend>Responsibility boundaries</legend><ul><li><strong>Core:</strong> visual system and generic interactions.</li><li><strong>Theme:</strong> presentation and WordPress templates.</li><li><strong>Plugin:</strong> durable content types and functionality.</li><li><strong>Host application:</strong> authentication, business rules and storage.</li></ul></fieldset>
+          </section>
+          <div class="win2k-statusbar"><span data-win2k-status>Ready</span><span>Win2k UI Help</span></div>
+        </div>
+      </main>
+      <nav class="win2k-start-menu" data-win2k-start-menu hidden><div class="win2k-start-list"><a href="index.html">Standalone starter</a><a href="help.html" data-win2k-help data-win2k-help-link>Help</a></div></nav>
+      <footer class="win2k-taskbar"><button class="win2k-button win2k-start-button" type="button" data-win2k-start-button aria-expanded="false">▦ Start</button><div class="win2k-tray"><time data-win2k-clock>--:--</time><time data-win2k-date>--/--/----</time></div></footer>
+    </div>
+  </body>
+</html>

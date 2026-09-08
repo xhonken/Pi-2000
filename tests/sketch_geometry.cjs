@@ -1,0 +1,10 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict'),ctx={window:{}};vm.runInNewContext(fs.readFileSync('assets/sketch-geometry.js','utf8'),ctx);const g=ctx.window.Win2kGeometry;
+const near=(a,b)=>assert.ok(Math.abs(a-b)<1e-7,`${a} != ${b}`);
+near(g.shape({type:'triangle',width:3,sideB:4,sideC:5}).area,6);assert.throws(()=>g.shape({type:'triangle',width:3,sideB:1,sideC:1}));
+near(g.shape({type:'circle',width:10}).area,Math.PI*25);near(g.shape({type:'ellipse',width:10,height:6}).area,Math.PI*15);near(g.shape({type:'polygon',width:10,sides:4}).area,100);near(g.shape({type:'trapezoid',width:10,height:5,top:6}).area,40);near(g.shape({type:'slot',width:20,height:10}).area,100+Math.PI*25);
+let r=g.analyze({width:300,height:200,frame:20,holes:[{x:10,y:10,d:8}]});near(r.gross,18400);near(r.checks[0].clearance,6);assert.equal(r.checks[0].problems.length,0);
+const base={schema:2,outer:{type:'rectangle',width:100,height:100},frame:0,cuts:[{type:'rectangle',width:20,height:10,x:50,y:50,rotation:45}]};r=g.analyze(base);assert.equal(r.checks[0].problems.length,0);near(r.net,9800);
+r=g.analyze({...base,cuts:[...base.cuts,{type:'circle',width:8,x:50,y:50}]});assert.ok(r.checks.every(c=>c.problems.length));assert.equal(r.net,null);
+r=g.analyze({...base,cuts:[{...base.cuts[0],x:1}]});assert.ok(r.checks[0].problems.includes('Outside outer edge'));
+r=g.analyze({...base,outer:{type:'circle',width:100},frame:10,cuts:[{type:'circle',width:2,x:50,y:95}]});assert.equal(r.checks[0].problems.length,0);
+console.log('PASS: shapes, exact areas, triangle inequalities, rotation, overlap, boundary, legacy migration and ring');

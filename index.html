@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; worker-src 'self' blob:; font-src 'self' data:; connect-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'">
+<meta name="description" content="Pi-2000Web: your personal web desktop inspired by Windows 2000.">
+<title>Pi-2000Web – Desktop</title>
+<link rel="stylesheet" href="dist/win2k-ui.css"><link rel="stylesheet" href="assets/system-icons.css?v=5"><link rel="stylesheet" href="assets/desktop.css?v=5">
+<link rel="stylesheet" href="assets/vendor/xterm.css">
+<link rel="stylesheet" href="assets/devices.css?v=5">
+<link rel="stylesheet" href="assets/classic-icons.css">
+<link rel="stylesheet" href="assets/classic-ui.css">
+<link rel="stylesheet" href="assets/taskmanager.css">
+<script src="assets/vendor/xterm.js" defer></script>
+<script src="assets/vendor/addon-fit.js" defer></script>
+<script src="assets/desktop.js?v=5" defer></script>
+<script src="assets/apps.js" defer></script>
+<script src="assets/devices.js?v=5" defer></script>
+<script src="assets/files.js" defer></script>
+<script src="assets/icon-layout.js" defer></script>
+<script src="assets/vendor/ace/ace.js" defer></script>
+<script src="assets/vendor/ace/ext-language_tools.js" defer></script>
+<script src="assets/vendor/ace/ext-modelist.js" defer></script>
+<script src="assets/editor.js" defer></script>
+<script src="assets/tools.js" defer></script>
+<script src="assets/editor-sftp.js" defer></script>
+<script src="assets/sketch-geometry.js" defer></script>
+<script src="assets/cad.js" defer></script>
+<script src="assets/calculator.js" defer></script>
+<script src="assets/classic-ui.js" defer></script>
+<script src="assets/taskmanager.js" defer></script>
+</head>
+<body class="win2k">
+<section id="logon" aria-labelledby="logon-title">
+ <div class="login-window frame">
+  <header class="win2k-titlebar" id="logon-title">Log on to Pi-2000Web</header>
+  <div class="login-banner">
+   <span class="windows-flag login-flag" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+   <div class="login-wordmark"><span class="microsoft">Personal Web Desktop</span><div class="brand"><strong>Pi-2000</strong><span>Web</span></div><span class="edition">Alpha</span></div>
+   <span class="banner-corner" aria-hidden="true">Pi-2000Web</span>
+  </div>
+  <div class="login-rule" aria-hidden="true"></div>
+  <form id="login-form" class="window-body" aria-describedby="login-hint">
+   <p class="login-intro">Enter your username and password.</p>
+   <label class="form-row"><span>Username:</span><input name="username" autocomplete="username" value="admin" required autofocus></label>
+   <label class="form-row"><span>Password:</span><input name="password" type="password" autocomplete="current-password" required></label>
+   <p class="muted login-hint" id="login-hint">Log in with your account.</p>
+   <p id="login-error" class="error" role="alert"></p><div class="actions login-actions"><button class="win2k-button default" type="submit">OK</button><button class="win2k-button" type="reset">Clear</button></div>
+  </form>
+ </div>
+</section>
+<div id="session" hidden>
+ <main id="desktop" aria-label="Desktop">
+  <div id="desktop-icons">
+   <button class="desktop-icon" data-action="computer"><span class="win2k-pixel-icon win2k-icon-computer" aria-hidden="true"><i></i></span><span class="icon-label">My Computer</span></button>
+   <button class="desktop-icon" data-action="files"><span class="win2k-pixel-icon win2k-icon-folder" aria-hidden="true"><i></i></span><span class="icon-label">My Files</span></button>
+   <button class="desktop-icon" data-action="devices"><span class="win2k-pixel-icon win2k-icon-folder" aria-hidden="true"><i></i></span><span class="icon-label">My Devices</span></button>
+   <button class="desktop-icon" data-action="browser"><span class="win2k-pixel-icon win2k-icon-network" aria-hidden="true"><i></i></span><span class="icon-label">Browser</span></button>
+   <button class="desktop-icon" data-action="trash"><span class="win2k-pixel-icon win2k-icon-recycle" aria-hidden="true"><i></i></span><span class="icon-label">Recycle Bin</span></button>
+   <button class="desktop-icon" data-action="editor"><span class="win2k-pixel-icon win2k-icon-forms" aria-hidden="true"><i></i></span><span class="icon-label">Code Editor</span></button>
+   <button class="desktop-icon" data-action="cad"><span class="win2k-pixel-icon win2k-icon-forms" aria-hidden="true"><i></i></span><span class="icon-label">Dimension Drawing</span></button>
+   <button class="desktop-icon" data-action="calculator"><span class="win2k-pixel-icon win2k-icon-forms" aria-hidden="true"><i></i></span><span class="icon-label">Calculator</span></button>
+   <button class="desktop-icon" data-action="search"><span class="win2k-pixel-icon win2k-icon-folder" aria-hidden="true"><i></i></span><span class="icon-label">Search and Favourites</span></button>
+   <button class="desktop-icon" data-action="links"><span class="win2k-pixel-icon win2k-icon-folder" aria-hidden="true"><i></i></span><span class="icon-label">My Shortcuts</span></button>
+  <div id="custom-icons"></div><div id="file-icons"></div>
+   <button class="desktop-icon" data-action="add"><span class="win2k-pixel-icon win2k-icon-forms" aria-hidden="true"><i></i></span><span class="icon-label">New Shortcut</span></button>
+  </div>
+ </main>
+ <nav id="start-menu" class="frame" aria-label="Start Menu" hidden>
+  <div class="start-brand">Pi-<b>2000</b>Web</div>
+  <div class="start-items">
+   <form id="start-search-form"><input name="query" type="search" placeholder="Search files and apps…" aria-label="Search files and apps"><button class="win2k-button" type="submit">Search</button></form>
+   <details><summary><span class="win2k-pixel-icon win2k-icon-programs" aria-hidden="true"><i></i></span><span class="menu-label">Programs</span><span class="menu-arrow" aria-hidden="true">▸</span></summary><div class="submenu" id="programs"></div></details>
+   <button data-action="files"><span class="win2k-pixel-icon win2k-icon-files" aria-hidden="true"></span><span class="menu-label">My Files</span></button>
+   <details><summary><span class="win2k-pixel-icon win2k-icon-settings" aria-hidden="true"><i></i></span><span class="menu-label">Settings</span><span class="menu-arrow" aria-hidden="true">▸</span></summary><div class="submenu"><button data-action="preferences">My Settings…</button><button data-action="settings">Display and Desktop…</button><button data-action="links">Manage Shortcuts</button><button data-action="users" hidden>User Management…</button><button data-action="password">Change Password…</button></div></details>
+   <button data-action="search"><span class="win2k-pixel-icon win2k-icon-search" aria-hidden="true"><i></i></span><span class="menu-label">Search…</span></button>
+   <button data-action="help"><span class="win2k-pixel-icon win2k-icon-help" aria-hidden="true"><i></i></span><span class="menu-label">Help</span></button>
+   <button data-action="run"><span class="win2k-pixel-icon win2k-icon-run" aria-hidden="true"><i></i></span><span class="menu-label">Run…</span></button>
+
+   <hr><button data-action="logout"><span class="win2k-pixel-icon win2k-icon-logout" aria-hidden="true"><i></i></span><span class="menu-label">Log Off…</span></button>
+   <button data-action="shutdown"><span class="win2k-pixel-icon win2k-icon-computer" aria-hidden="true"><i></i></span><span class="menu-label">Shut Down…</span></button>
+  </div>
+ </nav>
+ <footer class="taskbar"><button id="start-button" class="win2k-button" aria-controls="start-menu" aria-expanded="false"><span class="windows-flag start-flag" aria-hidden="true"><i></i><i></i><i></i><i></i></span><b>Start</b></button><div class="task-space" id="tasks"></div><time id="clock"></time></footer>
+</div>
+<dialog id="window" class="frame" aria-labelledby="window-title">
+ <header class="win2k-titlebar"><strong id="window-title"></strong><button id="close-window" class="win2k-button" aria-label="Close">×</button></header>
+ <div id="window-content" class="window-body"></div>
+</dialog>
+<div id="desktop-menu" class="frame context-menu" hidden><button data-action="new-folder">New Folder…</button><button data-action="arrange-icons">Arrange Icons</button><button data-action="upload-desktop">Upload Files…</button><button data-action="add">New Shortcut…</button><button data-action="settings">Properties</button></div>
+<div id="notice" role="status" hidden></div>
+<noscript>Enable JavaScript to log in and use the desktop.</noscript>
+</body>
+</html>

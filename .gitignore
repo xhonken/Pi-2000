@@ -1,0 +1,42 @@
+# Local Python and browser build environments
+.venv/
+venv/
+.browser-venv/
+.browser-build/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+node_modules/
+
+# Private configuration, credentials and runtime state
+.env
+.env.*
+!.env.example
+*.sqlite
+*.sqlite3
+*.sqlite3-*
+*.db
+*.db-*
+initial-password.txt
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa*
+id_ed25519*
+state/
+backups/
+browsers/
+*.log
+
+# Local archives and editor/OS files
+*.tar
+*.tar.gz
+*.tgz
+*.zip
+.DS_Store
+*~
+*.swp
+
+# Superseded screenshot from the Swedish prototype
+docs/browser-preview.png

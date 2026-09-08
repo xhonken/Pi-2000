@@ -1,0 +1,271 @@
+/* Win UI Framework v0.1.0 | Platform-independent core */
+:root {
+  --winui-desktop: #3a6ea5;
+  --winui-surface: #d4d0c8;
+  --winui-light: #fff;
+  --winui-mid: #808080;
+  --winui-dark: #000;
+  --winui-title-start: #0a246a;
+  --winui-title-end: #1084d0;
+  --winui-link: #0000ee;
+  --winui-success: #008000;
+  --winui-font: "Segoe UI", Tahoma, Arial, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+body.winui,
+body:has([data-winui-app]) {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  overflow-x: hidden;
+  background: var(--winui-desktop);
+  color: #000;
+  font: 13px/1.45 var(--winui-font);
+}
+
+[hidden] { display: none !important; }
+
+.winui-app {
+  min-height: 100vh;
+  padding: 12px 12px 52px;
+}
+
+.winui-window {
+  width: min(1180px, 100%);
+  min-height: calc(100vh - 76px);
+  margin: 0 auto;
+  padding: 2px;
+  border: 2px solid;
+  border-color: var(--winui-light) var(--winui-dark) var(--winui-dark) var(--winui-light);
+  background: var(--winui-surface);
+  box-shadow: inset -1px -1px var(--winui-mid), inset 1px 1px #dfdfdf;
+}
+
+.winui-titlebar {
+  min-height: 24px;
+  padding: 3px 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(90deg, var(--winui-title-start), var(--winui-title-end));
+  color: #fff;
+  font-weight: 700;
+}
+
+.winui-titlebar strong { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.winui-window-buttons { margin-left: auto; white-space: nowrap; letter-spacing: 4px; }
+
+.winui-menubar {
+  min-height: 27px;
+  padding: 2px 4px 3px;
+  display: flex;
+  align-items: start;
+  gap: 2px;
+  border-bottom: 1px solid var(--winui-mid);
+  box-shadow: 0 1px var(--winui-light);
+}
+
+.winui-menu { position: relative; }
+.winui-menu summary { padding: 3px 7px; list-style: none; user-select: none; }
+.winui-menu summary::-webkit-details-marker { display: none; }
+.winui-menu[open] summary { background: var(--winui-title-start); color: #fff; }
+.winui-menu-panel {
+  position: absolute;
+  z-index: 50;
+  left: 0;
+  top: 24px;
+  min-width: 210px;
+  padding: 2px;
+  border: 2px solid;
+  border-color: var(--winui-light) var(--winui-dark) var(--winui-dark) var(--winui-light);
+  background: var(--winui-surface);
+  box-shadow: inset -1px -1px var(--winui-mid);
+}
+
+.winui-menu-panel :is(a,button) {
+  width: 100%;
+  min-height: 25px;
+  padding: 4px 24px 4px 8px;
+  display: block;
+  border: 0;
+  background: transparent;
+  color: #000;
+  font: inherit;
+  text-align: left;
+  text-decoration: none;
+}
+
+.winui-menu-panel :is(a,button):hover,
+.winui-menu-panel :is(a,button):focus { background: var(--winui-title-start); color: #fff; outline: 0; }
+
+.winui-content { padding: 12px; }
+
+.winui-page-heading {
+  margin: 0 0 12px;
+  padding: 16px 18px;
+  border: 1px solid;
+  border-color: var(--winui-mid) var(--winui-light) var(--winui-light) var(--winui-mid);
+  background: #fff;
+  box-shadow: inset 1px 1px var(--winui-dark);
+}
+
+.winui-page-heading .eyebrow { margin: 0 0 3px; color: #006000; font-size: 12px; font-weight: 700; }
+.winui-page-heading h1 { margin: 0; font-size: clamp(22px, 4vw, 34px); line-height: 1.15; }
+.winui-page-heading p:last-child { max-width: 72ch; margin: 7px 0 0; color: #333; }
+
+.winui-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.winui-grid.metrics { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.winui-grid .wide { grid-column: 1 / -1; }
+
+.winui-group {
+  min-width: 0;
+  margin: 0;
+  padding: 12px;
+  border: 1px solid;
+  border-color: var(--winui-mid) var(--winui-light) var(--winui-light) var(--winui-mid);
+  background: var(--winui-surface);
+  box-shadow: inset 1px 1px #9a9a9a;
+}
+
+fieldset.winui-group > legend,
+.winui-group > .winui-legend {
+  padding: 0 5px;
+  color: #000;
+  font-weight: 700;
+}
+
+.winui-metric strong { display: block; margin: 4px 0; color: var(--winui-title-start); font-size: 28px; line-height: 1; }
+.winui-metric small { color: #333; }
+
+.winui-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 12px; }
+.winui-form-grid .wide { grid-column: 1 / -1; }
+.winui-form-grid label,
+.winui-field { display: grid; gap: 4px; }
+
+.winui :is(input,select,textarea) {
+  width: 100%;
+  min-height: 29px;
+  padding: 4px 6px;
+  border: 0;
+  border-radius: 0;
+  background: #fff;
+  color: #000;
+  box-shadow: inset 1px 1px var(--winui-mid), inset -1px -1px var(--winui-light), inset 2px 2px var(--winui-dark);
+  font: inherit;
+}
+
+.winui :is(input[type="checkbox"],input[type="radio"]) {
+  width: 15px;
+  min-height: 15px;
+  margin: 0 6px 0 0;
+  vertical-align: -2px;
+  box-shadow: none;
+}
+
+.winui-button,
+.winui .button {
+  min-height: 28px;
+  padding: 4px 13px;
+  border: 2px solid;
+  border-color: var(--winui-light) var(--winui-dark) var(--winui-dark) var(--winui-light);
+  border-radius: 0;
+  background: var(--winui-surface);
+  color: #000;
+  box-shadow: inset -1px -1px var(--winui-mid), inset 1px 1px #dfdfdf;
+  font: inherit;
+}
+
+a.winui-button { display: inline-flex; align-items: center; color: #000; text-decoration: none; }
+
+.winui-button:active,
+.winui .button:active { border-color: var(--winui-dark) var(--winui-light) var(--winui-light) var(--winui-dark); box-shadow: inset 1px 1px var(--winui-mid); }
+.winui-button.default { outline: 1px solid #000; outline-offset: 1px; }
+.winui-button:disabled { color: var(--winui-mid); text-shadow: 1px 1px #fff; }
+.winui-actions { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 8px; }
+
+.winui-table-wrap { overflow-x: auto; border: 1px solid var(--winui-mid); background: #fff; box-shadow: inset 1px 1px var(--winui-dark); }
+.winui-table { width: 100%; min-width: 640px; border-collapse: collapse; }
+.winui-table :is(th,td) { padding: 7px 8px; border-bottom: 1px solid #a0a0a0; text-align: left; }
+.winui-table th { background: var(--winui-surface); box-shadow: inset -1px -1px var(--winui-mid), inset 1px 1px #fff; }
+.winui-status { display: inline-flex; align-items: center; gap: 5px; }
+.winui-status::before { content: "i"; width: 15px; height: 15px; display: grid; place-items: center; border-radius: 50%; background: var(--winui-success); color: #fff; font: 700 10px/1 var(--winui-font); }
+
+.winui-statusbar { min-height: 24px; margin-top: 8px; padding: 3px 6px; display: grid; grid-template-columns: 1fr minmax(130px,.35fr); gap: 3px; }
+.winui-statusbar span { padding: 2px 5px; overflow: hidden; box-shadow: inset 1px 1px var(--winui-mid), inset -1px -1px #fff; text-overflow: ellipsis; white-space: nowrap; }
+
+.winui-taskbar {
+  position: fixed;
+  z-index: 100;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  min-height: 42px;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  border-top: 2px solid #fff;
+  background: var(--winui-surface);
+  box-shadow: inset 0 1px #dfdfdf;
+}
+
+.winui-start-button { min-width: 78px; font-weight: 700; }
+.winui-tray { min-width: 132px; margin-left: auto; padding: 3px 7px; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; box-shadow: inset 1px 1px var(--winui-mid), inset -1px -1px #fff; text-align: center; }
+
+.winui-start-menu {
+  position: fixed;
+  z-index: 110;
+  left: 4px;
+  bottom: 41px;
+  width: min(320px, calc(100vw - 8px));
+  padding: 3px 3px 3px 34px;
+  border: 2px solid;
+  border-color: #fff #000 #000 #fff;
+  background: linear-gradient(90deg, var(--winui-title-start) 0 31px, var(--winui-surface) 31px);
+  box-shadow: inset -1px -1px var(--winui-mid);
+}
+
+.winui-start-menu::before { content: "WIN UI"; position: absolute; left: 7px; bottom: 7px; color: #fff; font-size: 17px; font-weight: 700; letter-spacing: 2px; writing-mode: vertical-rl; transform: rotate(180deg); }
+.winui-start-list { display: grid; }
+.winui-start-list > :is(a,button,.winui-cascade-wrap > button) { width: 100%; min-height: 38px; padding: 7px 22px 7px 10px; border: 0; background: transparent; color: #000; font: inherit; text-align: left; text-decoration: none; }
+.winui-start-list > :is(a,button):hover,
+.winui-cascade-wrap > button:hover { background: var(--winui-title-start); color: #fff; }
+.winui-cascade-wrap { position: relative; }
+.winui-cascade { position: absolute; left: calc(100% - 2px); bottom: 0; width: 230px; padding: 3px; border: 2px solid; border-color: #fff #000 #000 #fff; background: var(--winui-surface); }
+.winui-cascade a { min-height: 32px; padding: 7px; display: block; color: #000; text-decoration: none; }
+.winui-cascade a:hover,
+.winui-cascade a:focus { background: var(--winui-title-start); color: #fff; }
+
+.winui :is(a,button,input,select,textarea,summary):focus-visible { outline: 1px dotted #000; outline-offset: -4px; }
+.winui a { color: var(--winui-link); }
+.winui pre { max-width: 100%; padding: 10px; overflow: auto; border: 1px solid var(--winui-mid); background: #fff; box-shadow: inset 1px 1px var(--winui-dark); }
+.winui code { font-family: "Courier New", monospace; }
+
+@media (max-width: 900px) {
+  .winui-app { padding: 4px 4px 50px; }
+  .winui-window { min-height: calc(100vh - 58px); }
+  .winui-grid,
+  .winui-grid.metrics { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 600px) {
+  .winui-content { padding: 8px; }
+  .winui-grid,
+  .winui-grid.metrics,
+  .winui-form-grid { grid-template-columns: 1fr; }
+  .winui-grid .wide,
+  .winui-form-grid .wide { grid-column: auto; }
+  .winui :is(input,select,textarea) { min-height: 40px; font-size: 16px; }
+  .winui-button,
+  .winui .button { min-height: 40px; }
+  .winui-menu-panel { position: fixed; left: 8px; right: 8px; top: 58px; }
+  .winui-cascade { position: fixed; left: 8px; right: 8px; bottom: 46px; width: auto; max-height: 65vh; overflow-y: auto; }
+  .winui-statusbar { grid-template-columns: 1fr; }
+  .winui-statusbar span:last-child { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .winui *, .winui *::before, .winui *::after { scroll-behavior: auto !important; transition: none !important; animation: none !important; }
+}

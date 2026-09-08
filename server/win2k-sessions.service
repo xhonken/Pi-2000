@@ -1,0 +1,34 @@
+[Unit]
+Description=Pi-2000Web persistent application sessions
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=win2k-admin
+Group=win2k-admin
+WorkingDirectory=/opt/win2k-admin
+ExecStart=/opt/win2k-admin/venv/bin/python /opt/win2k-admin/app.py
+Environment=WIN2K_STATE=/var/lib/win2k-admin
+Environment=WIN2K_ORIGIN=https://192.168.1.250
+Environment=WIN2K_SESSION_WORKER=1
+Environment=WIN2K_CGROUP_LIMITS=1
+RuntimeDirectory=win2k-sessions
+RuntimeDirectoryMode=0700
+Restart=on-failure
+RestartSec=3
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/win2k-admin /sys/fs/cgroup
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6 AF_NETLINK
+Delegate=memory pids cpu
+MemoryHigh=4G
+MemoryMax=5G
+TasksMax=1100
+CPUQuota=300%
+TimeoutStopSec=30
+
+[Install]
+WantedBy=multi-user.target

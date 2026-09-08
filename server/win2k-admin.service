@@ -1,0 +1,28 @@
+[Unit]
+Description=Pi-2000Web administration and SSH terminal
+After=network-online.target win2k-sessions.service
+Wants=network-online.target win2k-sessions.service
+
+[Service]
+User=win2k-admin
+Group=win2k-admin
+WorkingDirectory=/opt/win2k-admin
+ExecStart=/opt/win2k-admin/venv/bin/python /opt/win2k-admin/app.py
+Environment=WIN2K_STATE=/var/lib/win2k-admin
+Environment=WIN2K_ORIGIN=https://192.168.1.250
+Environment=WIN2K_WORKER_SOCKET=/run/win2k-sessions/worker.sock
+MemoryMax=512M
+TasksMax=128
+Restart=on-failure
+RestartSec=3
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/win2k-admin
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6 AF_NETLINK
+TimeoutStopSec=15
+
+[Install]
+WantedBy=multi-user.target

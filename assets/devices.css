@@ -1,0 +1,129 @@
+#tasks { display: flex; gap: 4px; overflow-x: auto; min-width: 0; padding-left: 5px; }
+.task-entry { min-width: 90px; max-width: 180px; flex: 0 1 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 2px 8px; text-align: left; }
+.task-entry.active { border-color: #000 #fff #fff #000; background: #e4e0d8; box-shadow: inset 1px 1px #808080; font-weight: bold; }
+.app-window { position: fixed; width: min(760px, calc(100vw - 12px)); height: min(510px, calc(100dvh - 100px)); min-width: 280px; min-height: 200px; max-width: calc(100vw - 8px); max-height: calc(100dvh - var(--shell-height) - 4px); display: flex; flex-direction: column; resize: both; overflow: hidden; }
+.app-window > .win2k-titlebar { flex: none; touch-action: none; user-select: none; }
+.app-window.inactive > .win2k-titlebar { background: linear-gradient(90deg,#808080,#b5b5b5); }
+.app-window.maximized { inset: 0 0 var(--shell-height) !important; width: 100%; height: auto; max-width: 100%; max-height: none; resize: none; }
+.window-controls { display: flex; gap: 2px; margin-left: auto; flex: none; }
+.window-controls .win2k-button { min-width: 23px; min-height: 20px; padding: 0 4px; font: bold 13px/18px Tahoma,sans-serif; }
+.app-body { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: auto; }
+.app-status { flex: none; border: 1px solid; border-color: #808080 #fff #fff #808080; padding: 3px 6px; margin: 2px; font-size: 12px; overflow-wrap: anywhere; }
+.explorer-toolbar { display: flex; flex-wrap: wrap; gap: 4px; padding: 6px; border-bottom: 1px solid #808080; }
+.explorer-toolbar .win2k-button { min-width: 0; padding: 3px 7px; }
+.explorer-address { padding: 5px 8px; display: flex; gap: 10px; }
+.explorer-address span { background: #fff; border: 1px solid #808080; flex: 1; padding: 1px 4px; overflow-wrap: anywhere; }
+.device-grid { flex: 1; min-height: 80px; overflow: auto; background: #fff; margin: 0 4px 4px; border: 2px solid; border-color: #808080 #fff #fff #808080; padding: 12px; display: grid; grid-template-columns: repeat(auto-fill,minmax(120px,1fr)); align-content: start; gap: 12px; }
+.device-entry { display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 8px 4px; min-width: 0; background: transparent; border: 1px solid transparent; color: #000; text-align: center; overflow-wrap: anywhere; }
+.device-entry.selected { background: #0a246a; color: #fff; border: 1px dotted white; }
+.device-entry small { max-width: 100%; color: inherit; font-size: 11px; }
+.folder-empty { grid-column: 1/-1; color: #555; }
+.device-context { position: fixed; z-index: 5000; width: 180px; }
+.device-context button { display: block; width: 100%; padding: 8px; border: 0; background: transparent; text-align: left; }
+.device-context button:hover { background: #0a246a; color: white; }
+.terminal-window { width: min(850px,calc(100vw - 12px)); height: min(550px,calc(100dvh - 100px)); }
+.terminal-toolbar { display: flex; align-items: center; gap: 12px; padding: 3px 5px; }
+.terminal-surface { flex: 1; min-height: 0; background: #000; padding: 5px; overflow: hidden; }
+.terminal-surface .xterm { height: 100%; }
+.host-confirm { background: #ffffe1; padding: 12px; max-height: 65%; overflow: auto; flex: none; }
+.host-confirm p { margin: 0 0 6px; }
+.host-confirm code { overflow-wrap: anywhere; }
+.host-confirm .actions { margin-top: 8px; }
+#start-menu { z-index: 10000; }
+#desktop-menu { z-index: 10001; }
+#notice { z-index: 10002; }
+#window .form-row { grid-template-columns: minmax(0,150px) minmax(0,1fr); }
+@media (max-width: 600px) { .app-window { left: 4px !important; top: 4px !important; width: calc(100vw - 8px); height: calc(100dvh - var(--shell-height) - 8px); } .window-controls .win2k-button { min-width: 30px; min-height: 30px; } #window .form-row { grid-template-columns: 1fr; } .device-grid { grid-template-columns: repeat(auto-fill,minmax(105px,1fr)); } }
+
+.users-help { margin: 10px; }
+.users-list { overflow: auto; margin: 4px; background: white; border: 2px inset #d4d0c8; flex: 1; }
+.users-list table { width: 100%; border-collapse: collapse; text-align: left; }
+.users-list th { background: #d4d0c8; }
+.users-list th, .users-list td { padding: 8px; border-bottom: 1px solid #ccc; }
+.user-actions .win2k-button { margin: 2px; }
+.user-actions small { display: block; margin: 4px; color: #555; }
+
+.browser-window { width: min(1200px,calc(100vw - 12px)); height: min(800px,calc(100dvh - 80px)); }
+.browser-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; padding: 4px; border-bottom: 1px solid #808080; }
+.browser-toolbar span { margin-left: 8px; font-size: 12px; }
+.browser-content { position: relative; flex: 1; min-height: 0; background: #111; color: white; }
+.browser-content iframe { display: block; width: 100%; height: 100%; border: 0; }
+.browser-loading { margin: 20px; }
+
+.system-status { padding: 12px; overflow: auto; height: 100%; box-sizing: border-box; }
+.system-status table { width: 100%; border-collapse: collapse; }
+.system-status th, .system-status td { text-align: left; padding: 6px; border-bottom: 1px solid #aaa; }
+
+#file-icons { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; }
+#file-icons:empty { display: none; }
+.file-list { flex: 1; min-height: 0; overflow: auto; background: white; }
+.file-list table { width: 100%; border-collapse: collapse; }
+.file-list td, .file-list th { text-align: left; padding: 7px; border-bottom: 1px solid #ddd; }
+.file-list td:first-child { overflow-wrap: anywhere; min-width: 100px; }
+.file-list tr:hover { background: #edf2fa; }
+.file-list .win2k-button { margin: 2px; font-size: 11px; }
+.file-quota { padding: 6px; display: flex; align-items: center; flex-wrap: wrap; gap: 8px; font-size: 12px; }
+.file-quota progress { width: 130px; height: 14px; }
+.file-upload-progress { padding: 8px; display: flex; align-items: center; gap: 8px; background: #ffffd5; }
+.file-upload-progress span { overflow-wrap: anywhere; }
+.file-drop-target:not(#desktop) { outline: 3px dashed #164d9a; outline-offset: -3px; background-color: #d7e8ff !important; }
+.file-context { position: fixed; z-index: 100000; }
+.files-window,.trash-window { width: min(960px,calc(100vw - 12px)); }
+/* Fill desktop columns before scrolling, including user files and shortcuts. */
+#desktop-icons { display: flex; flex-flow: column wrap; height: calc(100dvh - var(--shell-height) - 42px); align-content: flex-start; justify-content: flex-start; gap: 8px; }
+#desktop-icons .desktop-icon { flex: none; }
+#custom-icons, #file-icons { display: contents; }
+#custom-icons:empty, #file-icons:empty { display: none; }
+
+.file-row-name { display: flex; align-items: center; gap: 6px; }
+.file-row-name .win2k-pixel-icon { transform: scale(.75); flex: none; }
+/* User-positioned desktop icons; file drops still use the file manager. */
+#desktop-icons { position:relative; display:block; width:100%; height:100%; }
+#desktop-icons .desktop-icon { position:absolute; touch-action:none; user-select:none; }
+.editor-window { width:min(1080px,calc(100vw - 20px)); height:650px; }
+.editor-window .app-body { display:flex; flex-direction:column; overflow:hidden; }
+.editor-toolbar { flex-wrap:wrap; flex-shrink:0; }
+.editor-location { padding:4px 8px; border-bottom:1px solid #888; }
+.editor-layout { display:flex; flex:1; min-height:0; }
+.editor-tree { width:210px; flex-shrink:0; overflow:auto; background:white; border-right:3px ridge #ddd; resize:horizontal; min-width:120px; max-width:50%; }
+.editor-tree-entry { display:block; white-space:nowrap; border:0; background:none; text-align:left; width:100%; padding:5px; }
+.editor-tree-entry.selected { background:#0a246a; color:white; }
+.editor-main { display:flex; flex-direction:column; flex:1; min-width:0; }
+.editor-tabs { display:flex; overflow-x:auto; flex-shrink:0; min-height:28px; background:#c0c0c0; }
+.editor-tab { display:flex; white-space:nowrap; border:1px solid #888; }
+.editor-tab button { border:0; background:none; padding:5px; }
+.editor-tab.active { background:white; border-top:2px solid #0a246a; }
+.editor-code { flex:1; min-height:0; }
+/* Personal tools share the desktop window lifecycle. */
+.app-body, .desktop-icon, .win2k-button { font-size:var(--personal-font-size,13px); }
+.tool-toolbar,.tool-row { display:flex; gap:6px; align-items:center; padding:6px; flex-wrap:wrap; }
+.tool-row { border-bottom:1px solid #ddd; }
+.tool-toolbar input[type=search] { flex:1; min-width:220px; }
+.preview-window,.search-window,.activities-window,.sftp-window { width:min(980px,calc(100vw - 20px)); height:620px; }
+.preview-window .app-body { display:flex; flex-direction:column; }
+.preview-content { flex:1; overflow:auto; padding:12px; background:white; }
+.preview-content img { max-width:100%; height:auto; }
+.preview-content pre { white-space:pre-wrap; overflow-wrap:anywhere; }
+.preview-content canvas { display:block; margin:auto; }
+.search-results,.activities-list,.personal-sessions { padding:8px; }
+.notes-window { width:720px; height:620px; }
+.notes-window .app-body { display:flex; flex-direction:column; padding:8px; gap:8px; }
+.notes-text { width:100%; flex:1; min-height:180px; resize:vertical; font:inherit; }
+.todo-form { display:flex; gap:6px; }.todo-form input { flex:1; }
+.todo-list { max-height:220px; overflow:auto; }
+.preferences-form,.sftp-form { display:flex; flex-wrap:wrap; gap:12px; padding:12px; align-items:end; }
+.preferences-form label,.sftp-form label { display:flex; flex-direction:column; gap:4px; }
+.sftp-remote { min-height:150px; max-height:310px; overflow:auto; background:white; }
+.sftp-local { display:flex; flex-wrap:wrap; gap:10px; padding:10px; }
+.file-list td:first-child>input { float:left; margin:8px; }
+.cad-window { width:min(1180px,calc(100vw - 20px)); height:730px; }
+.cad-window .app-body { display:flex; flex-direction:column; overflow:hidden; }
+.cad-calculator { padding:8px; border-bottom:2px groove #ddd; }.cad-calculator form { display:flex; gap:8px; flex-wrap:wrap; }.cad-calculator input { width:300px; }.cad-calculator output { font-weight:bold; padding:4px; }
+.cad-layout { display:flex; flex:1; min-height:0; }.cad-controls { width:260px; flex-shrink:0; padding:10px; overflow:auto; border-right:2px groove #ddd; }.cad-controls label { display:block; margin-bottom:8px; }.cad-controls input[type=number] { display:block; width:100%; }.cad-controls button { margin:3px; }
+.cad-output { flex:1; overflow:auto; min-width:0; background:white; }.cad-drawing { padding:15px; min-height:300px; }.cad-drawing svg { display:block; width:100%; height:auto; max-height:520px; }.cad-drawing circle { cursor:pointer; }.cad-summary { padding:10px; }.cad-table { width:100%; border-collapse:collapse; }.cad-table td,.cad-table th { padding:5px; border:1px solid #ccc; }.cad-invalid { background:#ffe5e5; color:#900; }
+
+#start-search-form { display:flex; gap:4px; padding:6px; }
+#start-search-form input { width:160px; min-width:0; }
+.cad-controls { width:285px; }.cad-controls fieldset { margin:0 0 10px; padding:8px; min-width:0; }.cad-controls select { display:block; width:100%; }.cad-controls [hidden] { display:none; }.cad-controls details { margin:10px 0; }.cad-sides { padding:10px; line-height:1.7; background:#edf3f7; }.cad-selected { background:#d8eafa; }.cad-drawing [data-hole] { cursor:pointer; }.cad-drawing svg { min-height:300px; }
+.calculator-window { width:440px; height:680px; }.calculator-window .app-body { padding:12px; overflow:auto; }.calculator-form input { display:block; width:100%; padding:8px; font:20px monospace; box-sizing:border-box; }.calculator-form output { display:block; padding:12px 5px; background:#fff; margin:6px 0; text-align:right; overflow-wrap:anywhere; min-height:32px; font:22px monospace; }.calculator-keys { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:5px; }.calculator-keys button { min-width:0; padding:8px 0; }.calculator-equals { width:100%; padding:10px; margin-top:6px; }.calculator-help { padding:10px 0; line-height:1.6; }.calculator-history button { display:block; width:100%; text-align:left; padding:6px; border:0; border-bottom:1px solid #bbb; background:white; overflow-wrap:anywhere; }
+.editor-sftp-toolbar { display:flex; flex-wrap:wrap; gap:4px; padding:6px; background:#d4d0c8; }.editor-location { overflow-wrap:anywhere; }

@@ -1,0 +1,25 @@
+/* Pixel icons adapted from the preserved Windows 2000 gallery. */
+.win2k-pixel-icon{position:relative;width:28px!important;height:28px!important;min-width:28px;display:block!important;border:0!important;background:transparent!important;color:#000!important;box-shadow:none!important;font-size:0!important;filter:drop-shadow(1px 1px 0 #fff)}
+.win2k-pixel-icon::before,.win2k-pixel-icon::after,.win2k-pixel-icon i{content:"";position:absolute;display:block}
+:is(.win2k-icon-computer,.win2k-icon-home,.win2k-icon-programs,.win2k-icon-controls,.win2k-icon-settings,.win2k-icon-run)::before{left:2px;top:2px;width:22px;height:17px;border:1px solid #000;background:#c0c0c0;box-shadow:inset 2px 2px #fff,inset -2px -2px #808080}
+:is(.win2k-icon-computer,.win2k-icon-home,.win2k-icon-programs,.win2k-icon-controls,.win2k-icon-settings,.win2k-icon-run) i{left:6px;top:6px;width:14px;height:8px;border:1px solid #000;background:#1084d0}
+:is(.win2k-icon-computer,.win2k-icon-home,.win2k-icon-programs,.win2k-icon-controls,.win2k-icon-settings,.win2k-icon-run)::after{left:8px;top:21px;width:12px;height:3px;border:1px solid #000;background:#808080}
+:is(.win2k-icon-folder,.win2k-icon-files)::before{left:2px;top:8px;width:24px;height:17px;border:1px solid #7b5b00;background:#f4c542;box-shadow:inset 2px 2px #fff2a0,inset -2px -2px #b38600}
+:is(.win2k-icon-folder,.win2k-icon-files)::after{left:4px;top:4px;width:10px;height:6px;border:1px solid #7b5b00;border-bottom:0;background:#f4c542}
+:is(.win2k-icon-forms,.win2k-icon-content,.win2k-icon-forum,.win2k-icon-details,.win2k-icon-messages,.win2k-icon-profile,.win2k-icon-lock)::before{left:5px;top:2px;width:18px;height:24px;border:1px solid #000;background:#fff;box-shadow:inset -3px -3px #d4d0c8}
+:is(.win2k-icon-forms,.win2k-icon-content,.win2k-icon-forum,.win2k-icon-details,.win2k-icon-messages,.win2k-icon-profile,.win2k-icon-lock) i{left:8px;top:8px;width:11px;height:2px;background:#0a246a;box-shadow:0 4px #808080,0 8px #808080}
+:is(.win2k-icon-data,.win2k-icon-database)::before{left:4px;top:4px;width:20px;height:20px;border:1px solid #000;border-radius:50%;background:#d4d0c8;box-shadow:inset 0 5px #1084d0,inset 0 7px #000,inset 0 12px #fff,inset 0 14px #808080}
+.win2k-icon-analysis::before{left:3px;top:3px;width:22px;height:22px;border:1px solid #000;background:#fff}
+.win2k-icon-analysis i{left:7px;bottom:5px;width:4px;height:8px;background:#1084d0;box-shadow:6px -5px #0a246a,12px -10px #008000}
+.win2k-icon-calendar::before{left:4px;top:3px;width:20px;height:23px;border:1px solid #000;background:repeating-linear-gradient(90deg,#fff 0 5px,#808080 5px 6px);box-shadow:inset 0 6px #0a246a}
+.win2k-icon-states::before{left:3px;top:3px;width:22px;height:22px;border:1px solid #000;background:#ffcc00;transform:rotate(45deg)}
+.win2k-icon-states::after{content:"!";left:10px;top:4px;width:9px;color:#000;font:bold 17px/1 Tahoma;text-align:center}
+.win2k-icon-help::before{content:"?";left:3px;top:3px;width:22px;height:22px;border:1px solid #000;border-radius:50%;background:#0a246a;color:#fff;font:bold 18px/22px Tahoma;text-align:center}
+.win2k-icon-search::before{left:3px;top:2px;width:15px;height:15px;border:3px solid #0a246a;border-radius:50%;background:#fff}
+.win2k-icon-search::after{left:18px;top:18px;width:10px;height:3px;background:#000;transform:rotate(45deg);transform-origin:left center}
+.win2k-icon-logout::before{left:5px;top:2px;width:16px;height:24px;border:1px solid #000;background:#f2d6a0;box-shadow:inset -4px 0 #a36b2c}
+.win2k-icon-logout::after{content:"→";left:12px;top:7px;color:#c00000;font:bold 15px/1 Tahoma}
+.win2k-icon-network::before{left:1px;top:2px;width:16px;height:13px;border:1px solid #000;background:#1084d0;box-shadow:inset 2px 2px #fff}
+.win2k-icon-network::after{right:0;bottom:2px;width:16px;height:13px;border:1px solid #000;background:#0a246a;box-shadow:inset 2px 2px #fff}
+.win2k-icon-recycle::before{left:6px;top:5px;width:17px;height:21px;border:1px solid #000;background:repeating-linear-gradient(90deg,#e9f4f4 0 3px,#7aa0a0 3px 4px);transform:skew(-4deg)}
+.win2k-icon-recycle::after{left:4px;top:2px;width:21px;height:4px;border:1px solid #000;background:#c5dddd}

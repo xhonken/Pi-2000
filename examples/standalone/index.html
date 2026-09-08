@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Standalone Pi-2000Web UI starter without a CMS dependency.">
+    <title>Pi-2000Web UI Standalone Starter</title>
+    <link rel="stylesheet" href="../../dist/win2k-ui.css">
+    <script src="../../dist/win2k-ui.js" defer></script>
+    <script src="demo-content.js" defer></script>
+  </head>
+  <body class="win2k">
+    <div
+      class="win2k-app"
+      data-win2k-app
+      data-help-enabled="true"
+      data-help-url="help.html"
+      data-locale="en-GB">
+      <main class="win2k-window" id="main-content">
+        <header class="win2k-titlebar">
+          <strong>example.com - A portable Pi-2000Web UI website</strong>
+          <span class="win2k-window-buttons" aria-hidden="true">_ □ ×</span>
+        </header>
+
+        <nav class="win2k-menubar" aria-label="Application menus">
+          <details class="win2k-menu" data-win2k-menu>
+            <summary><u>F</u>ile</summary>
+            <div class="win2k-menu-panel"><a href="index.html">Home</a><button type="button" data-demo-action="save">Save snapshot</button><button type="button" data-demo-action="print">Print…</button></div>
+          </details>
+          <details class="win2k-menu" data-win2k-menu>
+            <summary><u>V</u>iew</summary>
+            <div class="win2k-menu-panel"><a href="#metrics">Metrics</a><a href="#projects">Projects</a><a href="#settings">Settings</a></div>
+          </details>
+          <details class="win2k-menu" data-win2k-menu data-win2k-help>
+            <summary><u>H</u>elp</summary>
+            <div class="win2k-menu-panel"><a href="help.html" data-win2k-help-link>Pi-2000Web UI Help</a><a href="../../README.md">Framework README</a></div>
+          </details>
+        </nav>
+
+        <div class="win2k-content">
+          <header class="win2k-page-heading">
+            <p class="eyebrow">Standalone starter</p>
+            <h1>One design, no CMS dependency</h1>
+            <p>This page is ordinary semantic HTML. Pi-2000Web UI adds presentation and behaviour while the separate demo-content file supplies example data.</p>
+          </header>
+
+          <section class="win2k-grid metrics" id="metrics" aria-label="Key metrics">
+            <fieldset class="win2k-group win2k-metric"><legend>Active projects</legend><strong>18</strong><small>+12% this month</small></fieldset>
+            <fieldset class="win2k-group win2k-metric"><legend>Team focus</legend><strong>87%</strong><small>8 points above target</small></fieldset>
+            <fieldset class="win2k-group win2k-metric"><legend>New signals</legend><strong>1,284</strong><small>Updated at 09:42</small></fieldset>
+            <fieldset class="win2k-group win2k-metric"><legend>Forecast</legend><strong>$4.2M</strong><small>+6% this quarter</small></fieldset>
+          </section>
+
+          <section class="win2k-grid" style="margin-top:12px">
+            <fieldset class="win2k-group wide" id="projects">
+              <legend>Recent projects</legend>
+              <div class="win2k-table-wrap" tabindex="0">
+                <table class="win2k-table">
+                  <thead><tr><th>Project</th><th>Area</th><th>Status</th><th>Updated</th></tr></thead>
+                  <tbody data-demo-projects><tr><td colspan="4">Loading example content…</td></tr></tbody>
+                </table>
+              </div>
+            </fieldset>
+
+            <fieldset class="win2k-group" id="settings">
+              <legend>Notification settings</legend>
+              <form data-demo-settings>
+                <div class="win2k-form-grid">
+                  <label>Email address<input name="email" type="email" value="alex@example.com" required></label>
+                  <label>Frequency<select name="frequency"><option>Immediately</option><option>Daily summary</option></select></label>
+                  <label class="wide"><span><input name="updates" type="checkbox" checked> Product updates</span></label>
+                  <label class="wide"><span><input name="reports" type="checkbox"> Weekly report</span></label>
+                </div>
+                <div class="win2k-actions"><button class="win2k-button default" type="submit">Save</button><button class="win2k-button" type="reset">Reset</button></div>
+              </form>
+            </fieldset>
+
+            <fieldset class="win2k-group">
+              <legend>Architecture</legend>
+              <p><strong>Core:</strong> visual system and generic interactions.</p>
+              <p><strong>Content:</strong> this HTML and <code>demo-content.js</code>.</p>
+              <p><strong>Adapters:</strong> optional WordPress theme, plugin or REST client.</p>
+              <p><a href="help.html">Read the integration guide</a></p>
+            </fieldset>
+          </section>
+
+          <div class="win2k-statusbar" aria-live="polite"><span data-win2k-status>Ready</span><span>Standalone mode</span></div>
+        </div>
+      </main>
+
+      <nav class="win2k-start-menu" data-win2k-start-menu hidden aria-label="Start menu">
+        <div class="win2k-start-list">
+          <div class="win2k-cascade-wrap">
+            <button type="button" data-win2k-cascade aria-expanded="false" aria-controls="win2k-programs">Programs ▸</button>
+            <div class="win2k-cascade" id="win2k-programs" hidden><a href="index.html">Overview</a><a href="#projects">Projects</a><a href="#settings">Settings</a></div>
+          </div>
+          <a href="help.html" data-win2k-help data-win2k-help-link>Help</a>
+          <button type="button" data-demo-action="about">About Pi-2000Web UI…</button>
+        </div>
+      </nav>
+
+      <footer class="win2k-taskbar">
+        <button class="win2k-button win2k-start-button" type="button" data-win2k-start-button aria-expanded="false">▦ Start</button>
+        <div class="win2k-tray"><time data-win2k-clock>--:--</time><time data-win2k-date>--/--/----</time></div>
+      </footer>
+    </div>
+  </body>
+</html>

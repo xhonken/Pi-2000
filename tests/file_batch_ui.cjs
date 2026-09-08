@@ -1,0 +1,15 @@
+const {command}=require('./classic_helpers.cjs');
+const {chromium}=require('playwright'),assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=require('node:path');
+(async()=>{const browser=await chromium.launch({executablePath:'/usr/bin/chromium',headless:true});const temp=await fs.mkdtemp('/tmp/win2k-upload-tree-');try{
+ await fs.mkdir(path.join(temp,'Projekt','Under'),{recursive:true});await fs.writeFile(path.join(temp,'Projekt','one.txt'),'one');await fs.writeFile(path.join(temp,'Projekt','Under','two.txt'),'two');
+ const page=await browser.newPage({viewport:{width:1500,height:1000}}),errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto('http://127.0.0.1:18765');await page.locator('#login-form [name=password]').fill('browser-test-password');await page.locator('#login-form [type=submit]').click();await page.locator('#session').waitFor({state:'visible'});
+ await page.locator('#desktop [data-action=files]').click();const win=page.locator('.files-window');const chooser=page.waitForEvent('filechooser');await command(page,win,'File','Upload Folder…');await(await chooser).setFiles(path.join(temp,'Projekt'));
+ await page.waitForFunction(async()=>{const d=await(await fetch('/api/files')).json();return d.items.some(x=>x.name==='two.txt');});
+ await win.getByRole('checkbox',{name:'Select Projekt',exact:true}).check();await win.getByRole('button',{name:'Copy',exact:true}).click();await command(page,win,'View','Desktop');await win.getByRole('button',{name:'Paste',exact:true}).click();await win.getByRole('checkbox',{name:'Select Projekt',exact:true}).waitFor();
+ const listing=await page.evaluate(async()=>await(await fetch('/api/files')).json());const desktopProject=listing.items.find(x=>x.name==='Projekt'&&x.parent==='desktop');assert.ok(desktopProject);assert.equal(listing.items.filter(x=>x.name==='two.txt').length,2);
+ await win.getByRole('checkbox',{name:'Select Projekt',exact:true}).check();const download=page.waitForEvent('download');await command(page,win,'File','Download ZIP');assert.equal((await download).suggestedFilename(),'my-files.zip');
+ // Image preview is inert even when an SVG file contains script text.
+ await page.evaluate(async()=>{const body='<svg xmlns="http://www.w3.org/2000/svg" width="100" height="80"><rect width="100" height="80" fill="red"/><script>window.top.compromised=true</script></svg>';const r=await fetch('/api/files/upload?name=bild.svg',{method:'POST',body});const id=(await r.json()).id;const d=await(await fetch('/api/files')).json();await window.Win2kTools.openItem(d.items.find(x=>x.id===id));});
+ await page.waitForFunction(()=>document.querySelector('.preview-content img')?.naturalWidth===100);assert.equal(await page.evaluate(()=>window.compromised),undefined);
+ assert.deepEqual(errors,[]);console.log('PASS: actual folder picker preserves nested files, multi-selection/copy/paste, desktop folder, ZIP download, inert SVG image preview');
+}finally{await browser.close();await fs.rm(temp,{recursive:true,force:true});}})().catch(e=>{console.error(e);process.exit(1)});
