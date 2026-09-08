@@ -22,8 +22,11 @@ class BackupTests(unittest.IsolatedAsyncioTestCase):
             profile=state/'browsers/1/chromium/Default';profile.mkdir(parents=True)
             (profile/'Cookies').write_bytes(b'private-cookie-fixture')
             (profile/'Cache').mkdir();(profile/'Cache/skip').write_text('cache')
+            (state/'database-credentials.key').write_bytes(b'private-credential-key-fixture')
             archive=await snapshot(state,root/'backup','',None)
             dest=root/'restored';restore(archive,dest)
+            self.assertEqual((dest/'state/database-credentials.key').read_bytes(),b'private-credential-key-fixture')
+            self.assertEqual((dest/'state/database-credentials.key').stat().st_mode & 0o777,0o600)
             with closing(sqlite3.connect(dest/'state/admin.sqlite3')) as db:
                 self.assertEqual(db.execute('SELECT name FROM users').fetchone()[0],'alice')
                 self.assertEqual(db.execute('SELECT COUNT(*) FROM login_sessions').fetchone()[0],0)

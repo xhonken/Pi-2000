@@ -70,7 +70,7 @@ function render() {
   summary.querySelector('.menu-label').textContent=label;panel.className='submenu';panel.append(...entries);details.append(summary,panel);programs.append(details);
  }
  category('Accessories',[button('My Files','files'),button('Notes','notes'),button('Calculator','calculator'),button('Search and Favourites','search')]);
- category('Development and Drawing',[button('Code Editor','editor'),button('Dimension Drawing','cad')],'editor');
+ category('Development and Drawing',[button('Code Editor','editor'),button('MariaDB Manager','database'),button('Dimension Drawing','cad')],'editor');
  category('Internet and Connections',[button('Browser','browser'),button('My Devices','devices'),button('SFTP – File Transfer','sftp')],'browser');
  category('System Tools',[button('Task Manager','taskmanager'),button('My Activities','activities'),button('System Status','status'),button('My Settings','preferences')],'settings');
  category('My Shortcuts',[...shortcuts.filter(x=>x.start&&!x.deleted).map(x=>link(x)),button('Manage Shortcuts…','links'),button('New Shortcut…','add')]);

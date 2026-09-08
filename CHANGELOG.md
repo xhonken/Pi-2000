@@ -4,6 +4,8 @@ User-visible changes are recorded here for each numbered release. Development be
 
 ## Unreleased
 
+- Add MariaDB Manager with private saved TCP/TLS connections, optional encrypted credentials, SQL workspaces, object browsing, row-edit SQL preparation, administration templates and bounded SQL/CSV import and result export. Include the credential key in verified backups. See `docs/MARIADB-MANAGER.md` for scope and limits.
+
 - Browser checks available server RAM before starting a new session; reconnecting to a running session remains possible when memory is low.
 - Browser reports memory-limit stops, crashes, low disk space and idle timeouts separately, removes a stopped stream and offers explicit reconnect.
 - Browser displays a warning as its memory use approaches the limit. Watchdog stop reasons are logged and kept per account.

@@ -1,0 +1,65 @@
+const {chromium}=require('playwright');
+const assert=require('node:assert/strict');
+(async()=>{
+ const browser=await chromium.launch({executablePath:'/usr/bin/chromium',headless:true});
+ try{
+  const page=await browser.newPage({viewport:{width:1280,height:900}}),errors=[];
+  page.on('pageerror',e=>errors.push(e.message));
+  await page.goto('http://127.0.0.1:18765');
+  await page.locator('#login-form [name=password]').fill('browser-test-password');
+  await page.locator('#login-form [type=submit]').click();await page.locator('#session').waitFor({state:'visible'});
+  await page.evaluate(()=>Win2kShell.actions.database());
+  const w=page.locator('.database-window');
+  await w.getByRole('button',{name:'New Connection',exact:true}).click();
+  const dialog=page.locator('dialog.db-dialog');
+  await dialog.locator('[name=name]').fill('Test database');await dialog.locator('[name=username]').fill('root');
+  await dialog.locator('[name=port]').fill(process.env.WIN2K_TEST_DB_PORT||'3306');
+  await dialog.locator('[name=tls]').selectOption('disabled');await dialog.locator('[name=save_password]').check();
+  await dialog.getByRole('button',{name:'OK',exact:true}).click();await dialog.waitFor({state:'detached'});
+  assert.equal(await w.locator('.db-connections option').textContent(),'Test database — 127.0.0.1');
+  if(process.env.WIN2K_TEST_DB_PORT){
+   await w.getByRole('button',{name:'Connect',exact:true}).click();
+   await w.locator('.db-context').filter({hasText:'Test database'}).waitFor();
+   await w.locator('.db-sql').fill('CREATE DATABASE IF NOT EXISTS ui_demo; USE ui_demo; CREATE TABLE IF NOT EXISTS items (id INT PRIMARY KEY, name VARCHAR(80)); REPLACE INTO items VALUES (1, \'Hello MariaDB\'); SELECT * FROM items;');
+   await w.getByRole('button',{name:'Execute',exact:true}).click();
+   await w.locator('.db-messages').filter({hasText:'Completed in'}).waitFor();
+   await w.getByRole('button',{name:'Result 5',exact:true}).click();
+   await w.locator('.db-results').filter({hasText:'Hello MariaDB'}).waitFor();
+   await w.getByRole('button',{name:'Refresh Objects',exact:true}).click();
+   await w.locator('.db-catalog').selectOption('ui_demo');
+   await w.locator('[data-object=items]').click();
+   await w.locator('.db-results').filter({hasText:'Hello MariaDB'}).waitFor();
+   await w.getByRole('button',{name:'Select row 1',exact:true}).click();
+   await w.getByRole('button',{name:'Edit Row',exact:true}).click();
+   await page.locator('dialog.db-dialog [name=value-1]').fill('Changed in row dialog');
+   await page.locator('dialog.db-dialog').getByRole('button',{name:'OK',exact:true}).click();
+   await w.getByRole('button',{name:'Execute',exact:true}).click();
+   await w.locator('.db-messages').filter({hasText:'1 affected rows'}).waitFor();
+   await w.locator('[data-object=items]').click();
+   await w.locator('.db-results').filter({hasText:'Changed in row dialog'}).waitFor();
+   await w.locator('.db-import').setInputFiles({name:'data.csv',mimeType:'text/csv',buffer:Buffer.from('id,name\n2,"CSV, quoted"\n')});
+   await page.waitForFunction(()=>document.querySelector('.db-sql').value.includes('Review CSV import'));
+   await w.getByRole('button',{name:'Execute',exact:true}).click();
+   await w.locator('.db-messages').filter({hasText:'1 affected rows'}).waitFor();
+   await w.locator('[data-object=items]').click();
+   await w.locator('.db-results').filter({hasText:'CSV, quoted'}).waitFor();
+  }
+  await w.locator('.db-sql').fill('SELECT 42 AS answer;');await w.getByRole('button',{name:'Save Workspace',exact:true}).click();
+  await w.locator('.app-status').filter({hasText:'SQL workspace saved'}).waitFor();
+  await page.screenshot({path:'/tmp/pi2000-mariadb-manager.png'});
+  await page.reload();await page.locator('.database-window').waitFor();
+  await page.waitForFunction(()=>document.querySelector('.db-sql')?.value==='SELECT 42 AS answer;');
+  await page.locator('.database-window').getByRole('button',{name:'Properties',exact:true}).click();
+  await page.locator('dialog.db-dialog [name=name]').fill('Renamed database');
+  await page.locator('dialog.db-dialog').getByRole('button',{name:'OK',exact:true}).click();await page.locator('dialog.db-dialog').waitFor({state:'detached'});
+  page.on('dialog',dialog=>dialog.accept());
+  await page.locator('.database-window').getByRole('button',{name:'Delete Connection',exact:true}).click();
+  await page.waitForFunction(()=>document.querySelector('.db-connections').options.length===0);
+  await page.setViewportSize({width:600,height:700});
+  await page.evaluate(()=>document.documentElement.style.setProperty('--personal-font-size','18px'));
+  await page.locator('.database-window [data-control=max]').click();
+  await page.screenshot({path:'/tmp/pi2000-mariadb-manager-small.png'});
+  assert.deepEqual(errors,[]);
+  console.log('PASS: private connection CRUD, SQL workspace save/restore, UI lifecycle'+(process.env.WIN2K_TEST_DB_PORT?', real MariaDB query and table browsing':''));
+ }finally{await browser.close();}
+})().catch(e=>{console.error(e);process.exit(1)});

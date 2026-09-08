@@ -81,3 +81,8 @@ These measurements describe the Pi, not your viewing computer. SSH jobs run on t
 My Settings changes text size and the default text-file application, opens background settings, changes your password and lists signed-in sessions. You can log off another session belonging to your account.
 
 User Management is available to administrators and the owner. Administrators manage regular users; only the owner changes roles or manages other administrators. Account deletion is permanent. Disabling an account, resetting its password or changing its role ends its sessions. The owner account is protected.
+
+
+## MariaDB Manager
+
+Open Start → Programs → Development and Drawing → MariaDB Manager to manage private MariaDB connections and SQL workspaces. Create a connection, select it and Connect. Read [MariaDB Manager](MARIADB-MANAGER.md) for local/external connections, TLS, imports, exports, transactions and current limits.

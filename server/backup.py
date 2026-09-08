@@ -86,6 +86,7 @@ async def snapshot(state, target, socket, code, site=None):
                 tar.add(staging/'manifest.json',arcname='manifest.json',filter=include)
                 tar.add(staging/'state',arcname='state',filter=include)
                 if (state/'browsers').exists(): tar.add(state/'browsers',arcname='state/browsers',filter=include)
+                if (state/'database-credentials.key').exists(): tar.add(state/'database-credentials.key',arcname='state/database-credentials.key',filter=include)
                 if (state/'files').exists(): tar.add(state/'files',arcname='state/files',filter=include)
                 if site and site.exists(): tar.add(site,arcname='site',filter=include)
                 if code and code.exists():
