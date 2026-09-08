@@ -107,3 +107,4 @@ dialog header { position: sticky; top: 0; z-index: 1; }
  .edition { font-size: 16px; }
  .login-hint { line-height: 1.5; }
 }
+.editor-diagnostics{border-top:2px groove #fff;padding:6px;max-height:130px;overflow:auto;display:flex;flex-direction:column;gap:4px;background:#d4d0c8}.editor-diagnostics[hidden]{display:none}.editor-diagnostics button{text-align:left}

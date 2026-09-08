@@ -4,7 +4,7 @@ MariaDB Manager is available under **Start → Programs → Development and Draw
 
 ## Connections and saved work
 
-Select **New Connection**, enter a name, server, port (normally 3306), database username and optional default database. Save the connection, then select it and choose **Connect**, or double-click it. **Properties**, **Test Connection** and **Delete Connection** manage the selected profile. Deleting a profile does not delete any remote databases; it disconnects that profile's active sessions.
+Select **File → New Connection**, enter a name, server, port (normally 3306), database username and optional default database. Save the connection, then select it and choose **Connect**, or double-click it. **Properties**, **Test Connection** and **Delete Connection** manage the selected profile. Deleting a profile does not delete any remote databases; it disconnects that profile's active sessions.
 
 `127.0.0.1` means the Pi running Pi-2000Web, not the computer displaying the desktop. A local MariaDB server must accept TCP authentication; Unix-socket root authentication is not used. An external server must be reachable from the Pi and allow that database account to connect from the Pi's address.
 
@@ -18,26 +18,42 @@ Saved profiles and SQL tabs survive page reloads and service restarts. Live data
 
 ## Working with a database
 
-The left Object Explorer lists databases and their tables/views. Selecting a database changes the active SQL database. Selecting a table shows 100 rows at a time; Previous/Next Rows changes the offset. Without an explicit `ORDER BY`, MariaDB does not promise a stable row order; use an ordered SQL query for repeatable paging during concurrent changes.
+The left Object Explorer lists databases and their tables/views. Selecting a database changes the active SQL database. Selecting a table shows 100 rows at a time; Previous/Next Rows changes the offset. Without an explicit `ORDER BY`, MariaDB does not promise a stable row order; use **Data → Filter / Sort** or an ordered SQL query for repeatable paging. Contains filters treat percent signs and underscores literally.
 
-**Structure** shows `SHOW CREATE TABLE`/view output. Administration templates provide editable SQL for columns, indexes, foreign keys, databases, tables, views, stored procedures, triggers, events, database users/grants, process lists, variables, status and table maintenance. Templates are prepared in a new query tab and are never executed automatically. Database grants determine which operations succeed.
+**Data → Structure** shows `SHOW CREATE TABLE`/view output. **Query → SQL Templates** prepares editable SQL in a new tab. The Administration menu opens focused dialogs:
 
+- **Database Administration**: list databases, collations, storage engines and table sizes; create/alter/drop databases; create tables; rename/copy tables; change engine, comment, collation or AUTO_INCREMENT; truncate/drop tables.
+- **Users and Privileges**: create users with explicit user/host identity, optionally create a database and grant that account access; change passwords, rename/drop accounts, control account locking, password expiry, required TLS and resource limits. Grant/revoke global, database, table, column or routine privileges; create/drop/assign roles and set default roles. Account lists and grants omit authentication hashes.
+- **Table Designer**: inspect columns, indexes and relations; add/modify/rename/drop columns; create/drop ordinary, unique, primary, full-text or spatial indexes; create/drop composite foreign keys with update/delete actions.
+- **Programmable Objects**: inspect views, procedures, functions, triggers and events; open definitions or creation templates in the SQL workspace; drop objects or change event enabled state.
+- **Search Database / Relationship Diagram**: search bounded text-column previews using server collation; inspect declared foreign-key connections and rules in a diagram and detailed table.
+- **Server Administration**: filtered status, variables and process lists, query cancellation by process ID, check/analyze/optimize/repair operations.
+
+Administration forms produce a separate **Review Database Changes** dialog. Only **Apply Changes** executes the reviewed statements. Plans expire after five minutes, are single-use and belong to the current database login session. Passwords are redacted in previews and never inserted into saved query tabs. Earlier statements can remain applied if a later step fails; the error reports how many steps completed.
+
+All commands use the connected MariaDB account's grants. A Pi-2000 administrator cannot bypass database permissions. MariaDB has database privileges rather than PostgreSQL-style ownership; database grants escape `%` and `_` to target the exact named database. New-user database grants do not include GRANT OPTION. Advanced or version-specific SQL remains available in the editor.
 **Execute** (`Ctrl+Enter`) runs selected SQL or the entire tab. Multiple statements and multiple result sets are supported, including routine results. Each result has its own selector. The header reports the active database and transaction/autocommit state after executing SQL. Use the transaction templates or SQL for `START TRANSACTION`, `COMMIT`, and `ROLLBACK`. MariaDB DDL can implicitly commit; a SQL script is not automatically an atomic operation.
 
-**Insert Row**, **Edit Row** and **Delete Row** prepare SQL from a form or selected row. Review it and select Execute. Update/delete preparation requires a primary key and includes the displayed original values in the WHERE condition, with `LIMIT 1`; zero affected rows can mean someone changed the row. For tables without a primary key or binary-column edits, use explicit SQL. Do not apply arbitrary query results to a different selected table.
+**Insert Row**, **Edit Row** and **Delete Row** prepare SQL from a form or selected row. Review it and select Execute. Update/delete preparation requires a primary key and includes the displayed original values in the WHERE condition, with `LIMIT 1`; zero affected rows can mean someone changed the row. For tables without a primary key or binary-column edits, use explicit SQL. Edit/delete forms require a row from the currently browsed table, not an unrelated SQL result.
 
 **Explain** runs MariaDB `EXPLAIN` for the current query. **Cancel Query** terminates this session's database connection through a separate authenticated connection, then discards the session. Reconnect and inspect writes before retrying an interrupted command. Network failures cannot prove whether a write committed.
 
 ## Import and export
 
 - **Import SQL / CSV** reads a UTF-8 file chosen in the user's browser into a query tab for review. It never reads an arbitrary server-side file path.
-- SQL imports support up to 1 MB. `DELIMITER` is a command-line client directive and must be removed; execute routine definitions separately. This is not yet a streaming, full-database dump importer.
+- SQL imports support up to 1 MB. `DELIMITER` is a command-line client directive and must be removed; execute routine definitions separately. Use Restore SQL File for larger files and DELIMITER support.
 - CSV imports require a header containing unique column names and up to 1,000 data rows. Commas, quoted fields, escaped quotes and embedded newlines are supported. Empty CSV fields become empty strings; adjust the prepared SQL if NULL is intended. Expanded SQL must fit the 1 MB SQL limit.
 - **Export CSV** exports the selected displayed result; NULL becomes an empty CSV field.
 - **Export Result SQL** creates INSERT statements targeting the selected table, preserving NULL and binary values. Review the destination and columns. This exports the displayed result only.
 - **Download SQL** saves the current query text.
 
-A result export is not a full database backup. External database backups remain the database owner's responsibility.
+**File → Export Database** exports table structure and optionally every row, views, routines, triggers and events into a downloadable SQL file. Export uses its own connection and streams rows into a private temporary file; it is independent of the editor's open transaction. The export is capped at 64 MB, with a five-minute runtime and 2 MB protocol packet limit. InnoDB data uses a consistent snapshot; non-transactional tables and concurrent schema changes do not. Generated columns are excluded from INSERT assignments. Account grants are not part of the dump.
+
+**File → Restore SQL File** accepts UTF-8 SQL up to 16 MB / 100,000 statements, supports DELIMITER and reports progress. The file is parsed before any statements execute. It uses a separate connection, stops at the first SQL error and commits any transaction left open at successful completion. Completed writes or DDL may remain after failure or cancellation. Scripts relying on unusual delimiter syntax or changing string-escape parsing modes mid-file may need normalization first.
+
+Transfer dialogs show progress and offer cancellation. Only completed exports can be downloaded. Temporary output belongs to the originating login, expires after ten minutes of inactivity and is removed when the dialog closes or the login ends. One transfer per account and four globally are allowed.
+
+Definitions retain definers and qualified database references. Restore to the original database name, or review/adapt the SQL before moving it. Existing destination objects are not dropped automatically. A result export remains different from a database export; neither replaces a tested database-server backup strategy.
 
 ## Limits and platform boundaries
 
@@ -51,10 +67,10 @@ The private `database-credentials.key` in the state directory is required to dec
 
 The design draws on [phpMyAdmin's supported feature list](https://docs.phpmyadmin.net/en/latest/intro.html) and [SSMS Object Explorer](https://learn.microsoft.com/en-us/ssms/object/manage-objects-by-using-object-explorer). MariaDB-specific SQL and permission behavior follow [MariaDB's SQL reference](https://mariadb.com/docs/server/reference/sql-statements) and [GRANT documentation](https://mariadb.com/docs/server/reference/sql-statements/account-management-sql-statements/grant). Client file loading is deliberately disabled as described in [MariaDB LOAD DATA INFILE](https://mariadb.com/docs/server/reference/sql-statements/data-manipulation/inserting-loading-data/load-data-into-tables-or-index/load-data-infile).
 
-This version is a working SQL administration client, not full graphical parity with phpMyAdmin or SSMS. Schema and privilege changes beyond the row forms use editable SQL/templates. Visual table designers, relationship diagrams, graphical privilege editors, execution-plan diagrams, global data search, server-copy/backup workflows, SSH tunneling and large streaming imports/exports remain future work. SSMS-specific SQL Server features are not MariaDB features.
+This version provides substantial graphical administration, but does not claim complete phpMyAdmin/SSMS parity. Additional spreadsheet/document import-export formats, graphical execution plans, schema comparison/change tracking, SSH tunnels, visual query construction and unbounded data searches remain outside the current interface. Large production dumps and specialized MariaDB features may require native tools. The [development workboard](DEVELOPMENT-ROADMAP.md) records coverage. SSMS-specific SQL Server features are not MariaDB features.
 
 ## Verification
 
 With `mariadbd` and `mariadb-install-db` installed, `python -m unittest discover -s tests -p test_database_tools.py -v` starts a disposable loopback MariaDB instance on a random port. It tests private profiles, encrypted credentials, endpoint changes, verified custom-CA TLS, SQL batches, transactions, large integer precision, cancellation, limits and disabled file loading. It never connects to the installed MariaDB server.
 
-`python tests/run_database_ui.py` runs the desktop browser test with a separate MariaDB instance. It covers connection create/edit/delete, real query results, table browsing, row editing, CSV import and saved SQL workspace restoration. Existing backup tests verify credential-key preservation. Use the project `.venv/bin/python` for these commands.
+`python tests/run_database_ui.py` runs the desktop browser test with a separate MariaDB instance. It covers connection create/edit/delete, real query results, table browsing, row editing, CSV import and saved SQL workspace restoration. It also verifies account/database creation with redacted review and full export download. Backend tests cover exact database grants, roles/schema operations, partial failure, single-use plans and a 1,200-row export/restore with generated columns, binary data, procedure and trigger. Existing backup tests verify credential-key preservation. Use the project `.venv/bin/python` for these commands.

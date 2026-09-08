@@ -4,6 +4,12 @@ User-visible changes are recorded here for each numbered release. Development be
 
 ## Unreleased
 
+- Expand MariaDB Manager with classic administration dialogs for databases, users/hosts, exact database grants, roles, account security/limits, table design, indexes, foreign keys, routines/events and maintenance. Review single-use SQL plans before applying; passwords stay out of previews and saved SQL drafts.
+- Add MariaDB filtering/sorting, bounded database text search and relationship diagrams. Export all table rows and programmable objects through private transfer jobs; restore SQL with DELIMITER support, progress, cancellation and partial-completion reporting. Document size/consistency limits.
+- Add Git Projects with sandboxed private workspaces, HTTPS remotes, file editing, status/diffs, staging/commits, branches/history and fetch/pull/push controls. Include project data in local backups.
+- Add Code Editor syntax diagnostics for Python, JavaScript and JSON without executing source code.
+- Add API Tester with encrypted private saved requests, HTTP methods/headers/auth/body, formatted responses and timing. Protect platform endpoints and avoid forwarding Pi login credentials.
+
 - Show MariaDB connection failures in a prominent alert, report connection progress, and explain login/TLS/network errors, including unexpected proxy responses.
 
 - Add MariaDB Manager with private saved TCP/TLS connections, optional encrypted credentials, SQL workspaces, object browsing, row-edit SQL preparation, administration templates and bounded SQL/CSV import and result export. Include the credential key in verified backups. See `docs/MARIADB-MANAGER.md` for scope and limits.

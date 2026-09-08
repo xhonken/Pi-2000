@@ -36,3 +36,7 @@ sudo cat /sys/fs/cgroup/system.slice/win2k-sessions.service/browser-USER_ID/memo
 Expected max: `1610612736`; high: `1073741824`. The authenticated `/api/browser/status` endpoint also reports `memory_hard_limit` for the current account's running Browser. An `oom_kill` increase records a kernel memory-limit kill; a crashed process without that evidence is reported as an unexpected stop.
 
 A cgroup configuration written to disk is not proof of enforcement. Verify after reboot, and perform an intentional memory-limit stress test only in an isolated test group/installation. Do not deliberately exhaust the live host's RAM to test a fallback watchdog.
+
+## Development verification record
+
+On the development Pi after reboot, the live memory controller and doctor checks passed. An isolated temporary Browser account reported the configured 1 GiB high, 1.5 GiB maximum and 256 MiB swap limits. Lowering only that temporary group's maximum provoked an actual `oom_kill`, reported by the API as `memory_limit`. Explicit reconnect restored the configured limits and preserved a profile marker. Other services remained active; the temporary account/profile was removed. This verifies that development machine, not every installation.

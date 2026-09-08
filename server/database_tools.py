@@ -11,6 +11,8 @@ import ssl
 import time
 
 import aiomysql
+import database_admin
+from database_transfer import Transfers
 from cryptography.fernet import Fernet
 from pymysql import MySQLError
 from pymysql.constants import CLIENT
@@ -46,7 +48,7 @@ class BoundedConnection(aiomysql.Connection):
     async def _read_bytes(self, count):
         self._packet_bytes = getattr(self, '_packet_bytes', 0) + count
         self._command_bytes = getattr(self, '_command_bytes', 0) + count
-        if self._packet_bytes > MAX_BYTES or self._command_bytes > 8 * MAX_BYTES:
+        if self._packet_bytes > MAX_BYTES or self._command_bytes > (64 * MAX_BYTES if getattr(self, 'transfer_mode', False) else 8 * MAX_BYTES):
             self.close()
             raise ResultLimit()
         return await super()._read_bytes(count)
@@ -73,6 +75,7 @@ class DatabaseTools:
         self.sessions = {}
         self.connecting = 0
         self.cipher = None
+        self.transfers = Transfers(self)
 
     def initialize(self):
         with self.app.db() as db:
@@ -173,7 +176,7 @@ class DatabaseTools:
             session['password'] = ''
 
     def session(self, request, sid):
-        session = self.sessions.get(sid)
+        session = self.sessions.get(sid) if isinstance(sid,str) else None
         if not session or session['uid'] != request[self.app.USER]['id'] or session['token'] != request[self.app.TOKEN]:
             raise web.HTTPNotFound(text='The database session ended. Connect again; the saved connection is preserved.')
         session['used'] = time.monotonic()
@@ -243,7 +246,7 @@ class DatabaseTools:
                             control.close()
                         self.drop(sid)
                 return web.json_response({'ok': True, 'disconnected': bool(task)})
-            if action not in ('query', 'catalog', 'objects', 'structure', 'browse', 'columns'):
+            if action not in ('query', 'catalog', 'objects', 'structure', 'browse', 'columns', 'admin_preview', 'admin_apply', 'admin_list', 'admin_search'):
                 raise web.HTTPBadRequest(text='Unknown database command.')
             if session['task']:
                 raise web.HTTPConflict(text='A command is already running in this session.')
@@ -252,6 +255,12 @@ class DatabaseTools:
             try:
                 async with asyncio.timeout(60):
                     conn = session['conn']
+                    if action.startswith('admin_'):
+                        result = await database_admin.handle(self, session, data)
+                        result['in_transaction'] = bool(conn.server_status & 1)
+                        result['autocommit'] = bool(conn.server_status & 2)
+                        self.app.require_current(request)
+                        return web.json_response(result)
                     parameters = None
                     if action == 'query':
                         sql = data.get('sql', '')
@@ -271,7 +280,32 @@ class DatabaseTools:
                         offset = data.get('offset', 0)
                         if type(offset) is not int or not 0 <= offset <= 10000000:
                             raise web.HTTPBadRequest(text='Invalid page offset.')
-                        sql = 'SELECT * FROM ' + identifier(data.get('database')) + '.' + identifier(data.get('table')) + ' LIMIT 100 OFFSET ' + str(offset)
+                        sql = 'SELECT * FROM ' + identifier(data.get('database')) + '.' + identifier(data.get('table'))
+                        filters = data.get('filter')
+                        if filters:
+                            if not isinstance(filters, dict):
+                                raise web.HTTPBadRequest(text='Invalid row filter.')
+                            column = identifier(filters.get('column'))
+                            operation = filters.get('operator')
+                            operators = {'equals': '=', 'not equal': '<>', 'greater than': '>', 'less than': '<', 'contains': 'LIKE', 'is NULL': 'IS NULL', 'is not NULL': 'IS NOT NULL'}
+                            if operation not in operators:
+                                raise web.HTTPBadRequest(text='Invalid filter comparison.')
+                            sql += ' WHERE ' + column + ' ' + operators[operation]
+                            if operation not in ('is NULL', 'is not NULL'):
+                                value = filters.get('value', '')
+                                if not isinstance(value, str) or len(value)>4096:
+                                    raise web.HTTPBadRequest(text='Filter values support up to 4,096 characters.')
+                                if operation == 'contains':
+                                    # Use an explicit escape character independent of SQL_MODE.
+                                    value = '%' + value.replace('!', '!!').replace('%', '!%').replace('_', '!_') + '%'
+                                sql += " %s ESCAPE '!'" if operation == 'contains' else ' %s'
+                                parameters = (value,)
+                        sort = data.get('sort')
+                        if sort:
+                            if not isinstance(sort, dict) or sort.get('direction') not in ('ASC', 'DESC'):
+                                raise web.HTTPBadRequest(text='Invalid sort order.')
+                            sql += ' ORDER BY ' + identifier(sort.get('column')) + ' ' + sort['direction']
+                        sql += ' LIMIT 100 OFFSET ' + str(offset)
                     results = await self.execute(conn, sql, parameters)
                     current_database = await self.execute(conn, 'SELECT DATABASE()')
                     self.app.require_current(request)
@@ -349,6 +383,9 @@ class DatabaseTools:
         async def sweep():
             while True:
                 await asyncio.sleep(15)
+                for key, job in list(self.transfers.jobs.items()):
+                    if time.monotonic()-job['used'] > 600 or not self.app.session_valid(self.app.SESSIONS.get(job['token'])):
+                        self.transfers.remove(key)
                 for sid, session in list(self.sessions.items()):
                     if not self.app.session_valid(self.app.SESSIONS.get(session['token'])) or (not session['task'] and time.monotonic()-session['used'] > 1800):
                         self.drop(sid)
@@ -356,6 +393,10 @@ class DatabaseTools:
         yield
         task.cancel()
         await asyncio.gather(task, return_exceptions=True)
+        transfers=[job['task'] for job in self.transfers.jobs.values() if job.get('task')]
+        for key in list(self.transfers.jobs):
+            self.transfers.remove(key)
+        await asyncio.gather(*transfers,return_exceptions=True)
         for sid in list(self.sessions):
             self.drop(sid)
 

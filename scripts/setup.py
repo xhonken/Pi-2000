@@ -31,7 +31,7 @@ STATE = Path('/var/lib/win2k-admin')
 APP = Path('/opt/win2k-admin')
 SITE = Path('/srv/win2k')
 CA = Path('/var/lib/caddy/.local/share/caddy/pki/authorities/local/root.crt')
-BASE_PACKAGES = ['python3-venv', 'caddy', 'sqlite3', 'git', 'ca-certificates', 'sudo', 'iproute2']
+BASE_PACKAGES = ['python3-venv', 'caddy', 'sqlite3', 'git', 'ca-certificates', 'sudo', 'iproute2', 'nodejs', 'bubblewrap']
 BROWSER_PACKAGES = ['chromium', 'xvfb', 'pulseaudio', 'pulseaudio-utils', 'bubblewrap',
                     'openbox', 'xauth', 'x11-xserver-utils', 'dbus-x11', 'gnome-keyring',
                     'fonts-liberation', 'nodejs', 'npm', 'build-essential',

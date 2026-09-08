@@ -18,7 +18,7 @@ Current numbered release: **[0.1.0-alpha.2](https://github.com/xhonken/Pi-2000/r
 | Recycle Bin | Restore deleted files, folders and shortcuts, or delete them permanently. |
 | My Devices | Organise SSH connection profiles in folders; verify host keys and connect to remote devices. |
 | Browser | Persistent Chromium tabs, separate cookies and profiles for each account, audio, automatic resizing and an enforced uBlock Origin Lite policy. |
-| Code Editor | Local Ace editor with syntax highlighting, tabs, completion, find/replace, undo/redo, word wrap, themes, file trees, recovery drafts and SFTP editing. |
+| Code Editor | Local Ace editor with syntax highlighting, tabs, completion, find/replace, undo/redo, word wrap, themes, file trees, recovery drafts, SFTP editing and Python/JavaScript/JSON syntax diagnostics. |
 | Dimension Drawing | Dimensioned 2D shapes, rotated cutouts, frame and hole patterns, approximate clearance/collision checks, private saved drawings, SVG and CSV export. |
 | Calculator | Arithmetic, parentheses, powers, scientific functions, memory buttons and session history. Trigonometry uses degrees. |
 | Notes and Tasks | Private notes and checklists with automatic saving. |
@@ -163,4 +163,8 @@ Vendored Ace, xterm.js and PDF.js retain their upstream licence files. Browser d
 
 ### MariaDB Manager
 
-Manage private local or external MariaDB connections from Start → Programs → Development and Drawing. The manager includes saved connections, verified TLS, SQL workspaces, table browsing, row-edit SQL preparation and administration templates. See [MariaDB Manager](docs/MARIADB-MANAGER.md) for import/export support, credentials and current limits.
+Manage private local or external MariaDB connections from Start → Programs → Development and Drawing. The manager includes saved connections, verified TLS, SQL workspaces, table browsing/filtering, user and privilege administration, table design, routines/events, search, relations and database export/restore. Secondary operations use classic menus and focused review dialogs. See [MariaDB Manager](docs/MARIADB-MANAGER.md) for import/export support, credentials and current limits.
+
+### Git Projects and API Tester
+
+Private Git projects provide sandboxed repositories, HTTPS remotes, file editing, staging, commits and branches. API Tester provides encrypted private request collections, HTTP authentication/headers/body, response inspection and timing. See [Development Tools](docs/DEVELOPMENT-TOOLS.md) for supported workflows, isolation and limits.
