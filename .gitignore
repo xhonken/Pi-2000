@@ -40,3 +40,8 @@ browsers/
 
 # Superseded screenshot from the Swedish prototype
 docs/browser-preview.png
+
+# Machine-specific installation settings and generated plans
+pi2000.toml
+config/local*.toml
+.install-plan/

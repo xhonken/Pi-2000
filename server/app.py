@@ -25,7 +25,7 @@ from file_store import FileStore, FILE_USER
 from personal_store import PersonalStore
 
 STATE = Path(os.environ.get('WIN2K_STATE', '/var/lib/win2k-admin'))
-ORIGIN = os.environ.get('WIN2K_ORIGIN', 'https://192.168.1.250')
+ORIGIN = os.environ.get('WIN2K_ORIGIN', 'https://localhost')
 COOKIE = '__Host-win2k'
 TOKEN = web.RequestKey('token', str)
 USER = web.RequestKey('user', dict)

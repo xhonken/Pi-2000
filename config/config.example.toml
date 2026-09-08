@@ -1,0 +1,15 @@
+# Copy to pi2000.toml and edit before running scripts/install.sh.
+# This file contains deployment settings, never account or SSH passwords.
+
+[network]
+# Use the Pi's reserved LAN address or a name that your clients can resolve.
+# HTTPS is required. Use the same address when opening the desktop.
+public_url = "https://pi2000.local"
+# "internal": Caddy's local CA (LAN). "public": automatic public certificate (DNS name).
+tls = "internal"
+# Optional local IP to listen on. Empty = all interfaces; this is not a firewall.
+bind_address = ""
+
+[features]
+# Includes Chromium, audio, the streaming client and its build dependencies.
+browser = true

@@ -8,8 +8,8 @@ User=win2k-admin
 Group=win2k-admin
 WorkingDirectory=/opt/win2k-admin
 ExecStart=/opt/win2k-admin/venv/bin/python /opt/win2k-admin/app.py
+EnvironmentFile=/etc/pi2000web/runtime.env
 Environment=WIN2K_STATE=/var/lib/win2k-admin
-Environment=WIN2K_ORIGIN=https://192.168.1.250
 Environment=WIN2K_SESSION_WORKER=1
 Environment=WIN2K_CGROUP_LIMITS=1
 RuntimeDirectory=win2k-sessions
