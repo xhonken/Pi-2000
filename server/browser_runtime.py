@@ -1,5 +1,6 @@
 """Private persistent browser processes, with no publicly reachable debug ports."""
 import asyncio
+import logging
 import os
 from pathlib import Path
 import shutil
@@ -9,7 +10,7 @@ import time
 import sys
 import uuid
 from urllib.parse import urlsplit
-from resource_limits import BrowserLimits
+from resource_limits import BrowserLimits, available_memory, BROWSER_START_RESERVE, BROWSER_MEMORY_MAX
 
 
 def valid_browser_url(url):
@@ -36,6 +37,7 @@ class BrowserRuntime:
         self.lock = asyncio.Lock()
         self.resources = BrowserLimits()
         self.frozen = False
+        self.last_stops = {}
 
     def command(self, profile, runtime):
         args = ['/usr/bin/bwrap', '--unshare-user', '--unshare-pid', '--unshare-ipc', '--unshare-uts',
@@ -74,6 +76,9 @@ class BrowserRuntime:
                 raise BrowserUnavailable('Three browser sessions are already running. End a session to free up a slot.')
             if shutil.disk_usage(self.root.parent).free < 512 * 1024**2:
                 raise BrowserUnavailable('Server storage is almost full. Free some space before starting the browser.')
+            available = available_memory()
+            if available is not None and available < BROWSER_START_RESERVE:
+                raise BrowserUnavailable('Not enough available server memory to start Browser safely. Close unused browser sessions or server applications and try again. Your saved browser profile is unchanged.')
             self.root.mkdir(parents=True, exist_ok=True, mode=0o700)
             profile = self.root / str(int(user_id))
             profile.mkdir(exist_ok=True, mode=0o700)
@@ -92,9 +97,11 @@ class BrowserRuntime:
             finally:
                 log.close()
             entry = {'process': process, 'runtime': runtime, 'socket': runtime / 'stream.sock', 'last_seen': time.monotonic(), 'clients': 0}
+            entry['oom_baseline'] = self.resources.usage(user_id).get('oom_kills', 0)
             self.sessions[user_id] = entry
             for _ in range(300):
                 if entry['socket'].exists() and (runtime / 'url-ready').exists():
+                    self.last_stops.pop(user_id, None)
                     return entry
                 if process.returncode is not None:
                     await self._stop(user_id)
@@ -102,6 +109,38 @@ class BrowserRuntime:
                 await asyncio.sleep(0.1)
             await self._stop(user_id)
             raise BrowserUnavailable('The browser took too long to start.')
+
+    def status(self, user_id):
+        entry = self.sessions.get(user_id)
+        if entry and entry['process'].returncode is None:
+            usage = self.resources.usage(user_id)
+            warning = 'Browser is approaching its memory limit. Close unused tabs.' if usage.get('memory_bytes', 0) >= 1200 * 1024**2 else None
+            return {'state': 'running', 'reason': None, 'warning': warning, **usage}
+        if entry:
+            usage = self.resources.usage(user_id)
+            reason = 'memory_limit' if usage.get('oom_kills', 0) > entry.get('oom_baseline', 0) else 'crashed'
+        else:
+            reason = self.last_stops.get(user_id, 'not_started')
+        return {'state': 'stopped', 'reason': reason, 'warning': None}
+
+    async def monitor(self):
+        # Serialize with start/stop so an old watchdog observation cannot kill a new session.
+        async with self.lock:
+            for uid, entry in list(self.sessions.items()):
+                usage = self.resources.usage(uid)
+                reason = None
+                if entry['process'].returncode is not None:
+                    reason = 'memory_limit' if usage.get('oom_kills', 0) > entry.get('oom_baseline', 0) else 'crashed'
+                elif usage.get('memory_bytes', 0) > BROWSER_MEMORY_MAX:
+                    reason = 'memory_limit'
+                elif shutil.disk_usage(self.root.parent).free < 512 * 1024**2:
+                    reason = 'disk_full'
+                elif not entry.get('clients', 0) and time.monotonic() - entry.get('last_seen', time.monotonic()) > 86400:
+                    reason = 'idle_timeout'
+                if reason:
+                    logging.warning('Browser stopped: user %s, reason %s', uid, reason)
+                    self.last_stops[uid] = reason
+                    await self._stop(uid)
 
     async def open_url(self, user_id, url):
         if not valid_browser_url(url):
@@ -141,8 +180,10 @@ class BrowserRuntime:
 
     async def stop(self, user_id, remove=False):
         async with self.lock:
+            self.last_stops[user_id] = 'ended'
             await self._stop(user_id)
             if remove:
+                self.last_stops.pop(user_id, None)
                 await asyncio.to_thread(shutil.rmtree, self.root / str(int(user_id)), True)
 
     async def freeze(self):

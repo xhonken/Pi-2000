@@ -3,6 +3,21 @@ import os
 import time
 from pathlib import Path
 
+BROWSER_MEMORY_MAX = 1536 * 1024**2
+BROWSER_START_RESERVE = BROWSER_MEMORY_MAX + 512 * 1024**2
+
+
+def available_memory(path=Path('/proc/meminfo')):
+    # MemAvailable includes reclaimable cache; MemFree alone rejects healthy hosts.
+    try:
+        for line in path.read_text().splitlines():
+            if line.startswith('MemAvailable:'):
+                return int(line.split()[1]) * 1024
+    except (OSError, ValueError):
+        pass
+    return None
+
+
 class BrowserLimits:
     def __init__(self):
         self.root = None
@@ -44,7 +59,10 @@ class BrowserLimits:
                         fields = Path('/proc',pid,'smaps_rollup').read_text().splitlines()
                         memory += sum(int(line.split()[1])*1024 for line in fields if line.startswith('Pss:'))
                     except (FileNotFoundError, ProcessLookupError, PermissionError): pass
-            return {'memory_bytes': memory, 'memory_hard_limit': 'memory' in self.controllers,
+            events = {}
+            if (group/'memory.events').exists():
+                events = dict(line.split() for line in (group/'memory.events').read_text().splitlines())
+            return {'oom_kills': int(events.get('oom_kill', 0)), 'memory_bytes': memory, 'memory_hard_limit': 'memory' in self.controllers,
                     'processes': int((group/'pids.current').read_text())}
         except FileNotFoundError:
             return {}

@@ -767,6 +767,10 @@ async def browser_start(request):
     return web.json_response({'url': '/api/browser/view/'})
 
 
+async def browser_status(request):
+    return web.json_response(BROWSERS.status(request[USER]['id']))
+
+
 async def browser_stop(request):
     await BROWSERS.stop(request[USER]['id'])
     return web.json_response({'ok': True})
@@ -908,14 +912,7 @@ async def housekeeping(app):
                     TERMINALS.pop(key, None)
             if BROWSERS and not maintenance_active():
                 if hasattr(BROWSERS, 'thaw'): await BROWSERS.thaw()
-                for uid, entry in list(BROWSERS.sessions.items()):
-                    usage = BROWSERS.resources.usage(uid) if hasattr(BROWSERS, 'resources') else {}
-                    if usage.get('memory_bytes', 0) > 1536 * 1024**2 or shutil.disk_usage(STATE).free < 512 * 1024**2:
-                        logging.warning('Browser stopped by memory/disk watchdog: user %s', uid)
-                        await BROWSERS.stop(uid)
-                        continue
-                    if not entry.get('clients', 0) and time.monotonic() - entry.get('last_seen', time.monotonic()) > 86400:
-                        await BROWSERS.stop(uid)
+                if hasattr(BROWSERS, 'monitor'): await BROWSERS.monitor()
     task = asyncio.create_task(loop())
     yield
     task.cancel()
@@ -1002,12 +999,13 @@ def make_app():
 
     if WORKER_SOCKET:
         async def forward(request): return await session_proxy.proxy(request, WORKER_SOCKET)
-        for path in ('/api/terminals', '/api/terminals/{id}', '/api/terminal', '/api/browser/start', '/api/browser/stop', '/api/browser/view/{path:.*}', '/api/runtime'):
+        for path in ('/api/terminals', '/api/terminals/{id}', '/api/terminal', '/api/browser/start', '/api/browser/status', '/api/browser/stop', '/api/browser/view/{path:.*}', '/api/runtime'):
             app.router.add_route('*', path, forward)
     else:
         app.router.add_get('/api/terminals', terminal_list)
         app.router.add_delete('/api/terminals/{id}', terminal_delete)
         app.router.add_post('/api/browser/start', browser_start)
+        app.router.add_get('/api/browser/status', browser_status)
         app.router.add_post('/api/browser/stop', browser_stop)
         app.router.add_route('*', '/api/browser/view/{path:.*}', browser_proxy)
         app.router.add_get('/api/terminal', terminal)

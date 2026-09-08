@@ -25,6 +25,9 @@ class FakeBrowsers:
         self.sessions[user_id] = entry
         return entry
 
+    def status(self, user_id):
+        return {'state': 'running' if user_id in self.sessions else 'stopped', 'reason': None, 'warning': None}
+
     async def open_url(self, user_id, url):
         self.opened.append((user_id, url))
 
@@ -85,6 +88,15 @@ class BrowserTests(unittest.IsolatedAsyncioTestCase):
                                   'path':request.path, 'cookie':request.headers.get('Cookie'),
                                   'authorization':request.headers.get('Authorization'),
                                   'body':await request.text()})
+
+    async def test_browser_status_is_account_scoped(self):
+        await self.client.post('/api/browser/start', headers=self.owner)
+        own = await self.client.get('/api/browser/status', headers=self.owner)
+        other = await self.client.get('/api/browser/status', headers=self.alice)
+        self.assertEqual((await own.json())['state'], 'running')
+        self.assertEqual((await other.json())['state'], 'stopped')
+        anonymous = await self.client.get('/api/browser/status')
+        self.assertEqual(anonymous.status, 401)
 
     async def test_shortcut_url_validation_and_account_routing(self):
         for url in ['file:///etc/passwd', 'javascript:alert(1)', '--new-window']:

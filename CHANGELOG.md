@@ -4,7 +4,12 @@ User-visible changes are recorded here for each numbered release. Development be
 
 ## Unreleased
 
-No changes recorded yet.
+- Browser checks available server RAM before starting a new session; reconnecting to a running session remains possible when memory is low.
+- Browser reports memory-limit stops, crashes, low disk space and idle timeouts separately, removes a stopped stream and offers explicit reconnect.
+- Browser displays a warning as its memory use approaches the limit. Watchdog stop reasons are logged and kept per account.
+- Memory cgroup activation and post-reboot verification are documented in docs/BROWSER-MEMORY.md.
+
+These changes are local development after 0.1.0-alpha.2. No new GitHub release has been published.
 
 ## 0.1.0-alpha.2 — 2026-09-08
 

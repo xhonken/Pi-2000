@@ -144,7 +144,7 @@ window.addEventListener('pagehide',()=>{
 });
 shell.actions.browser=async(url)=>{
  shell.closeStart();
- if(browserWindow){browserWindow.focus();if(url)await api('/browser/start','POST',{url});return;}
+ if(browserWindow){browserWindow.focus();if(url)await browserWindow.openUrl(url);return;}
  const user=account, win=makeWindow('Browser','browser-window');browserWindow=win;
  win.body.innerHTML='<div class="browser-toolbar"><button class="win2k-button browser-reconnect">Reconnect</button><button class="win2k-button browser-fullscreen">Full Screen</button><button class="win2k-button browser-stop">End Session…</button><span>Tabs and logins are private to your account.</span></div><div class="browser-content"><p class="browser-loading">Starting your browser…</p></div>';
  let disposed=false,connecting=false,monitor;
@@ -164,6 +164,7 @@ shell.actions.browser=async(url)=>{
   }catch(error){if(!disposed){win.status.textContent=error.message;win.body.querySelector('.browser-content').textContent=error.message;}}
   finally{connecting=false;if(!disposed)win.body.querySelector('.browser-reconnect').disabled=false;}
  }
+ win.openUrl=async target=>{if(connecting)throw Error('Browser is connecting. Try the shortcut again shortly.');url=target;await connect();};
  win.body.querySelector('.browser-reconnect').onclick=connect;
  win.body.querySelector('.browser-fullscreen').onclick=()=>win.body.querySelector('iframe')?.requestFullscreen().catch(error=>shell.notify(error.message));
  win.body.querySelector('.browser-stop').onclick=async()=>{
@@ -175,8 +176,14 @@ shell.actions.browser=async(url)=>{
  window.addEventListener('offline',offline);window.addEventListener('online',online);
  async function checkBrowser(){
   try{
-   const state=await api('/runtime');
-   if(!disposed&&!connecting&&!state.users.some(row=>row.id===user.id&&row.browsers))win.status.textContent='The browser session ended, possibly due to a resource limit. Select Reconnect to start it again.';
+   const state=await api('/browser/status');
+   if(disposed||connecting||account!==user)return;
+   if(state.state==='stopped'){
+    const reasons={memory_limit:'Browser stopped after reaching its memory limit.',crashed:'The browser process stopped unexpectedly.',disk_full:'Browser stopped because server storage is almost full.',idle_timeout:'Browser stopped after 24 hours without a connection.',ended:'The browser session was ended.',not_started:'No browser session is running.'};
+    const message=(reasons[state.reason]||'The browser session ended.')+' Your saved profile is preserved. Select Reconnect to start again.';
+    win.status.textContent=message;win.body.querySelector('.browser-content').textContent=message;
+   }else if(state.warning){win.status.textContent=state.warning;}
+   else if(win.body.querySelector('iframe'))win.status.textContent='Connected. Tabs and logins are private to your account.';
   }catch(error){if(!disposed&&!connecting)win.status.textContent=error.message+' Select Reconnect when the connection is available again.';}
   finally{if(!disposed)monitor=setTimeout(checkBrowser,10000);}
  }
