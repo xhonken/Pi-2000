@@ -4,6 +4,10 @@ User-visible changes are recorded here for each numbered release. Development be
 
 ## Unreleased
 
+No changes recorded yet.
+
+## 0.1.0-alpha.3 — 2026-09-09
+
 - Integrate upstream phpMyAdmin in MariaDB Manager with a Windows 2000 theme, private saved connections and an authenticated, isolated PHP-FPM gateway. Preserve the native saved SQL workspace as a separate tool.
 
 - Separate MariaDB table data from SQL editing; use a single scrolling query strip with close buttons, a query selector and bulk management. Preserve legacy drafts, reuse empty tabs, bound new tab growth and isolate recent results by query. Prevent SQL tab names from intercepting application menu commands.
@@ -25,7 +29,13 @@ User-visible changes are recorded here for each numbered release. Development be
 - Browser displays a warning as its memory use approaches the limit. Watchdog stop reasons are logged and kept per account.
 - Memory cgroup activation and post-reboot verification are documented in docs/BROWSER-MEMORY.md.
 
-These changes are local development after 0.1.0-alpha.2. No new GitHub release has been published.
+- Keep the Start menu Search button wide enough for its label, including larger text sizes.
+
+### Upgrade and known limitations
+
+The updater now installs phpMyAdmin and PHP 8.4 packages and a dedicated isolated PHP-FPM service. Run the updater, then doctor, and reload the desktop. Existing saved connections and native SQL drafts are preserved. Complete active database work before updating because API database sessions are not resumed.
+
+Optional phpMyAdmin metadata features require configuration storage on an authorized database. Twig deprecation notices have still been reported on some pages; the current filter does not cover every path. This release does not claim that warning is fully resolved. See [release notes](docs/releases/0.1.0-alpha.3.md) for validation and resource limits.
 
 ## 0.1.0-alpha.2 — 2026-09-08
 
