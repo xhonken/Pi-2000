@@ -11,9 +11,9 @@ Current scope: Browser memory verification, MariaDB Manager, private Git project
 | Databases | Create/alter/drop, character sets/collations, metadata, create database as part of new user workflow | Alters defaults rather than rewriting existing text columns |
 | Accounts | User/host identities, passwords, rename/drop, lock/unlock, expiration, TLS requirements, limits, scoped grants/revocation, role assignment/default role | Connected database grants determine authority; specialized authentication plugins use SQL |
 | Tables | Create table/columns, modify/rename/drop columns, indexes, composite foreign keys, table rename/copy, engine/collation/comment/AUTO_INCREMENT | Generated-column expressions and specialized engine options use SQL; copy uses CREATE TABLE LIKE |
-| Rows | Browse, filter, sort, paging, insert/edit/delete SQL forms, optimistic matching by primary key/original values | Binary editing uses SQL; no arbitrary-result row mutation |
+| Rows | Browse, filter, sort, paging, direct insert/edit/delete forms with defaults/current-time/NULL modes, optimistic matching by primary key/original values | Binary editing uses SQL; no arbitrary-result row mutation |
 | Programmable objects | List/definition/templates/drop for views, routines, triggers, events; enable/disable events | Definitions edited as SQL; execution depends on server version and grants |
-| SQL | Multiple tabs/results, private saved drafts, selection execution, EXPLAIN, cancellation, transaction status | Text SQL editor; no graphical plan or visual query builder |
+| SQL | Multiple tabs/results, private saved drafts, selection execution, EXPLAIN, cancellation, transaction status, guided JOIN/SELECT builder | Text SQL editor; no graphical plan or advanced aggregation/subquery builder |
 | Transfers | All-row SQL export, optional routines/triggers/events, generated-column/binary handling; DELIMITER restore, progress/cancel | 64 MB export, 16 MB restore, five minutes; consistent InnoDB snapshot only; preserve definers/database references |
 | Maintenance | Status/variables/process inspection, kill query, check/analyze/optimize/repair | Variable changes and replication administration use SQL |
 | Discovery | Database text search, foreign-key diagram and details | Search caps 50 tables / 250 matching previews; diagram caps 80 related tables |
@@ -23,7 +23,7 @@ Current scope: Browser memory verification, MariaDB Manager, private Git project
 
 ## Remaining beyond this implementation
 
-This is not a claim that every phpMyAdmin feature exists. Spreadsheet/document formats, visual query building, graphical query plans, schema comparison/tracking, richer SQL editor tooling, advanced authentication-plugin forms, SSH tunneling and very large database transfers remain potential follow-up work. Native SQL remains available for MariaDB operations without a dedicated form.
+This is not a claim that every phpMyAdmin feature exists. Spreadsheet/document formats, advanced visual query building, graphical query plans, schema comparison/tracking, richer SQL editor tooling, advanced authentication-plugin forms, SSH tunneling and very large database transfers remain potential follow-up work. Native SQL remains available for MariaDB operations without a dedicated form.
 
 Database users and Pi-2000 users are separate. New-user database access is an exact database grant without GRANT OPTION. Pi-2000 web administrator status cannot bypass MariaDB grants or filesystem isolation.
 

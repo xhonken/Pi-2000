@@ -4,6 +4,8 @@ User-visible changes are recorded here for each numbered release. Development be
 
 ## Unreleased
 
+- Row forms now execute inserts/edits/deletes directly on OK and refresh the table; explicit defaults, NULL and current-time modes avoid blank auto-ID/datetime errors. Add a tabbed SELECT builder with guided LEFT/RIGHT/INNER/CROSS joins, foreign-key suggestions, columns, filters, sorting and editable SQL output.
+
 - Expand MariaDB Manager with classic administration dialogs for databases, users/hosts, exact database grants, roles, account security/limits, table design, indexes, foreign keys, routines/events and maintenance. Review single-use SQL plans before applying; passwords stay out of previews and saved SQL drafts.
 - Add MariaDB filtering/sorting, bounded database text search and relationship diagrams. Export all table rows and programmable objects through private transfer jobs; restore SQL with DELIMITER support, progress, cancellation and partial-completion reporting. Document size/consistency limits.
 - Add Git Projects with sandboxed private workspaces, HTTPS remotes, file editing, status/diffs, staging/commits, branches/history and fetch/pull/push controls. Include project data in local backups.
