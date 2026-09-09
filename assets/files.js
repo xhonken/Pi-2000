@@ -2,11 +2,12 @@
  'use strict';
  const shell=window.Win2kShell,desktop=window.Win2kDesktop,api=desktop.api;
  const windows=new Set(),uploads=new Set();
+ let picker=null;
  let clipboard=null;let loaded=false;let user=null,data={items:[],used:0,reserved:0,quota:52428800},revision=0,refreshing;
  const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const mb=bytes=>(bytes/1048576).toLocaleString('en-GB',{maximumFractionDigits:2})+' MB';
  const find=id=>data.items.find(item=>item.id===id);
- const run=fn=>Promise.resolve().then(fn).catch(error=>shell.notify(error.message));
+ const run=fn=>{try{return Promise.resolve(fn()).catch(error=>shell.notify(error.message));}catch(error){shell.notify(error.message);}};
  function path(id){const parts=[],seen=new Set();while(id!=='files'&&id!=='desktop'){if(seen.has(id))break;seen.add(id);const item=find(id);if(!item)break;parts.unshift(item.name);id=item.parent;}parts.unshift(id==='desktop'?'Desktop':'My Files');return parts.join(' / ');}
  async function refresh(){
   const current=user,ticket=++revision;if(!current)return;
@@ -43,7 +44,20 @@
   for(const item of shell.trashShortcuts())await shell.changeTrashShortcut(item.id,true);
   await refresh();
  }
- function pickFiles(parent){const input=document.createElement('input');input.type='file';input.multiple=true;input.onchange=()=>run(()=>uploadFiles([...input.files],parent));input.click();}
+ function pick(parent,directory=false){
+  if(!user)return;const owner=user;
+  picker?.remove();const input=document.createElement('input');picker=input;
+  input.type='file';input.multiple=true;input.hidden=true;
+  if(directory)input.webkitdirectory=true;
+  const cleanup=()=>{input.remove();if(picker===input)picker=null;};
+  input.oncancel=cleanup;
+  input.onchange=()=>{const files=[...input.files];cleanup();if(user!==owner)return;run(()=>directory?uploadPaths(files,parent):uploadFiles(files,parent));};
+  document.body.append(input);
+  try{if(typeof input.showPicker==='function')input.showPicker();else input.click();}
+  catch(error){cleanup();shell.notify('Could not open the file picker. Click Upload again or drag files into the folder. '+error.message);}
+ }
+ function pickFiles(parent){pick(parent);}
+
  async function uploadFiles(files,parent,displayWindow){
   const owner=user;if(!files.length||!owner)return;
   const win=displayWindow||openFolder(parent);let cancelled=false;
@@ -89,7 +103,7 @@
   await uploadPaths(files,parent);
   for(const folder of empty){let target=parent;for(const name of folder.split('/').filter(Boolean)){await refresh();const existing=data.items.find(x=>x.parent===target&&x.name===name&&x.kind==='folder'&&x.state==='live');target=existing?.id||(await api('/files/folders','POST',{name,parent:target})).id;}}await refresh();
  }
- function pickFolder(parent){const input=document.createElement('input');input.type='file';input.multiple=true;input.webkitdirectory=true;input.onchange=()=>run(()=>uploadPaths([...input.files],parent));input.click();}
+ function pickFolder(parent){pick(parent,true);}
  function acceptDrop(element,parent){
   element.addEventListener('dragover',event=>{if(!user)return;event.preventDefault();event.stopPropagation();if(element.id!=='desktop')element.classList.add('file-drop-target');event.dataTransfer.dropEffect=event.dataTransfer.types.some(type=>['application/x-win2k-file','application/x-win2k-shortcut'].includes(type))?'move':'copy';});
   element.addEventListener('dragleave',()=>element.classList.remove('file-drop-target'));
@@ -177,7 +191,7 @@
  document.addEventListener('dragover',event=>{if(user&&event.dataTransfer.types.includes('Files'))event.preventDefault();});
  document.addEventListener('drop',event=>{if(user&&event.dataTransfer.types.includes('Files')){event.preventDefault();run(()=>uploadFiles([...event.dataTransfer.files],'files'));}});
  window.Win2kFiles={openFolder,refresh,uploadFiles,path};
- function changeUser(next){clipboard=null;for(const xhr of uploads)xhr.abort();uploads.clear();user=next;loaded=false;revision++;data={items:[],used:0,reserved:0,quota:next?.storage_quota||52428800};document.querySelector('.file-context')?.remove();renderDesktop();if(user)run(refresh);}
+ function changeUser(next){picker?.remove();picker=null;clipboard=null;for(const xhr of uploads)xhr.abort();uploads.clear();user=next;loaded=false;revision++;data={items:[],used:0,reserved:0,quota:next?.storage_quota||52428800};document.querySelector('.file-context')?.remove();renderDesktop();if(user)run(refresh);}
  window.addEventListener('win2k-user',event=>changeUser(event.detail));window.addEventListener('win2k-files-refresh',queueRefresh);
  window.addEventListener('focus',()=>{if(user)queueRefresh();});changeUser(desktop.getUser());
 })();

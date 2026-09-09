@@ -4,6 +4,8 @@ User-visible changes are recorded here for each numbered release. Development be
 
 ## Unreleased
 
+- Keep upload file inputs attached to the page and launch pickers directly from user actions; share cleanup and account guards across desktop, Files and folder uploads.
+
 - Add Help → About Pi-2000Web with the installed version, source revision and generated build identity.
 - Protect unsaved API requests and Git file dialogs on replacement, close and logoff; warn before reloading unsaved development work and save SQL drafts before logoff.
 - Apply phpMyAdmin dependency-deprecation filtering before AJAX/page rendering while preserving actionable warnings.

@@ -138,7 +138,7 @@ document.body.style.backgroundColor = currentColor;
 // Server authentication is installed by devices.js.
 $('#start-button').onclick = toggleStart;
 $('#close-window').onclick = actions.close;
-document.addEventListener('click', e => { const action = e.target.closest('[data-action]'); if (action && !$('#session').hidden) Promise.resolve().then(()=>actions[action.dataset.action]?.()).catch(error=>notify(error.message)); if (!e.target.closest('#start-menu,#start-button')) closeStart(); if (!e.target.closest('#desktop-menu')) $('#desktop-menu').hidden = true; });
+document.addEventListener('click', e => { const action = e.target.closest('[data-action]'); if (action && !$('#session').hidden) {try {Promise.resolve(actions[action.dataset.action]?.()).catch(error=>notify(error.message));}catch(error){notify(error.message);}} if (!e.target.closest('#start-menu,#start-button')) closeStart(); if (!e.target.closest('#desktop-menu')) $('#desktop-menu').hidden = true; });
 $('#desktop').addEventListener('contextmenu', e => { if (e.target.closest('a,button')) return; e.preventDefault(); closeStart(); const menu = $('#desktop-menu'); menu.hidden = false; menu.style.left = `${Math.max(0,Math.min(e.clientX,innerWidth-menu.offsetWidth-4))}px`; menu.style.top = `${Math.max(0,Math.min(e.clientY,innerHeight-menu.offsetHeight-40))}px`; menu.querySelector('button').focus(); });
 document.addEventListener('keydown', e => {
  if ($('#session').hidden) return;
