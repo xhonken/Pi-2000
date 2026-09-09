@@ -277,6 +277,9 @@ def verify(config, compare=True):
         for source in (ROOT / 'server').glob('*.py'):
             if source.read_bytes() != (APP / source.name).read_bytes():
                 raise ValueError('Installed API source differs from checkout: ' + source.name)
+        for source in (ROOT / 'server/phpmyadmin').glob('*'):
+            if source.read_bytes() != (APP / 'phpmyadmin' / source.name).read_bytes():
+                raise ValueError('Installed phpMyAdmin integration differs: ' + source.name)
         if page != (SITE / 'index.html').read_bytes():
             raise ValueError('HTTPS entry page differs from the installed page.')
         assets = re.findall(r'(?:src|href)="((?:assets|dist)/[^"#]+)"', page.decode())
@@ -293,7 +296,7 @@ def verify(config, compare=True):
     with sqlite3.connect('file:' + str(STATE / 'admin.sqlite3') + '?mode=ro', uri=True) as db:
         if db.execute('PRAGMA integrity_check').fetchone()[0] != 'ok' or db.execute('PRAGMA foreign_key_check').fetchone():
             raise ValueError('Database integrity check failed.')
-    for unit in ('win2k-admin', 'win2k-sessions', 'caddy', 'win2k-backup.timer'):
+    for unit in ('win2k-admin', 'win2k-sessions', 'caddy', 'win2k-backup.timer', 'pi2000-phpmyadmin'):
         if not active(unit):
             raise ValueError('Service is not active: ' + unit)
     if subprocess.run(['runuser', '-u', 'win2k-admin', '--', 'test', '-r',
@@ -356,6 +359,7 @@ def deploy(config, args):
     atomic(ENV, output['runtime.env'])
     atomic(CONFIG, output['config.toml'], 0o600)
     try:
+        run('bash', ROOT / 'scripts/install-phpmyadmin.sh')
         run('bash', ROOT / 'scripts/publish-server.sh')
         run('bash', ROOT / 'scripts/publish-local.sh')
         if args.restart_sessions:

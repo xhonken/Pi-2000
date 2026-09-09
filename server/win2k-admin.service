@@ -6,6 +6,7 @@ Wants=network-online.target win2k-sessions.service
 [Service]
 User=win2k-admin
 Group=win2k-admin
+SupplementaryGroups=pi2000-phpmyadmin
 WorkingDirectory=/opt/win2k-admin
 ExecStart=/opt/win2k-admin/venv/bin/python /opt/win2k-admin/app.py
 EnvironmentFile=/etc/pi2000web/runtime.env

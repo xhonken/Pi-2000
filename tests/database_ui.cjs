@@ -8,7 +8,7 @@ const assert=require('node:assert/strict');
   await page.goto('http://127.0.0.1:18765');
   await page.locator('#login-form [name=password]').fill('browser-test-password');
   await page.locator('#login-form [type=submit]').click();await page.locator('#session').waitFor({state:'visible'});
-  await page.evaluate(()=>Win2kShell.actions.database());
+  await page.evaluate(()=>Win2kShell.actions.databaseLegacy());
   const w=page.locator('.database-window');
   async function enterSQL(value){if(!await w.locator('.db-sql').isVisible())await w.getByRole('button',{name:'SQL Queries',exact:true}).click();await w.locator('.db-sql').fill(value);}
   async function menu(group,label){await w.getByRole('menuitem',{name:group,exact:true}).click();await page.getByRole('menuitem',{name:label,exact:true}).click();}

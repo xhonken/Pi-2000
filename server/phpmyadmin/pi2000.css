@@ -1,0 +1,25 @@
+/* Pi-2000 theme overlay. Upstream phpMyAdmin layout and controls are retained. */
+:root{--bs-body-font-family:Tahoma,Arial,sans-serif;--bs-body-font-size:13px;--bs-border-radius:0;--bs-border-radius-sm:0;--bs-border-radius-lg:0;--bs-primary:#0a246a}
+html,body{font-family:Tahoma,Arial,sans-serif!important;font-size:var(--pi2000-font-size,13px);background:#d4d0c8!important;color:#000}
+a{color:#003399}h1,h2,h3,h4{font-family:Tahoma,Arial,sans-serif!important}
+#pma_navigation{background:#d4d0c8!important;border-right:2px groove white!important}
+#pma_navigation_header,#pma_navigation_content{background:#d4d0c8!important}
+#pma_navigation_header a img{max-height:38px}
+#serverinfo{background:#eee!important;border:1px inset white;padding:6px!important}
+#topmenu,#topmenucontainer{background:#d4d0c8!important;box-shadow:none!important}
+#topmenu>li>a{background:#d4d0c8!important;border:2px outset #eee;border-radius:0!important;margin:2px 1px;color:#000!important}
+#topmenu>li.active>a{background:#fff!important;border-style:inset;font-weight:bold}
+.btn,button,input[type=submit],input[type=button],.ui-button{border-radius:0!important;border:2px outset #eee!important;background:#d4d0c8!important;color:#000!important;box-shadow:none!important}
+.btn:active,button:active,input[type=submit]:active{border-style:inset!important}
+input:not([type=checkbox]):not([type=radio]):not([type=submit]),select,textarea{border-radius:0!important;border:2px inset #eee!important;background:#fff;color:#000}
+.card,.modal-content,.ui-dialog,fieldset{border-radius:0!important;border:2px groove #fff!important;background:#d4d0c8!important;box-shadow:none!important}
+.card-header,.modal-header,.ui-dialog-titlebar{background:linear-gradient(90deg,#0a246a,#1084d0)!important;color:#fff!important;border-radius:0!important;font-weight:bold}
+.card-header a,.modal-header button{color:#fff!important}
+table{background:white}table thead th,table th{background:#d4d0c8!important;color:#000!important;border-color:#888!important;text-shadow:none!important}
+table tbody tr:nth-child(even) td{background:#f3f3f3}table tbody tr:hover td{background:#dce9fa!important}
+.CodeMirror,.sql{font-family:monospace!important}
+#pma_console .toolbar{background:#d4d0c8!important;border-top:2px outset white}
+.alert{border-radius:0!important}.navigationbar{background:#d4d0c8!important}
+*:focus-visible{outline:1px dotted #000!important;outline-offset:2px}
+
+.card-header,.card-header h2,.card-header h3{font-size:15px!important;padding:5px 8px!important}

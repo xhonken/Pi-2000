@@ -1,0 +1,29 @@
+[Unit]
+Description=Pi-2000 isolated phpMyAdmin runtime
+After=network.target
+[Service]
+User=pi2000-phpmyadmin
+Group=pi2000-phpmyadmin
+ExecStart=/usr/sbin/php-fpm8.4 --fpm-config /opt/win2k-admin/phpmyadmin/php-fpm.conf --nodaemonize
+RuntimeDirectory=pi2000-phpmyadmin
+RuntimeDirectoryMode=0750
+StateDirectory=pi2000-phpmyadmin
+StateDirectoryMode=0700
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectSystem=strict
+ProtectHome=true
+InaccessiblePaths=/var/lib/win2k-admin /etc/pi2000web /var/lib/caddy /srv/win2k /home /root
+ReadOnlyPaths=/usr/share/phpmyadmin
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+MemoryMax=768M
+TasksMax=32
+Restart=on-failure
+[Install]
+WantedBy=multi-user.target

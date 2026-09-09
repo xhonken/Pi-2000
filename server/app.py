@@ -24,6 +24,7 @@ from browser_runtime import BrowserRuntime, BrowserUnavailable
 from file_store import FileStore, FILE_USER
 from personal_store import PersonalStore
 from database_tools import DatabaseTools
+from phpmyadmin_bridge import PhpMyAdmin
 from code_diagnostics import Diagnostics
 from api_client import ApiClient
 from git_tools import GitTools
@@ -607,7 +608,7 @@ async def workspace(request):
     if not isinstance(data, dict) or set(data) != {'windows'} or not isinstance(data['windows'], list) or len(data['windows']) > 12:
         return error('Invalid window layout.')
     for window in data['windows']:
-        if (not isinstance(window, dict) or window.get('type') not in ('explorer-window', 'users-window', 'terminal-window', 'browser-window', 'status-window', 'files-window', 'trash-window', 'editor-window', 'preview-window', 'search-window', 'activities-window', 'notes-window', 'preferences-window', 'sftp-window', 'cad-window', 'calculator-window', 'taskmanager-window', 'database-window', 'api-window', 'git-window')
+        if (not isinstance(window, dict) or window.get('type') not in ('explorer-window', 'users-window', 'terminal-window', 'browser-window', 'status-window', 'files-window', 'trash-window', 'editor-window', 'preview-window', 'search-window', 'activities-window', 'notes-window', 'preferences-window', 'sftp-window', 'cad-window', 'calculator-window', 'taskmanager-window', 'phpmyadmin-window', 'database-window', 'api-window', 'git-window')
                 or any(type(window.get(key)) not in (int, float) or not -10000 <= window[key] <= 10000 for key in ('left', 'top', 'width', 'height'))
                 or any(type(window.get(key)) is not bool for key in ('hidden', 'maximized'))
                 or any(window.get(key) is not None and (not isinstance(window[key], str) or len(window[key]) > 128) for key in ('terminal', 'folder'))):
@@ -955,6 +956,11 @@ def make_app():
     app.router.add_put('/api/databases/connections/{id}',databases.connections)
     app.router.add_delete('/api/databases/connections/{id}',databases.connections)
     app.router.add_post('/api/databases/command',databases.handle)
+    phpmyadmin=PhpMyAdmin(sys.modules[__name__],databases)
+    app.cleanup_ctx.append(phpmyadmin.lifecycle)
+    app.router.add_post('/api/phpmyadmin/launch',phpmyadmin.launch)
+    app.router.add_delete('/api/phpmyadmin/session/{sid}',phpmyadmin.disconnect)
+    app.router.add_route('*','/api/phpmyadmin/view/{sid}/{path:.*}',phpmyadmin.view)
     app.router.add_post('/api/databases/transfer',databases.transfers.handle)
     app.cleanup_ctx.append(databases.lifecycle)
     api_client=ApiClient(sys.modules[__name__],databases.cipher);api_client.initialize()
