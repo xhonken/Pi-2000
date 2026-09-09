@@ -206,9 +206,11 @@
   catalog.onchange=()=>run(async()=>{if(!catalog.value){await objects();return;}await command('query',{sql:'USE '+ident(catalog.value)});await objects();context();});
   connections.ondblclick=()=>run(()=>connectTo());
   w.beforeclose=async()=>{if(draftDirty){try{await save();}catch(error){if(!confirm('Workspace could not be saved: '+error.message+' Close anyway?'))return false;}}if(session&&!confirm('Close MariaDB Manager and disconnect? Any open transaction will be rolled back.'))return false;return true;};
+  w.beforelogout=async()=>{if(draftDirty)try{await save();}catch(e){return confirm('SQL workspace could not be saved. Log off and lose unsaved changes?');}return !session||confirm('Log off and disconnect MariaDB? Any open transaction will be rolled back.');};
+  const unload=e=>{if(draftDirty||session){e.preventDefault();e.returnValue='';}};window.addEventListener('beforeunload',unload);
   const leave=()=>{if(session){fetch('/api/databases/command',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'disconnect',session}),keepalive:true}).catch(()=>{});session=null;}};
   window.addEventListener('pagehide',leave);
-  w.onclose=()=>{closed=true;for(const el of dialogs)el.close();clearTimeout(saveTimer);window.removeEventListener('pagehide',leave);if(session)request({action:'disconnect',session}).catch(()=>{});current=null;};
+  w.onclose=()=>{window.removeEventListener('beforeunload',unload);closed=true;for(const el of dialogs)el.close();clearTimeout(saveTimer);window.removeEventListener('pagehide',leave);if(session)request({action:'disconnect',session}).catch(()=>{});current=null;};
   drawTabs();setView('sql');context();
   run(async()=>{await refreshProfiles();const saved=await api('/documents/draft-mariadb-workspace');if(closed)return;draftVersion=saved.version;if(!draftDirty&&Array.isArray(saved.data?.tabs)&&saved.data.tabs.length){tabs=saved.data.tabs.filter(t=>t&&typeof t.name==='string'&&typeof t.sql==='string').map(t=>({name:t.name,sql:t.sql}));if(!tabs.length)tabs=[{name:'Query 1',sql:''}];active=Number.isInteger(saved.data.active)?Math.max(0,Math.min(saved.data.active,tabs.length-1)):0;sql.value=tabs[active].sql;drawTabs();}w.status.textContent='Saved connections are private to your Pi-2000 account';});
   return w;

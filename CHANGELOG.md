@@ -4,6 +4,12 @@ User-visible changes are recorded here for each numbered release. Development be
 
 ## Unreleased
 
+- Add Help → About Pi-2000Web with the installed version, source revision and generated build identity.
+- Protect unsaved API requests and Git file dialogs on replacement, close and logoff; warn before reloading unsaved development work and save SQL drafts before logoff.
+- Apply phpMyAdmin dependency-deprecation filtering before AJAX/page rendering while preserving actionable warnings.
+- Include phpMyAdmin integration and build identity in code backups; verify private restored API requests, Git files and SQL drafts without reviving login tokens.
+- Add isolated HTTPS Git clone/fetch/pull/push and rejected-push coverage, and an unprivileged packaged phpMyAdmin test runtime.
+
 - Refresh the README, user guide and GitHub descriptions for Alpha 3, including phpMyAdmin, Git Projects, API Tester, syntax diagnostics and verified Browser memory protection. Documentation only; the published Alpha 3 source tag is unchanged.
 
 ## 0.1.0-alpha.3 — 2026-09-09

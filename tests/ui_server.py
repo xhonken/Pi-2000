@@ -8,6 +8,10 @@ from aiohttp import web
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'server'))
 import app
+import phpmyadmin_bridge
+if os.environ.get("WIN2K_TEST_PMA_ROOT"):
+    phpmyadmin_bridge.ROOT=Path(os.environ["WIN2K_TEST_PMA_ROOT"])
+    phpmyadmin_bridge.SOCKET=os.environ["WIN2K_TEST_PMA_SOCKET"]
 state=tempfile.TemporaryDirectory(prefix='win2k-ui-test-')
 app.STATE=Path(state.name)
 app.ORIGIN='http://127.0.0.1:18765'

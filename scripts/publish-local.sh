@@ -33,3 +33,9 @@ page = re.sub(r'(src|href)="((?:assets|dist)/[^"#]+)"', version,
 Path(sys.argv[2]).write_text(page)
 PYTHON
 sudo -n install -m 644 "$page_file" /srv/win2k/index.html
+
+# Keep the About dialog accurate for a frontend-only publication as well.
+build_file="$(mktemp)"
+trap 'rm -f "$page_file" "$build_file"' EXIT
+python3 "$project_dir/server/build_info.py" "$project_dir" > "$build_file"
+sudo -n install -m 644 "$build_file" /opt/win2k-admin/build-info.json

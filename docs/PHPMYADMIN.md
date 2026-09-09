@@ -30,4 +30,15 @@ pi2000-phpmyadmin.service handles PHP on a Unix socket; there is no new public H
 
 ## Verification
 
-Backend tests include session ownership, revocation, profile changes, expiry and running-request protection. tests/run_phpmyadmin_ui.py uses a disposable MariaDB server and Pi account fixture; its developer process needs access to the dedicated PHP socket (for example run it with primary group pi2000-phpmyadmin). It verifies SQL, direct insert/defaults, browse, SQL download/upload, protected source paths, anonymous rejection and disconnect. Run tests/run_database_ui.py for the retained native workspace. The installed HTTPS application is additionally tested with a temporary Pi account and disposable MariaDB, never production user tables.
+Backend tests include session ownership, revocation, profile changes, expiry and running-request protection. tests/run_phpmyadmin_ui.py uses disposable PHP and MariaDB runtimes plus a Pi account fixture, without access to the installed PHP socket. It verifies SQL, direct insert/defaults, browse, SQL download/upload, protected source paths, anonymous rejection and disconnect. Run tests/run_database_ui.py for the retained native workspace. The installed HTTPS application is additionally tested with a temporary Pi account and disposable MariaDB, never production user tables.
+
+## Dependency notices
+
+The gateway configuration filters PHP dependency deprecations before routing and
+rendering, including AJAX requests which do not render the custom HTML header.
+Warnings and ordinary notices continue to reach phpMyAdmin's original error
+handler. The distribution dependencies remain unmodified. This is a compatibility
+filter, not an upgrade of Twig's deprecated APIs. See the
+[PHP error handler documentation](https://www.php.net/manual/en/function.set-error-handler.php).
+`tests/run_phpmyadmin_ui.py` now starts disposable PHP and MariaDB runtimes using
+the installed distribution packages; it does not need access to the live PHP socket.

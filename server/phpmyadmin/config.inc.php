@@ -4,6 +4,22 @@ $bridge = json_decode(base64_decode($_SERVER['PI2000_BRIDGE'] ?? '', true) ?: ''
 if (!is_array($bridge) || !preg_match('/^[a-f0-9]{48}$/', $bridge['sid'] ?? '')) {
     http_response_code(403); exit('Open MariaDB Manager from Pi-2000.');
 }
+/* Install before routing/template rendering, including AJAX requests which do
+   not render config.header.inc.php. phpMyAdmin records E_USER_DEPRECATED even
+   when PHP's error_reporting mask excludes it. Leave real errors untouched. */
+$previous = null;
+$previous = set_error_handler(static function ($number, $text, $file, $line) use (&$previous) {
+    if ($number === E_DEPRECATED || $number === E_USER_DEPRECATED) { return true; }
+    if ($previous) { return $previous($number, $text, $file, $line); }
+    return false;
+});
+if (isset($GLOBALS['errorHandler'])) {
+    foreach ($GLOBALS['errorHandler']->getErrors() as $notice) {
+        if (in_array($notice->getNumber(), [E_DEPRECATED, E_USER_DEPRECATED], true)) {
+            $notice->isDisplayed(true);
+        }
+    }
+}
 $private = '/var/lib/pi2000-phpmyadmin/' . $bridge['sid'];
 if (!is_dir($private)) { mkdir($private, 0700, true); }
 $cfg['SessionSavePath'] = $private;

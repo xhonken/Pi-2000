@@ -27,7 +27,7 @@ $('#login-form').onsubmit = async e => {
  catch (error) { $('#login-error').textContent = error.message; form.elements.password.value = ''; }
  finally { submit.disabled = false; }
 };
-shell.actions.logout = async () => { try { await saveWorkspace(); await api('/logout','POST'); locked(); } catch (error) { shell.notify(error.message); } };
+shell.actions.logout = async () => { try { for(const win of windows)if(win.beforelogout && !(await win.beforelogout()))return; await saveWorkspace(); await api('/logout','POST'); locked(); } catch (error) { shell.notify(error.message); } };
 shell.actions.password = () => {
  shell.show('Change My Password', '<form id="password-form"><label class="form-row">Current password:<input name="current" type="password" autocomplete="current-password" required></label><label class="form-row">New password:<input name="password" type="password" autocomplete="new-password" minlength="12" required></label><label class="form-row">Repeat new password:<input name="repeat" type="password" autocomplete="new-password" minlength="12" required></label><p id="password-error" class="error" role="alert"></p><div class="actions"><button class="win2k-button">Save</button></div></form>');
  $('#password-form').onsubmit = async e => { e.preventDefault(); const f=e.target.elements; if(f.password.value!==f.repeat.value){$('#password-error').textContent='The passwords do not match.';return;} try { await api('/password','POST',{current:f.current.value,password:f.password.value}); $('#window').close();shell.notify('Password changed.'); }catch(error){$('#password-error').textContent=error.message;} };

@@ -1,0 +1,18 @@
+const {chromium}=require('playwright');const assert=require('node:assert/strict');
+(async()=>{const browser=await chromium.launch({executablePath:'/usr/bin/chromium',headless:true});try{
+ const page=await browser.newPage({viewport:{width:1280,height:900}});const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.goto('http://127.0.0.1:18765');await page.locator('#login-form [name=password]').fill('browser-test-password');await page.locator('#login-form [type=submit]').click();await page.locator('#session').waitFor({state:'visible'});
+ await page.evaluate(()=>Win2kShell.actions.apitester());const api=page.locator('.api-window');
+ await api.locator('.api-name').fill('Saved request');await api.locator('.api-url').fill('https://example.com');await api.getByRole('button',{name:'Save Request',exact:true}).click();await api.locator('.app-status').filter({hasText:'saved encrypted'}).waitFor();
+ await api.locator('.api-body').fill('unsaved body');page.once('dialog',d=>d.dismiss());await api.getByRole('button',{name:'New Request',exact:true}).click();assert.equal(await api.locator('.api-body').inputValue(),'unsaved body');
+ page.once('dialog',d=>d.dismiss());await api.locator('[data-control=close]').click();assert(await api.isVisible());
+ page.once('dialog',d=>d.dismiss());await page.evaluate(()=>Win2kShell.actions.logout());assert(await page.locator('#session').isVisible());
+ await page.route('**/api/development/requests/*',r=>r.abort());
+ // PUT retains content and a truthful failure status.
+ await api.getByRole('button',{name:'Save Request',exact:true}).click();await api.locator('.dev-error').waitFor({state:'visible'});assert.equal(await api.locator('.api-body').inputValue(),'unsaved body');await page.unroute('**/api/development/requests/*');
+ await api.getByRole('button',{name:'Save Request',exact:true}).click();await api.locator('.app-status').filter({hasText:'saved encrypted'}).waitFor();
+ await api.getByRole('menuitem',{name:'Help',exact:true}).click();await page.getByRole('menuitem',{name:'About Pi-2000Web',exact:true}).click();await page.locator('[data-version]').waitFor();assert.match(await page.locator('[data-version]').innerText(),/^0\.1\.0/);await page.screenshot({path:'/tmp/pi2000-about.png'});await page.keyboard.press('Escape');await api.locator('[data-control=close]').click();
+ await page.evaluate(()=>Win2kShell.actions.git());const git=page.locator('.git-window');await git.getByRole('menuitem',{name:'File',exact:true}).click();await page.getByRole('menuitem',{name:'New Project',exact:true}).click();let dialog=page.locator('dialog.db-dialog');await dialog.locator('[name=name]').fill('Unsaved regression');await dialog.getByRole('button',{name:'Create',exact:true}).click();await dialog.waitFor({state:'detached'});
+ await git.getByRole('menuitem',{name:'File',exact:true}).click();await page.getByRole('menuitem',{name:'New File',exact:true}).click();dialog=page.locator('dialog.db-dialog');await dialog.locator('[name=path]').fill('README.md');await dialog.locator('[name=text]').fill('Retain this text');page.once('dialog',d=>d.dismiss());await dialog.getByRole('button',{name:'Cancel',exact:true}).click();assert(await dialog.isVisible());page.once('dialog',d=>d.dismiss());await page.keyboard.press('Escape');assert(await dialog.isVisible());await dialog.getByRole('button',{name:'Save File',exact:true}).click();await dialog.waitFor({state:'detached'});
+ assert.deepEqual(errors,[]);console.log('PASS: API unsaved switch/close/logout, failed save and retry, Help About, Git unsaved Cancel/Escape and save');
+ }finally{await browser.close();}})().catch(e=>{console.error(e);process.exit(1)});

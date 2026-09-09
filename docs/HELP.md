@@ -104,3 +104,22 @@ Open **Start → Programs → Development and Drawing → Git Projects**. Create
 Open **Start → Programs → Development and Drawing → API Tester**. Enter a URL, method, headers and optional body, then Send. **Request → Authentication** configures Basic or Bearer authentication. Inspect the response status, headers, body and timing; save requests to your private encrypted collection if needed. Requests originate from the Pi, so the destination must be reachable from it.
 
 See [Development Tools](DEVELOPMENT-TOOLS.md) for Git, API Tester and syntax-check limits.
+
+## Installed version and unsaved development work
+
+Open **Help → About Pi-2000Web** in an application, or **Start → Programs →
+System Tools → About Pi-2000Web**, to see the installed version, build ID and source
+revision. Local modifications are indicated separately. The build identity is
+created by the server publisher; reloading the browser does not change it.
+
+API Tester warns before replacing or closing an unsaved request and before logoff.
+A failed save keeps the entered content available for retry. Save Request stores
+credentials encrypted on the server; unsaved request text is not copied to browser
+storage. Git file dialogs likewise warn before discarding edited text through
+Cancel, Escape, logoff or browser reload. Save File writes the project file; stage
+and commit remain separate steps.
+
+The native SQL workspace saves drafts before logoff and warns before leaving an
+active connection. Browser reload warnings cannot guarantee recovery after a
+browser crash, forced close or server-side account revocation. Save work regularly;
+active database transactions are not restored after disconnect or restart.

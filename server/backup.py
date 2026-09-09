@@ -92,7 +92,7 @@ async def snapshot(state, target, socket, code, site=None):
                 if site and site.exists(): tar.add(site,arcname='site',filter=include)
                 if code and code.exists():
                     for path in code.iterdir():
-                        if path.suffix in ('.py','.service','.timer','.txt') or path.name=='browser-config':
+                        if path.suffix in ('.py','.service','.timer','.txt') or path.name in ('browser-config', 'phpmyadmin', 'build-info.json'):
                             tar.add(path,arcname='code/'+path.name,filter=include)
             partial.chmod(0o600);partial.replace(archive)
         files_lock.close()

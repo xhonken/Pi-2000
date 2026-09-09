@@ -40,7 +40,9 @@ function open(){
  button('Saved SQL Workspace',()=>{legacy();});
  select.ondblclick=()=>run(connect);
  w.beforeclose=async()=>{if(sid&&!confirm('Close MariaDB Manager and disconnect?'))return false;try{await disconnect();return true;}catch(e){error.textContent=e.message;error.hidden=false;return false;}};
- w.onclose=()=>{closed=true;for(const el of dialogs)el.close();if(sid)d.api('/phpmyadmin/session/'+sid,'DELETE').catch(()=>{});frame.src='about:blank';current=null;};
+ w.beforelogout=()=>!sid||confirm('Log off and disconnect MariaDB? Finish database operations first. Active transactions are not restored.');
+ const unload=e=>{if(sid){e.preventDefault();e.returnValue='';}};window.addEventListener('beforeunload',unload);
+ w.onclose=()=>{window.removeEventListener('beforeunload',unload);closed=true;for(const el of dialogs)el.close();if(sid)d.api('/phpmyadmin/session/'+sid,'DELETE').catch(()=>{});frame.src='about:blank';current=null;};
  run(()=>refresh());w.status.textContent='Private saved connections — phpMyAdmin';
  return w;
 }

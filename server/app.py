@@ -1,4 +1,5 @@
 import asyncio
+import build_info
 from contextlib import contextmanager
 import hashlib
 import hmac
@@ -892,6 +893,10 @@ async def runtime_status(request):
     return web.json_response(runtime_data(None if is_owner(request[USER]) else request[USER]['id']))
 
 
+async def version_info(request):
+    return web.json_response(build_info.installed(), headers={'Cache-Control': 'no-store'})
+
+
 async def health(request):
     status = {'web': 'ok', 'sessions': 'ok', 'backup': None}
     if WORKER_SOCKET:
@@ -991,6 +996,7 @@ def make_app():
     app.router.add_get('/api/workspace', workspace)
     app.router.add_put('/api/workspace', workspace)
     app.router.add_get('/api/health', health)
+    app.router.add_get('/api/version', version_info)
     monitor=TaskMonitor(sys.modules[__name__])
     app.router.add_get('/api/taskmanager',monitor.handle)
     def file_handler(method):

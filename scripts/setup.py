@@ -280,6 +280,8 @@ def verify(config, compare=True):
         for source in (ROOT / 'server/phpmyadmin').glob('*'):
             if source.read_bytes() != (APP / 'phpmyadmin' / source.name).read_bytes():
                 raise ValueError('Installed phpMyAdmin integration differs: ' + source.name)
+        if not (APP / 'build-info.json').is_file():
+            raise ValueError('Installed build identity is missing. Run the updater.')
         if page != (SITE / 'index.html').read_bytes():
             raise ValueError('HTTPS entry page differs from the installed page.')
         assets = re.findall(r'(?:src|href)="((?:assets|dist)/[^"#]+)"', page.decode())

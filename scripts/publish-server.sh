@@ -13,5 +13,9 @@ sudo -n systemctl daemon-reload
 # Deliberately start rather than restart: live jobs belong to this worker.
 sudo -n systemctl enable --now win2k-sessions
 sudo -n systemctl is-active --quiet win2k-sessions
+build_file="$(mktemp)"
+trap 'rm -f "$build_file"' EXIT
+python3 "$project_dir/server/build_info.py" "$project_dir" > "$build_file"
+sudo -n install -m 644 "$build_file" /opt/win2k-admin/build-info.json
 sudo -n systemctl restart win2k-admin
 sudo -n systemctl enable --now win2k-backup.timer

@@ -30,3 +30,26 @@ Database users and Pi-2000 users are separate. New-user database access is an ex
 References: [phpMyAdmin features](https://docs.phpmyadmin.net/en/latest/intro.html), [user administration](https://docs.phpmyadmin.net/en/latest/privileges.html), [MariaDB privileges](https://mariadb.com/docs/server/reference/sql-statements/account-management-sql-statements/grant), [CREATE USER](https://mariadb.com/docs/server/reference/sql-statements/account-management-sql-statements/create-user).
 
 See [MariaDB Manager](MARIADB-MANAGER.md) and [Development Tools](DEVELOPMENT-TOOLS.md) for behavior, security boundaries, limits and verification commands. Installation state must be verified separately from repository test results.
+
+## Alpha 3 integration update
+
+The native-manager coverage table above describes **Saved SQL Workspace**. MariaDB
+Manager now opens packaged phpMyAdmin by default; its upstream structure,
+account/privilege, routine, import/export and administration pages already supply
+many of the previously listed gaps. Do not treat that older table as a backlog
+for rebuilding features which phpMyAdmin now provides.
+
+Current follow-up boundaries:
+
+- Optional bookmarks, tracking, central columns and persistent Designer layouts
+  require configuration storage on the connected database, with that database
+  account's grants. Do not provision a shared privileged platform account.
+- SSH tunnels, very large transfers and advanced native query-builder features
+  remain optional extensions, not prerequisites for the current integration.
+- HTTPS clone/fetch/pull/push and rejected diverged pushes have a real smart-Git
+  regression against an isolated TLS server (`tests/test_git_remote.py`). Hosted
+  provider authentication still depends on the user's provider and credentials.
+- The stabilization suite covers failed saves, unsaved API request/file dialogs,
+  cross-account ownership and starting the application from a restored snapshot.
+  A fresh physical Pi installation and recovery from an external device remain
+  separate deployment checks.
