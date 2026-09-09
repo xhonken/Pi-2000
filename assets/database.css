@@ -8,3 +8,20 @@
 .db-relation-diagram{overflow:auto;background:white;border:2px inset #fff;max-height:35vh}.db-admin-context{background:#eee;border:1px inset white;padding:5px;overflow-wrap:anywhere}
 
 .db-row-field{display:flex;flex-direction:column;gap:5px}.db-row-field small{font-size:inherit;color:#444}.qb-dialog .db-dialog-fields{height:min(690px,calc(100dvh - 100px));box-sizing:border-box}.qb-panels{flex:1;min-height:0;overflow:auto}.qb-panels>section{display:flex;flex-direction:column;gap:8px}.qb-panels>section[hidden]{display:none}.qb-panels .db-admin-preview{max-height:none}.qb-joins fieldset{margin-bottom:8px}
+
+/* Workspaces keep a fixed command area; tab count never increases its height. */
+.database-window .db-query-strip{display:flex;align-items:stretch;gap:4px;flex:none;min-width:0;max-height:52px}
+.database-window .db-tabs{display:flex;flex:1;min-width:0;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;gap:2px;scrollbar-width:thin}
+.db-query-tab{display:flex;align-items:stretch;flex:none;max-width:min(210px,100%);border:1px solid #888;background:#d4d0c8}
+.db-query-tab.active{border-bottom-color:white;background:white}
+.db-query-tab [role=tab]{min-width:45px;max-width:175px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;border:0!important;box-shadow:none!important;background:transparent!important;text-align:left}
+.db-query-tab .db-query-close{flex:none;min-width:24px;padding:0 5px;border:0!important;box-shadow:none!important;background:transparent!important;font-weight:bold}
+.db-query-close:hover{background:#eee!important;color:#a00000}
+.db-query-list{flex:0 1 140px;min-width:65px;width:140px;max-width:25%}.db-query-tools{display:flex;gap:3px;flex:none}
+.db-view-switch{display:flex;gap:4px;flex:none;border-bottom:2px groove white;padding-bottom:4px}.db-view-switch [aria-pressed=true]{background:white;font-weight:bold}
+.db-data-actions{display:flex;gap:4px;flex-wrap:wrap;flex:none}.db-data-heading{font-weight:bold;padding:4px 0;flex:none;overflow-wrap:anywhere}
+.database-window .db-result-tabs{flex:none;flex-wrap:nowrap;max-height:42px;overflow-x:auto;overflow-y:hidden}.db-result-tabs button{flex:none;white-space:nowrap}
+.database-window .db-sql{max-height:45%;flex-shrink:1}.database-window .db-context{flex:none;max-height:65px;overflow:auto}.database-window .db-messages{flex:0 1 70px}
+.database-window .db-query-strip[hidden],.database-window .db-sql[hidden],.database-window .db-query-actions[hidden],.database-window .db-data-actions[hidden],.database-window .db-data-heading[hidden]{display:none!important}
+.db-manage-queries{max-height:45vh;overflow:auto;background:white;border:2px inset #eee;padding:6px}.db-manage-queries label{margin:4px 0}
+@media(max-width:650px){.db-query-tools button{padding:2px 4px}.db-query-tab{max-width:min(160px,100%)}.db-query-tab [role=tab]{max-width:125px}.database-window .db-query-strip{max-height:54px}.db-data-actions{max-height:100px;overflow:auto}}

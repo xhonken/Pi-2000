@@ -10,6 +10,7 @@ const assert=require('node:assert/strict');
   await page.locator('#login-form [type=submit]').click();await page.locator('#session').waitFor({state:'visible'});
   await page.evaluate(()=>Win2kShell.actions.database());
   const w=page.locator('.database-window');
+  async function enterSQL(value){if(!await w.locator('.db-sql').isVisible())await w.getByRole('button',{name:'SQL Queries',exact:true}).click();await w.locator('.db-sql').fill(value);}
   async function menu(group,label){await w.getByRole('menuitem',{name:group,exact:true}).click();await page.getByRole('menuitem',{name:label,exact:true}).click();}
   await menu('File','New Connection');
   const dialog=page.locator('dialog.db-dialog');
@@ -32,7 +33,7 @@ const assert=require('node:assert/strict');
    await w.getByRole('button',{name:'Connect',exact:true}).click();
    await w.locator('.db-context').filter({hasText:'Test database'}).waitFor();
    assert.equal(await w.locator('.db-alert').isVisible(),false);
-   await w.locator('.db-sql').fill('CREATE DATABASE IF NOT EXISTS ui_demo; USE ui_demo; CREATE TABLE IF NOT EXISTS items (id INT PRIMARY KEY, name VARCHAR(80)); REPLACE INTO items VALUES (1, \'Hello MariaDB\'); SELECT * FROM items;');
+   await enterSQL('CREATE DATABASE IF NOT EXISTS ui_demo; USE ui_demo; CREATE TABLE IF NOT EXISTS items (id INT PRIMARY KEY, name VARCHAR(80)); REPLACE INTO items VALUES (1, \'Hello MariaDB\'); SELECT * FROM items;');
    await w.getByRole('button',{name:'Execute',exact:true}).click();
    await w.locator('.db-messages').filter({hasText:'Completed in'}).waitFor();
    await w.getByRole('button',{name:'Result 5',exact:true}).click();
@@ -55,7 +56,7 @@ const assert=require('node:assert/strict');
    await w.locator('.db-results').filter({hasText:'CSV, quoted'}).waitFor();
   }
   if(process.env.WIN2K_TEST_DB_PORT){
-   await w.locator('.db-sql').fill('CREATE TABLE authors (id INT PRIMARY KEY, name VARCHAR(80)); INSERT INTO authors VALUES (1, \'Ada\'); CREATE TABLE z_notes (id INT AUTO_INCREMENT PRIMARY KEY, author_id INT, title VARCHAR(80), created_at TIMESTAMP NOT NULL, updated_at DATETIME DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY (author_id) REFERENCES authors(id));');
+   await enterSQL('CREATE TABLE authors (id INT PRIMARY KEY, name VARCHAR(80)); INSERT INTO authors VALUES (1, \'Ada\'); CREATE TABLE z_notes (id INT AUTO_INCREMENT PRIMARY KEY, author_id INT, title VARCHAR(80), created_at TIMESTAMP NOT NULL, updated_at DATETIME DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY (author_id) REFERENCES authors(id));');
    await w.getByRole('button',{name:'Execute',exact:true}).click();
    await w.locator('.db-messages').filter({hasText:'Completed in'}).waitFor();
    await menu('View','Refresh Objects');await w.locator('[data-object=z_notes]').click();
@@ -63,11 +64,11 @@ const assert=require('node:assert/strict');
    await form.locator('[name=value-1]').fill('1');await form.locator('[name=value-2]').fill('Saved directly');
    await form.locator('[name=mode-0]').selectOption('value');
    await form.locator('[name=mode-3]').selectOption('value');
-   const tabCount=await w.locator('.db-tabs button').count();
+   const tabCount=await w.locator('.db-tabs [role=tab]').count();
    await form.getByRole('button',{name:'OK',exact:true}).click();
    await w.locator('.db-messages').filter({hasText:'Row inserted'}).waitFor();
    await w.locator('.db-results').filter({hasText:'Saved directly'}).waitFor();
-   assert.equal(await w.locator('.db-tabs button').count(),tabCount);
+   assert.equal(await w.locator('.db-tabs [role=tab]').count(),tabCount);
    assert.match(await w.locator('.db-results').textContent(),/20[0-9]{2}-[0-9]{2}-[0-9]{2}/);
    await menu('Query','Query Builder');form=page.locator('dialog.db-dialog').last();
    await form.getByRole('button',{name:'Add Join',exact:true}).click();
@@ -124,7 +125,7 @@ const assert=require('node:assert/strict');
    const download=await downloadPromise;assert.equal(download.suggestedFilename(),'ui_demo.sql');
    await form.getByRole('button',{name:'Close',exact:true}).click();
   }
-  await w.locator('.db-sql').fill('SELECT 42 AS answer;');await menu('File','Save Workspace');
+  await enterSQL('SELECT 42 AS answer;');await menu('File','Save Workspace');
   await w.locator('.app-status').filter({hasText:'SQL workspace saved'}).waitFor();
   await page.screenshot({path:'/tmp/pi2000-mariadb-manager.png'});
   await page.reload();await page.locator('.database-window').waitFor();

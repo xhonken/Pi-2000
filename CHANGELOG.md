@@ -4,6 +4,8 @@ User-visible changes are recorded here for each numbered release. Development be
 
 ## Unreleased
 
+- Separate MariaDB table data from SQL editing; use a single scrolling query strip with close buttons, a query selector and bulk management. Preserve legacy drafts, reuse empty tabs, bound new tab growth and isolate recent results by query. Prevent SQL tab names from intercepting application menu commands.
+
 - Row forms now execute inserts/edits/deletes directly on OK and refresh the table; explicit defaults, NULL and current-time modes avoid blank auto-ID/datetime errors. Add a tabbed SELECT builder with guided LEFT/RIGHT/INNER/CROSS joins, foreign-key suggestions, columns, filters, sorting and editable SQL output.
 
 - Expand MariaDB Manager with classic administration dialogs for databases, users/hosts, exact database grants, roles, account security/limits, table design, indexes, foreign keys, routines/events and maintenance. Review single-use SQL plans before applying; passwords stay out of previews and saved SQL drafts.

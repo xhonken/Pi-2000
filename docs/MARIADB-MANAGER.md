@@ -16,6 +16,14 @@ Passwords are requested at connection time unless **Save password encrypted for 
 
 Saved profiles and SQL tabs survive page reloads and service restarts. Live database connections are separate: reconnect after reloading. Transactions are not resumed automatically. Closing Manager disconnects its session; idle sessions expire after 30 minutes, and revoked logins are cleaned up within 15 seconds.
 
+## SQL workspace
+
+**Table Data** and **SQL Queries** are separate views. Selecting a table opens its row grid with direct row commands; **SQL Queries** returns to your SQL editor. Each SQL tab displays its own recent result; runtime results are cached for the four most recently executed tabs and are not saved across reloads.
+
+SQL tabs stay on one horizontally scrolling line. Each has a visible **×** close button; the **Open queries** list selects tabs when space is limited. Arrow keys, Home/End and Delete work on the focused tab. **Queries…** opens a separate management dialog; the Query menu also provides Close Other Queries and Close All Queries. Closing nonempty queries asks before removing their text from the saved workspace. Download SQL first to keep a separate copy. These commands never delete database rows.
+
+**New Query** reuses an empty numbered query before opening another. At 32 tabs, Manager opens the query management dialog so you can make room. Existing saved workspaces are preserved even when they contain more tabs or repeated names. Duplicate labels receive display numbers without changing the saved SQL. Closing tabs saves the workspace; closing the last tab leaves one empty editor.
+
 ## Working with a database
 
 The left Object Explorer lists databases and their tables/views. Selecting a database changes the active SQL database. Selecting a table shows 100 rows at a time; Previous/Next Rows changes the offset. Without an explicit `ORDER BY`, MariaDB does not promise a stable row order; use **Data → Filter / Sort** or an ordered SQL query for repeatable paging. Contains filters treat percent signs and underscores literally.
