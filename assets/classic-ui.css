@@ -46,8 +46,8 @@ input:focus-visible,textarea:focus-visible,select:focus-visible { outline:1px so
 .submenu summary .menu-arrow { margin-left:18px; }
 .submenu a::before { content:'';width:16px;height:16px;flex:none;background:var(--icon-link) center/contain no-repeat; }
 #start-search-form { margin:2px 0;padding:4px;gap:4px;border-bottom:1px solid #aaa; }
-#start-search-form input { width:100%;font-size:inherit; }
-#start-search-form button { min-width:38px;padding:2px 5px; }
+#start-search-form input { flex:1 1 0;min-width:0;width:0;font-size:inherit; }
+#start-search-form button { flex:0 0 auto;width:auto;min-width:max-content;padding:2px 8px;white-space:nowrap; }
 .context-menu button,.device-context button { min-height:26px;padding:4px 10px;font-size:var(--ui-size); }
 /* Application menubars and popups live outside scrollable document content. */
 .classic-menubar { display:flex;align-items:center;flex:none;min-height:24px;padding:1px 2px;gap:0;border-bottom:1px solid #999;box-shadow:0 1px white;background:var(--face);overflow-x:auto; }
