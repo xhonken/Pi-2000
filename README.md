@@ -1,14 +1,23 @@
 # Pi-2000Web
 
-**Alpha software.** A personal web desktop for Raspberry Pi 5, inspired by the look and interaction patterns of Windows 2000. It provides private user accounts, persistent SSH terminals, a streamed Chromium browser, file storage, a code editor and everyday desktop tools.
+**Alpha software.** A personal web desktop for Raspberry Pi 5, inspired by the look and interaction patterns of Windows 2000. It provides private user accounts, persistent SSH terminals, a streamed Chromium browser, file storage, phpMyAdmin-based MariaDB administration, private Git projects, an API tester, a code editor and everyday desktop tools.
 
-Pi-2000Web uses **Python** (aiohttp, AsyncSSH and SQLite) on the server and **plain JavaScript, HTML and CSS** in the browser. It does not require React or a separate database server. The desktop interface and project documentation are in English.
+Pi-2000Web uses **Python** (aiohttp, AsyncSSH and SQLite) on the server and **plain JavaScript, HTML and CSS** in the browser. The desktop uses SQLite and does not require React. MariaDB Manager embeds distribution-packaged phpMyAdmin through a dedicated PHP-FPM service and connects to a local or external MariaDB server using your database account. The desktop interface and project documentation are in English.
 
 This is an independent project, not a Microsoft product and not a Windows emulator. The Chromium browser runs on the server; external websites retain their own appearance and language.
 
 ## Versions
 
-Current numbered release: **[0.1.0-alpha.2](https://github.com/xhonken/Pi-2000/releases/tag/v0.1.0-alpha.2)**. See [all releases](https://github.com/xhonken/Pi-2000/releases), the [changelog](CHANGELOG.md), and [versioning instructions](docs/VERSIONING.md) for previous versions, release downloads and installing a specific version. Run `./scripts/version.sh` to identify your source checkout.
+Current numbered release: **[0.1.0-alpha.3](https://github.com/xhonken/Pi-2000/releases/tag/v0.1.0-alpha.3)**. See [all releases](https://github.com/xhonken/Pi-2000/releases), the [changelog](CHANGELOG.md), and [versioning instructions](docs/VERSIONING.md) for previous versions, release downloads and installing a specific version. Run `./scripts/version.sh` to identify your source checkout.
+
+## New in Alpha 3
+
+- **MariaDB Manager with phpMyAdmin:** manage local or external databases, tables, SQL, users and privileges, search and import/export inside the classic desktop. Saved connections are private, with verified TLS and optional encrypted passwords.
+- **Saved SQL Workspace:** retain existing SQL drafts, manage closable query tabs, edit table rows directly and build SELECT/JOIN queries with guided table, column and filter choices.
+- **Development tools:** work with sandboxed Git projects, send and save API requests, and check Python, JavaScript and JSON syntax in Code Editor.
+- **Browser and desktop improvements:** memory admission checks, clearer stop reasons, explicit reconnect and a Start menu Search button that fits larger text.
+
+Read the [Alpha 3 release notes](docs/releases/0.1.0-alpha.3.md) for upgrade steps, validation and known limitations, including remaining phpMyAdmin Twig notices.
 
 ## Applications
 
@@ -19,6 +28,9 @@ Current numbered release: **[0.1.0-alpha.2](https://github.com/xhonken/Pi-2000/r
 | My Devices | Organise SSH connection profiles in folders; verify host keys and connect to remote devices. |
 | Browser | Persistent Chromium tabs, separate cookies and profiles for each account, audio, automatic resizing and an enforced uBlock Origin Lite policy. |
 | Code Editor | Local Ace editor with syntax highlighting, tabs, completion, find/replace, undo/redo, word wrap, themes, file trees, recovery drafts, SFTP editing and Python/JavaScript/JSON syntax diagnostics. |
+| MariaDB Manager | Embedded phpMyAdmin, private local/external connections, SQL, table data and structure, users/privileges, search and import/export within the database account's permissions. Saved SQL Workspace preserves native drafts, direct row editing and the guided JOIN builder. |
+| Git Projects | Private sandboxed repositories, HTTPS clone/remotes, file editing, status/diffs, staging, commits, branches/history and fetch/pull/push controls. |
+| API Tester | Private encrypted saved requests, methods, headers, Basic/Bearer authentication, request bodies, response inspection and timing. |
 | Dimension Drawing | Dimensioned 2D shapes, rotated cutouts, frame and hole patterns, approximate clearance/collision checks, private saved drawings, SVG and CSV export. |
 | Calculator | Arithmetic, parentheses, powers, scientific functions, memory buttons and session history. Trigonometry uses degrees. |
 | Notes and Tasks | Private notes and checklists with automatic saving. |
@@ -66,7 +78,7 @@ nano pi2000.toml
 sudo ./scripts/install.sh --config pi2000.toml
 ```
 
-Set your own HTTPS address, local/public TLS mode and optional bind IP in `pi2000.toml`. The installer sets up Caddy, the API, SQLite, persistent services, backups and the optional browser. It refuses to overwrite unrelated Caddy sites. While the repository is private, GitHub access is required to clone it.
+Set your own HTTPS address, local/public TLS mode and optional bind IP in `pi2000.toml`. The installer sets up Caddy, the API, SQLite, persistent services, backups, phpMyAdmin/PHP-FPM and the optional browser. It refuses to overwrite unrelated Caddy sites. While the repository is private, GitHub access is required to clone it.
 
 Read the complete **[Raspberry Pi installation guide](docs/INSTALLATION.md)**, including first login, private CA trust, updates, network changes and recovery. **[Caddy and HTTPS](docs/CADDY.md)** explains LAN certificates, domain certificates and existing web servers.
 
@@ -79,7 +91,7 @@ sudo ./scripts/update.sh
 sudo ./scripts/doctor.sh
 ```
 
-Updates use `/etc/pi2000web/config.toml`. Normal updates preserve running sessions. Changing the HTTPS origin requires `--restart-sessions`, which ends live jobs.
+Updates use `/etc/pi2000web/config.toml`. Normal updates preserve running SSH/Browser sessions. Finish active database work first: the updater restarts the API, and database sessions and transactions are not resumed. Reload the desktop after updating. Changing the HTTPS origin requires `--restart-sessions`, which ends live jobs.
 
 Configuration, generated Caddy settings, backend tests and the existing-installation upgrade path are verified. A full installation on a newly imaged physical Pi remains to be independently verified during Alpha testing.
 
@@ -89,7 +101,7 @@ Internal service names, environment variables, JavaScript namespaces and storage
 
 Chromium runs inside a bubblewrap sandbox with a private display, audio service and per-account home directory. Selkies streams it through an authenticated proxy and Unix sockets. No public remote-debugging or browser-streaming port is required. Tabs, cookies and website logins are isolated per account. Modern JavaScript is supported; legacy Java browser plug-ins are not supported by Chromium. Audio may require a click inside the browser.
 
-There are three simultaneous browser sessions globally. Each browser has CPU and process limits (1.5 CPU cores and 256 processes). The configured memory target is 1.5 GB. On the reviewed host, memory cgroups were disabled, so a watchdog provides a **soft**, rather than hard, memory limit. Low-disk checks are also global. See the [security review](docs/security/review-2026-09-08.md) for remaining network and resource isolation limitations.
+There are three simultaneous browser sessions globally. Each browser has CPU and process limits (1.5 CPU cores and 256 processes). Each Browser group has a configured 1536 MiB memory maximum, 1024 MiB high threshold and up to 256 MiB swap. Hard enforcement requires the kernel memory controller; it was verified with an isolated memory-limit test on the development Pi. A watchdog remains as a fallback where hard limits are unavailable. New sessions require 2048 MiB available server RAM; reconnecting to a running session bypasses that admission check. The UI reports stop reasons and offers explicit reconnect. Low-disk checks are also global. See [Browser memory protection](docs/BROWSER-MEMORY.md) to verify your installation. See the [security review](docs/security/review-2026-09-08.md) for remaining network and resource isolation limitations.
 
 ## Files, editor and SFTP details
 
@@ -102,6 +114,16 @@ Connection → SFTP – Open Device opens the remote file tree using one of your
 Remote saves check the file hash, write an exclusive temporary file and rename it into place, preserving ownership and mode or failing safely. Conflicts leave your editor contents intact. Symbolic links are resolved on open and rejected as save targets. Remote hash-check plus rename is not an atomic compare-and-swap against unrelated external writers; a narrow race remains. ACLs, extended attributes and hard-link relationships are not preserved by replacement saves.
 
 SFTP transfers support up to 50 MB per file, two simultaneous operations per account and a timeout. They require the page to remain open. Remote editing supports up to 1 MB of UTF-8 text.
+
+## Database and development tools
+
+MariaDB Manager opens embedded phpMyAdmin by default. Choose a private saved connection to manage databases, table structures and rows, SQL, users/privileges and imports/exports. Available operations depend on the connected database account. Optional bookmarks, tracking and designer metadata require phpMyAdmin configuration storage on an authorized database. See [phpMyAdmin integration](docs/PHPMYADMIN.md) for setup, session behavior and resource limits.
+
+**File → Saved SQL Workspace** opens the retained native manager with existing drafts, query management, direct row forms, the guided SELECT/JOIN builder and administration dialogs. See [MariaDB Manager](docs/MARIADB-MANAGER.md) for these tools and their limits.
+
+Git Projects provides isolated private repositories, file editing, staging, commits, branches and HTTPS remote controls. API Tester sends requests from the Pi and saves private encrypted request collections. Code Editor checks Python, JavaScript and JSON syntax without executing the program. See [Development Tools](docs/DEVELOPMENT-TOOLS.md) for workflows, quotas and supported transports.
+
+Web account roles do not grant access to modify the Pi-2000 installation or its private platform state. Database privileges come from the selected MariaDB account; Git workspaces are separate from the installation.
 
 ## Drawing and calculations
 
@@ -148,6 +170,9 @@ Main source areas:
 | `server/file_store.py`, `server/personal_store.py` | Private files, quotas, notes, drawings and drafts |
 | `server/session_store.py`, `server/session_proxy.py` | Shared login sessions and persistent-worker transport |
 | `server/browser_*.py`, `server/resource_limits.py` | Browser sandbox, display, streaming and resource limits |
+| `server/phpmyadmin_bridge.py`, `server/phpmyadmin/` | Authenticated phpMyAdmin gateway, runtime integration and classic theme |
+| `server/database_tools.py`, `assets/database.js`, `assets/sql-builder.js` | Native MariaDB workspace, administration and guided query builder |
+| `server/git_tools.py`, `server/api_client.py`, `server/code_diagnostics.py` | Git workspaces, API requests and syntax diagnostics |
 | `server/sftp_tools.py` | Remote transfer and editor operations |
 | `server/task_monitor.py` | Read-only Linux resource monitoring |
 | `server/backup.py`, `scripts/` | Backup, deployment and maintenance |
@@ -160,11 +185,3 @@ Main source areas:
 The current desktop has original code-drawn SVG icons generated by `scripts/build-classic-icons.py`. Historical Windows screenshots were used as visual references, not copied into the application. See [UI reference notes](docs/design/windows-2000-ui.md).
 
 Vendored Ace, xterm.js and PDF.js retain their upstream licence files. Browser dependency revisions are recorded under `server/`. A project-wide distribution licence and independent clean-Pi installation verification must be settled before public release.
-
-### MariaDB Manager
-
-Manage private local or external MariaDB connections from Start → Programs → Development and Drawing. The manager includes saved connections, verified TLS, SQL workspaces, table browsing/filtering, user and privilege administration, table design, routines/events, search, relations and database export/restore. Secondary operations use classic menus and focused review dialogs. See [MariaDB Manager](docs/MARIADB-MANAGER.md) for import/export support, credentials and current limits.
-
-### Git Projects and API Tester
-
-Private Git projects provide sandboxed repositories, HTTPS remotes, file editing, staging, commits and branches. API Tester provides encrypted private request collections, HTTP authentication/headers/body, response inspection and timing. See [Development Tools](docs/DEVELOPMENT-TOOLS.md) for supported workflows, isolation and limits.

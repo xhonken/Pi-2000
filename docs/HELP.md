@@ -47,6 +47,8 @@ Browser runs Chromium on the Pi with private tabs, cookies and site logins for y
 
 Closing the window preserves the session. End Session stops the browser. Up to three browser sessions run simultaneously across the server. Inactive browser sessions expire after 24 hours without a connected client. uBlock Origin Lite is enforced through the browser policy; no ad blocker can guarantee removal of every advertisement.
 
+If server memory is low, starting a new Browser may be refused. Status messages distinguish memory-limit stops, crashes, low disk space and idle timeouts. Use Connection → Reconnect after addressing the cause; saved profiles are retained, but unsaved page state may be lost.
+
 ## Code Editor and SFTP
 
 Open a file from the tree, or use File → New Local File / New Local Folder. Choose a syntax mode, enable word wrap or change the theme. Ctrl+S saves the active file. Save As chooses a local name and folder. Download exports a copy to your computer.
@@ -56,6 +58,8 @@ Recovery drafts are saved automatically for your account. Reloading restores ava
 Connection → SFTP – Open Device opens a remote file tree from one of your own SSH profiles. Enter its password and verify its host key. Create remote files/folders or open UTF-8 text files up to 1 MB. Tabs marked [SFTP] save to that device. Open Device Version reads the current remote copy; Save Copy on Device creates a new remote file. Passwords must be entered again after reloading.
 
 SFTP – File Transfer sends a saved local file to a remote directory or downloads a remote file into My Files. Overwrite requires an explicit choice. Transfers need the page to remain open and support files up to 50 MB.
+
+Use **Code → Check Syntax** for Python, JavaScript or JSON. Click a reported problem to reach its line. This checks syntax without running your program; it does not check types or runtime behavior.
 
 ## Everyday tools
 
@@ -85,4 +89,18 @@ User Management is available to administrators and the owner. Administrators man
 
 ## MariaDB Manager
 
-Open Start → Programs → Development and Drawing → MariaDB Manager to manage private MariaDB connections and SQL workspaces. Create a connection, select it and Connect. Read [MariaDB Manager](MARIADB-MANAGER.md) for local/external connections, TLS, imports, exports, transactions and current limits.
+Open **Start → Programs → Development and Drawing → MariaDB Manager**. Use **File → New Connection** for a local or external MariaDB server, select the saved connection and Connect. The server address is reached from the Pi; `127.0.0.1` means the Pi itself. Verified TLS is the default, and saving an encrypted password is optional.
+
+The manager opens phpMyAdmin with the Pi-2000 appearance. Select a database or table to browse rows, edit structure, run SQL, search or import/export. Account and privilege administration requires the corresponding database permissions. Optional metadata features require configuration storage. See [phpMyAdmin integration](PHPMYADMIN.md) for setup and limits.
+
+**File → Saved SQL Workspace** opens existing native SQL drafts and tools. Table Data and SQL Queries are separate views. Close or select query tabs using the query controls; the guided SELECT/JOIN builder helps choose tables, joins, columns and filters. Row forms apply changes on OK; when using an explicit transaction, commit or roll back as appropriate. Read [MariaDB Manager](MARIADB-MANAGER.md) for detailed workflows.
+
+## Git Projects
+
+Open **Start → Programs → Development and Drawing → Git Projects**. Create a project or clone an HTTPS repository. Edit files, inspect diffs, stage changes and commit with your author details. A commit saves locally; use the Remote commands to fetch, pull or explicitly push. Projects belong to your account and are isolated from the Pi-2000 installation.
+
+## API Tester
+
+Open **Start → Programs → Development and Drawing → API Tester**. Enter a URL, method, headers and optional body, then Send. **Request → Authentication** configures Basic or Bearer authentication. Inspect the response status, headers, body and timing; save requests to your private encrypted collection if needed. Requests originate from the Pi, so the destination must be reachable from it.
+
+See [Development Tools](DEVELOPMENT-TOOLS.md) for Git, API Tester and syntax-check limits.

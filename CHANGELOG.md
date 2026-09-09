@@ -4,7 +4,7 @@ User-visible changes are recorded here for each numbered release. Development be
 
 ## Unreleased
 
-No changes recorded yet.
+- Refresh the README, user guide and GitHub descriptions for Alpha 3, including phpMyAdmin, Git Projects, API Tester, syntax diagnostics and verified Browser memory protection. Documentation only; the published Alpha 3 source tag is unchanged.
 
 ## 0.1.0-alpha.3 — 2026-09-09
 
@@ -22,7 +22,7 @@ No changes recorded yet.
 
 - Show MariaDB connection failures in a prominent alert, report connection progress, and explain login/TLS/network errors, including unexpected proxy responses.
 
-- Add MariaDB Manager with private saved TCP/TLS connections, optional encrypted credentials, SQL workspaces, object browsing, row-edit SQL preparation, administration templates and bounded SQL/CSV import and result export. Include the credential key in verified backups. See `docs/MARIADB-MANAGER.md` for scope and limits.
+- Add private saved MariaDB TCP/TLS connections and optional encrypted credentials; include the credential key in verified backups. The native workspace remains available alongside phpMyAdmin. See `docs/MARIADB-MANAGER.md` for scope and limits.
 
 - Browser checks available server RAM before starting a new session; reconnecting to a running session remains possible when memory is low.
 - Browser reports memory-limit stops, crashes, low disk space and idle timeouts separately, removes a stopped stream and offers explicit reconnect.
