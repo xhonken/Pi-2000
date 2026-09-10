@@ -54,3 +54,8 @@ class BrowserMemoryTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(runtime.status(1)['reason'],'crashed')
         runtime.sessions[1]['process'].returncode=None
         self.assertIsNotNone(runtime.status(1)['warning'])
+
+    def test_small_pi_profile_has_consistent_limits(self):
+        import json, os, subprocess
+        values=subprocess.check_output([sys.executable,'-c','import json,resource_limits as r;print(json.dumps([r.BROWSER_MEMORY_MAX,r.BROWSER_MEMORY_HIGH,r.BROWSER_SWAP_MAX,r.BROWSER_START_RESERVE]))'],env={**os.environ,'PYTHONPATH':str(Path(__file__).resolve().parents[1]/'server'),'WIN2K_BROWSER_MEMORY_MIB':'768','WIN2K_BROWSER_RESERVE_MIB':'256'})
+        self.assertEqual(json.loads(values),[768*1024**2,512*1024**2,128*1024**2,1024*1024**2])

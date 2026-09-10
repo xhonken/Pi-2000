@@ -4,6 +4,9 @@ User-visible changes are recorded here for each numbered release. Development be
 
 ## Unreleased
 
+- Add an arm64 Debian package for Raspberry Pi OS 64-bit / Debian 13, with prebuilt Python runtimes, APT dependencies, separate HTTPS configuration, verified backup before upgrades and retained account data on removal.
+- Add a smaller Browser resource profile for 2 GB Raspberry Pi systems and require an available memory controller before starting a new sandboxed Browser session.
+
 - Keep upload file inputs attached to the page and launch pickers directly from user actions; share cleanup and account guards across desktop, Files and folder uploads.
 
 - Add Help → About Pi-2000Web with the installed version, source revision and generated build identity.

@@ -3,8 +3,11 @@ import os
 import time
 from pathlib import Path
 
-BROWSER_MEMORY_MAX = 1536 * 1024**2
-BROWSER_START_RESERVE = BROWSER_MEMORY_MAX + 512 * 1024**2
+BROWSER_MEMORY_MAX = max(512, min(1536, int(os.environ.get('WIN2K_BROWSER_MEMORY_MIB', '1536')))) * 1024**2
+BROWSER_MEMORY_HIGH = BROWSER_MEMORY_MAX * 2 // 3
+BROWSER_SWAP_MAX = min(256 * 1024**2, BROWSER_MEMORY_MAX // 6)
+BROWSER_WARNING = min(1200 * 1024**2, BROWSER_MEMORY_MAX * 4 // 5)
+BROWSER_START_RESERVE = BROWSER_MEMORY_MAX + max(256, int(os.environ.get('WIN2K_BROWSER_RESERVE_MIB', '512'))) * 1024**2
 
 
 def available_memory(path=Path('/proc/meminfo')):
@@ -37,9 +40,9 @@ class BrowserLimits:
         group = self.root / f'browser-{int(user_id)}'
         group.mkdir(exist_ok=True)
         if 'memory' in self.controllers:
-            (group / 'memory.high').write_text(str(1024**3))
-            (group / 'memory.max').write_text(str(1536 * 1024**2))
-            (group / 'memory.swap.max').write_text(str(256 * 1024**2))
+            (group / 'memory.high').write_text(str(BROWSER_MEMORY_HIGH))
+            (group / 'memory.max').write_text(str(BROWSER_MEMORY_MAX))
+            (group / 'memory.swap.max').write_text(str(BROWSER_SWAP_MAX))
             (group / 'memory.oom.group').write_text('1')
         (group / 'pids.max').write_text('256')
         (group / 'cpu.max').write_text('150000 100000')

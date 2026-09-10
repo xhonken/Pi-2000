@@ -1,0 +1,19 @@
+[Unit]
+Description=Pi-2000Web HTTPS frontend
+After=network-online.target win2k-admin.service
+Wants=network-online.target
+[Service]
+User=caddy
+Group=caddy
+ExecStart=/usr/bin/caddy run --config /etc/pi2000web/Caddyfile --adapter caddyfile
+ExecReload=/usr/bin/caddy reload --config /etc/pi2000web/Caddyfile --adapter caddyfile --address unix//var/lib/caddy/win2k-admin/control.sock
+Restart=on-failure
+AmbientCapabilities=CAP_NET_BIND_SERVICE
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/var/lib/caddy
+[Install]
+WantedBy=multi-user.target

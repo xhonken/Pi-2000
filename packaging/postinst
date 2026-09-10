@@ -1,0 +1,5 @@
+#!/bin/sh
+set -eu
+if [ "$1" = configure ]; then
+ /usr/bin/python3 /usr/lib/pi2000web/package_setup.py configure
+fi

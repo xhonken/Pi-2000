@@ -45,3 +45,7 @@ docs/browser-preview.png
 pi2000.toml
 config/local*.toml
 .install-plan/
+
+# Debian package build artifacts
+.deb-build/
+build/packages/

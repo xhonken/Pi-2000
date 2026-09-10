@@ -1,0 +1,20 @@
+# Managed by Pi-2000Web. Edit /etc/pi2000web/config.toml, then run update.sh.
+{
+    admin unix//var/lib/caddy/win2k-admin/control.sock
+}
+
+@PUBLIC_URL@ {
+@BIND@    @TLS@
+    header {
+        X-Content-Type-Options nosniff
+        X-Frame-Options SAMEORIGIN
+        Referrer-Policy same-origin
+    }
+    handle /api/* {
+        reverse_proxy 127.0.0.1:8765
+    }
+    handle {
+        root * /srv/win2k
+        file_server
+    }
+}

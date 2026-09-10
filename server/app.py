@@ -1,5 +1,6 @@
 import asyncio
 import build_info
+from resource_limits import BROWSER_MEMORY_MAX
 from contextlib import contextmanager
 import hashlib
 import hmac
@@ -885,7 +886,7 @@ def runtime_data(user_id=None):
                 entry['browsers'] = int(browser['process'].returncode is None)
                 if hasattr(BROWSERS, 'resources'): entry.update(BROWSERS.resources.usage(uid))
     return {'users': [{'id': key, **value} for key,value in users.items()],
-            'limits': {'terminals_per_user': 8, 'browsers_total': 3, 'browser_memory_mib': 1536, 'browser_cpu_cores': 1.5, 'browser_disconnected_hours': 24}, 'session_worker': WORKER_MODE}
+            'limits': {'terminals_per_user': 8, 'browsers_total': 3, 'browser_memory_mib': BROWSER_MEMORY_MAX // 1024**2, 'browser_cpu_cores': 1.5, 'browser_disconnected_hours': 24}, 'session_worker': WORKER_MODE}
 
 
 async def runtime_status(request):

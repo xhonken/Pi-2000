@@ -65,7 +65,15 @@ Use My Activities or Task Manager to end a terminal explicitly. A terminal windo
 
 **Persistence depends on the Pi and the remote device continuing to run.** Restarting the session service, rebooting the Pi, losing power on the Pi or losing the remote SSH connection can end jobs. This is not a checkpoint/restart system. Frontend updates intentionally preserve the running session worker.
 
-## Install on Raspberry Pi 5
+## Install on Raspberry Pi
+
+An installable arm64 `.deb` is available as a local Alpha 4 candidate. It includes
+prebuilt Python runtimes and uses APT for system dependencies. See the
+**[Debian package guide](docs/DEB-INSTALLATION.md)** for Raspberry Pi OS 64-bit
+(Debian 13), first login and upgrades. The package has been installed and tested
+on a physical Raspberry Pi 4 with 2 GB RAM; it is not yet a published release.
+
+The source installation below remains available for Raspberry Pi 5:
 
 Use **64-bit Raspberry Pi OS / Debian 13 (Trixie)**. Start with a dedicated Pi, a reserved LAN address or working DNS, and at least 6 GiB of free space when including Browser.
 
@@ -78,7 +86,7 @@ nano pi2000.toml
 sudo ./scripts/install.sh --config pi2000.toml
 ```
 
-Set your own HTTPS address, local/public TLS mode and optional bind IP in `pi2000.toml`. The installer sets up Caddy, the API, SQLite, persistent services, backups, phpMyAdmin/PHP-FPM and the optional browser. It refuses to overwrite unrelated Caddy sites. While the repository is private, GitHub access is required to clone it.
+Set your own HTTPS address, local/public TLS mode and optional bind IP in `pi2000.toml`. The installer sets up Caddy, the API, SQLite, persistent services, backups, phpMyAdmin/PHP-FPM and the optional browser. It refuses to overwrite unrelated Caddy sites.
 
 Read the complete **[Raspberry Pi installation guide](docs/INSTALLATION.md)**, including first login, private CA trust, updates, network changes and recovery. **[Caddy and HTTPS](docs/CADDY.md)** explains LAN certificates, domain certificates and existing web servers.
 
@@ -93,7 +101,7 @@ sudo ./scripts/doctor.sh
 
 Updates use `/etc/pi2000web/config.toml`. Normal updates preserve running SSH/Browser sessions. Finish active database work first: the updater restarts the API, and database sessions and transactions are not resumed. Reload the desktop after updating. Changing the HTTPS origin requires `--restart-sessions`, which ends live jobs.
 
-Configuration, generated Caddy settings, backend tests and the existing-installation upgrade path are verified. A full installation on a newly imaged physical Pi remains to be independently verified during Alpha testing.
+Configuration, generated Caddy settings, backend tests and the existing-installation upgrade path are verified. The Debian package also has physical Pi 4 installation and post-reboot functional coverage; see its guide for the tested scope.
 
 Internal service names, environment variables, JavaScript namespaces and storage paths retain the legacy `win2k` identifier for compatibility. The product name is **Pi-2000Web**. The source checkout can be named or located differently; no local username or network address is required in source code.
 
@@ -101,7 +109,7 @@ Internal service names, environment variables, JavaScript namespaces and storage
 
 Chromium runs inside a bubblewrap sandbox with a private display, audio service and per-account home directory. Selkies streams it through an authenticated proxy and Unix sockets. No public remote-debugging or browser-streaming port is required. Tabs, cookies and website logins are isolated per account. Modern JavaScript is supported; legacy Java browser plug-ins are not supported by Chromium. Audio may require a click inside the browser.
 
-There are three simultaneous browser sessions globally. Each browser has CPU and process limits (1.5 CPU cores and 256 processes). Each Browser group has a configured 1536 MiB memory maximum, 1024 MiB high threshold and up to 256 MiB swap. Hard enforcement requires the kernel memory controller; it was verified with an isolated memory-limit test on the development Pi. A watchdog remains as a fallback where hard limits are unavailable. New sessions require 2048 MiB available server RAM; reconnecting to a running session bypasses that admission check. The UI reports stop reasons and offers explicit reconnect. Low-disk checks are also global. See [Browser memory protection](docs/BROWSER-MEMORY.md) to verify your installation. See the [security review](docs/security/review-2026-09-08.md) for remaining network and resource isolation limitations.
+There are at most three simultaneous Browser sessions globally, subject to available RAM. Each Browser has CPU and process limits (1.5 CPU cores and 256 processes). The default profile uses a 1536 MiB memory maximum, 1024 MiB high threshold, up to 256 MiB swap and 2048 MiB available RAM for admission. The Debian package selects a smaller profile on 2 GB systems: 768 MiB maximum, 512 MiB high, 128 MiB swap and 1024 MiB available RAM for admission. Hard enforcement requires the kernel memory controller; new sandboxed sessions are refused if it is missing. Reconnecting to a running session bypasses admission checks. The UI reports stop reasons and offers explicit reconnect. Low-disk checks are also global. See [Browser memory protection](docs/BROWSER-MEMORY.md) to verify your installation. See the [security review](docs/security/review-2026-09-08.md) for remaining network and resource isolation limitations.
 
 ## Files, editor and SFTP details
 
@@ -184,4 +192,4 @@ Main source areas:
 
 The current desktop has original code-drawn SVG icons generated by `scripts/build-classic-icons.py`. Historical Windows screenshots were used as visual references, not copied into the application. See [UI reference notes](docs/design/windows-2000-ui.md).
 
-Vendored Ace, xterm.js and PDF.js retain their upstream licence files. Browser dependency revisions are recorded under `server/`. A project-wide distribution licence and independent clean-Pi installation verification must be settled before public release.
+Vendored Ace, xterm.js and PDF.js retain their upstream licence files. Browser dependency revisions are recorded under `server/`. A project-wide distribution licence remains to be settled before a public package release.

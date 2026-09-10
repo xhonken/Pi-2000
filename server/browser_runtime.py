@@ -10,7 +10,7 @@ import time
 import sys
 import uuid
 from urllib.parse import urlsplit
-from resource_limits import BrowserLimits, available_memory, BROWSER_START_RESERVE, BROWSER_MEMORY_MAX
+from resource_limits import BrowserLimits, available_memory, BROWSER_START_RESERVE, BROWSER_MEMORY_MAX, BROWSER_WARNING
 
 
 def valid_browser_url(url):
@@ -76,6 +76,8 @@ class BrowserRuntime:
                 raise BrowserUnavailable('Three browser sessions are already running. End a session to free up a slot.')
             if shutil.disk_usage(self.root.parent).free < 512 * 1024**2:
                 raise BrowserUnavailable('Server storage is almost full. Free some space before starting the browser.')
+            if self.resources.root is not None and 'memory' not in self.resources.controllers:
+                raise BrowserUnavailable('Browser requires the memory controller. Enable it and reboot the Pi before starting Browser.')
             available = available_memory()
             if available is not None and available < BROWSER_START_RESERVE:
                 raise BrowserUnavailable('Not enough available server memory to start Browser safely. Close unused browser sessions or server applications and try again. Your saved browser profile is unchanged.')
@@ -114,7 +116,7 @@ class BrowserRuntime:
         entry = self.sessions.get(user_id)
         if entry and entry['process'].returncode is None:
             usage = self.resources.usage(user_id)
-            warning = 'Browser is approaching its memory limit. Close unused tabs.' if usage.get('memory_bytes', 0) >= 1200 * 1024**2 else None
+            warning = 'Browser is approaching its memory limit. Close unused tabs.' if usage.get('memory_bytes', 0) >= BROWSER_WARNING else None
             return {'state': 'running', 'reason': None, 'warning': warning, **usage}
         if entry:
             usage = self.resources.usage(user_id)
