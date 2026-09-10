@@ -1,4 +1,4 @@
-"""OS-managed mapping for the owner's local SSH terminal; never a web setting."""
+"""OS-managed mapping for administrators' local SSH terminal; never a web setting."""
 import json
 from pathlib import Path
 import re
@@ -7,8 +7,8 @@ from aiohttp import web
 CONFIG = Path('/etc/pi2000web/local-terminal.json')
 
 def profile(user):
-    if user['username'].lower() != 'admin':
-        raise web.HTTPForbidden(text='Only the installation owner can open Local Terminal.')
+    if user['role'] != 'admin':
+        raise web.HTTPForbidden(text='Only administrators can open Local Terminal.')
     try:
         data = json.loads(CONFIG.read_text())
     except FileNotFoundError:

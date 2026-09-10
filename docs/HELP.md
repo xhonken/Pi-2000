@@ -126,6 +126,6 @@ active database transactions are not restored after disconnect or restart.
 
 ## Local Terminal and initial database
 
-Package installations offer **Start → Programs → System Tools → Local Terminal** to the installation owner. Enter the selected Linux account password to connect; use `sudo` according to that account's permissions. Other web accounts can use their own SSH profiles but receive no Linux account or sudo rights automatically.
+Package installations offer **Start → Programs → System Tools → Local Terminal** to all web administrators. Enter the selected Linux account password to connect; use `sudo` according to that account's permissions. Other web accounts can use their own SSH profiles but receive no Linux account or sudo rights automatically.
 
 The terminal installer creates a private **Local MariaDB** connection for the owner, with access to the `pi2000_admin` database. Its initial password matches the chosen web admin password. Later web password changes do not change the database or Linux passwords. Existing installations can run `sudo pi2000web setup`; see the [Debian installation guide](DEB-INSTALLATION.md).

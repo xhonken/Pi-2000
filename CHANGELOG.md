@@ -9,7 +9,7 @@ User-visible changes are recorded here for each numbered release. Development be
 - Wait for HTTPS readiness during package setup and adjust the 2 GB Browser admission reserve for coexistence with local MariaDB, retaining its hard memory limit.
 
 - Add Debian terminal setup dialogs for the initial administrator password, a private local MariaDB database/connection and an optional Linux account for Local Terminal. Existing passwords and accounts are preserved on upgrades.
-- Add owner-only Local Terminal under System Tools, with loopback SSH, OS-managed account mapping, pinned local host keys and separate Linux authentication.
+- Add Local Terminal for all web administrators under System Tools, with loopback SSH, OS-managed account mapping, pinned local host keys and separate Linux authentication.
 
 - Allow slower cold SD-card startup for Browser and syntax checks while retaining CPU and memory limits.
 

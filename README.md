@@ -25,7 +25,7 @@ Read the [Alpha 3 release notes](docs/releases/0.1.0-alpha.3.md) for upgrade ste
 | --- | --- |
 | My Files and Desktop | Private files and folders, upload by drag and drop, folder uploads, rename, move, copy/paste, download and ZIP export. Drag desktop icons to arrange them. |
 | Recycle Bin | Restore deleted files, folders and shortcuts, or delete them permanently. |
-| Local Terminal | Owner-only terminal on the Pi, using the Linux account selected in the Debian installer and its existing sudo permissions. |
+| Local Terminal | Terminal on the Pi for all web administrators, using the Linux account selected in the Debian installer and its existing sudo permissions. |
 | My Devices | Organise SSH connection profiles in folders; verify host keys and connect to remote devices. |
 | Browser | Persistent Chromium tabs, separate cookies and profiles for each account, audio, automatic resizing and an enforced uBlock Origin Lite policy. |
 | Code Editor | Local Ace editor with syntax highlighting, tabs, completion, find/replace, undo/redo, word wrap, themes, file trees, recovery drafts, SFTP editing and Python/JavaScript/JSON syntax diagnostics. |

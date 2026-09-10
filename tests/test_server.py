@@ -253,18 +253,38 @@ class ServerTests(unittest.IsolatedAsyncioTestCase):
             self.assertEqual((await ws.receive_json(timeout=5))['type'],'error')
             await ws.close()
 
-    async def test_local_terminal_denies_users_and_other_administrators(self):
+    async def test_local_terminal_promotion_isolation_and_demotion(self):
+        from unittest.mock import patch
+        import local_terminal
         uid=await self.create_account()
-        for role in ('user','admin'):
-            if role=='admin':await self.client.patch('/api/users/'+str(uid),headers=self.headers,json={'role':'admin'})
+        config=app.STATE/'local-terminal.json'
+        config.write_text(json.dumps({'username':'pi','port':self.port,'host_keys':[self.key.export_public_key().decode()]}))
+        with patch.object(local_terminal,'CONFIG',config):
             headers=await self.login_account()
             self.assertEqual((await self.client.get('/api/local-terminal',headers=headers)).status,403)
             ws=await self.client.ws_connect('/api/terminal',headers=headers)
             await ws.send_json({'local':True,'password':'irrelevant'})
             result=await ws.receive_json(timeout=5)
             self.assertEqual(result['type'],'error')
-            self.assertIn('owner',result['message'])
+            self.assertIn('administrators',result['message'])
             await ws.close()
+            await self.client.patch('/api/users/'+str(uid),headers=self.headers,json={'role':'admin'})
+            headers=await self.login_account()
+            self.assertEqual((await self.client.get('/api/local-terminal',headers=headers)).status,200)
+            ws=await self.client.ws_connect('/api/terminal',headers=headers)
+            await ws.send_json({'local':True,'password':'ssh-test-password'})
+            connected=await ws.receive_json(timeout=5)
+            self.assertEqual(connected['type'],'connected')
+            tid=connected['id']
+            other=await self.client.ws_connect('/api/terminal',headers=self.headers)
+            await other.send_json({'terminal':tid})
+            self.assertTrue((await other.receive_json(timeout=5))['missing'])
+            await other.close()
+            await self.client.patch('/api/users/'+str(uid),headers=self.headers,json={'role':'user'})
+            self.assertNotIn(tid,app.TERMINALS)
+            await ws.close()
+            headers=await self.login_account()
+            self.assertEqual((await self.client.get('/api/local-terminal',headers=headers)).status,403)
 
     async def test_background_job_survives_disconnect_and_new_login(self):
         profile = await self.profile()

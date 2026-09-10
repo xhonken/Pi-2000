@@ -29,7 +29,7 @@ Template: pi2000web/local-mode
 Type: select
 Choices: Existing account, Create account with sudo, Disabled
 Default: Existing account
-Description: Linux account for the owner's Local Terminal:
+Description: Linux account for administrators' Local Terminal:
  Existing account preserves its password and permissions. Creating an account
  makes a separate Linux login with password-required sudo. Other web users
  receive no Linux account or sudo permissions.

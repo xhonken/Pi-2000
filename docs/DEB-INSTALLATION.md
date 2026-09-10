@@ -6,7 +6,7 @@ installs native dependencies; no pip download or compilation occurs on the Pi.
 32-bit Raspberry Pi OS and Debian 12 are not supported by this build.
 
 ```sh
-sudo apt install ./pi2000web_0.1.0~alpha.4-9_arm64.deb
+sudo apt install ./pi2000web_0.1.0~alpha.4-10_arm64.deb
 sudo pi2000web doctor
 ```
 
@@ -30,11 +30,12 @@ rather than being overwritten. Later web password changes do not change SQL or
 Linux passwords automatically. Pi-2000's internal account/file metadata stays in
 SQLite.
 
-**Start → Programs → System Tools → Local Terminal** is available only to the
-installation owner. It connects to the selected Linux account through loopback SSH
+**Start → Programs → System Tools → Local Terminal** is available to all
+web administrators. It connects to the selected Linux account through loopback SSH
 and asks for its Linux password each time; sudo follows that account's permissions.
-The installer pins the local SSH server's public host keys. Web administrators and
-ordinary users receive no Linux account or Local Terminal rights automatically.
+The installer pins the local SSH server's public host keys. Web roles do not create Linux accounts or grant sudo rights. Ordinary users cannot
+open Local Terminal. Demoting an administrator ends their terminal sessions and
+removes Local Terminal access after login.
 
 Upgrades preserve existing accounts and do not rerun account provisioning. On an
 existing installation, run `sudo pi2000web setup` explicitly to add these features;
@@ -125,8 +126,8 @@ suite passed 88 tests. The package is a local candidate, not a GitHub release.
 
 The terminal installer was additionally tested through actual Debian dialogs on
 physical hardware: chosen admin password, a separate Linux account with password-required
-sudo, private automatic MariaDB login through phpMyAdmin, and denial for ordinary
-users and additional web administrators. The installer clears its debconf password
+sudo, private automatic MariaDB login through phpMyAdmin, and role-based terminal access. Ordinary users are denied, while additional web
+administrators can open Local Terminal with Linux authentication. The installer clears its debconf password
 answers and does not create a plaintext initial-password file for a chosen password.
 
 With local MariaDB enabled, the 2 GB profile uses a 128 MiB admission reserve

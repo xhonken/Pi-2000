@@ -64,8 +64,10 @@ def main():
             other=urllib.request.build_opener(urllib.request.HTTPSHandler(context=context),urllib.request.HTTPCookieProcessor(http.cookiejar.CookieJar()))
             api('/login',{'username':name,'password':password},client=other)
             assert api('/databases/connections',client=other)['connections']==[]
-            try:api('/local-terminal',client=other);raise AssertionError('Local Terminal exposed to another account')
-            except urllib.error.HTTPError as exc:assert exc.code==403
+            if role=='admin':assert api('/local-terminal',client=other)['username']==a.linux_user
+            else:
+                try:api('/local-terminal',client=other);raise AssertionError('Local Terminal exposed to an ordinary user')
+                except urllib.error.HTTPError as exc:assert exc.code==403
             api('/logout',{},client=other)
         print('PASS installed ordinary-user and additional-administrator isolation',flush=True)
     finally:
