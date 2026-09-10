@@ -6,7 +6,7 @@ installs native dependencies; no pip download or compilation occurs on the Pi.
 32-bit Raspberry Pi OS and Debian 12 are not supported by this build.
 
 ```sh
-sudo apt install ./pi2000web_0.1.0~alpha.4-4_arm64.deb
+sudo apt install ./pi2000web_0.1.0~alpha.4-5_arm64.deb
 sudo pi2000web doctor
 ```
 
@@ -26,7 +26,8 @@ sudo reboot
 ```
 
 Reboot only after saving work. A backup of the original boot command line is kept
-privately. A 2 GB Pi uses a 768 MiB Browser limit and a 256 MiB start reserve;
+privately. A 2 GB Pi uses a 1024 MiB Browser hard limit, an 896 MiB high threshold,
+up to 128 MiB swap and a 256 MiB start reserve;
 several simultaneous Browser sessions or large web applications may not fit.
 Larger machines retain the existing 1536 MiB Browser budget.
 
@@ -72,7 +73,9 @@ Browser startup and its stream client, live kernel memory limits, Git init/edit/
 stage/commit, syntax diagnostics, native upload pickers from the desktop and Files,
 and phpMyAdmin SQL, direct insert, import/export, protected paths and session
 revocation. This is functional coverage, not a long-duration load test on a 2 GB Pi.
-Cold SD-card startup exposed short wall-clock deadlines. Browser now allows up to
+Cold SD-card startup exposed short wall-clock deadlines and reclaim pressure
+from overly low 512/640 MiB high thresholds. The 2 GB profile now uses 896 MiB high
+and a 1024 MiB hard cap, with 1280 MiB available RAM required before starting. Browser now allows up to
 90 seconds to initialize and syntax checks allow 15 seconds for startup and disk
 reads while retaining their three-second CPU budget.
 
