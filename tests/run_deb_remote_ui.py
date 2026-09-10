@@ -55,6 +55,9 @@ def main():
   for item in api('/files')['items']:
    if item['name'] in ('picker-desktop.txt','picker-files.txt','picker-menu.txt'):
     api('/files/'+item['id']+'/trash',{});api('/files/'+item['id'],method='DELETE')
+ for connection in api('/databases/connections')['connections']:
+  if connection['name']=='phpMyAdmin fixture' and connection['host']=='127.0.0.1' and int(connection['port'])==18306:
+   api('/databases/connections/'+connection['id'],method='DELETE')
  with MariaDBFixture() as db:
   forward=f'127.0.0.1:18306:127.0.0.1:{db.port}'
   command=['ssh','-S',a.control,'-O']
