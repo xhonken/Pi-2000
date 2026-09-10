@@ -4,6 +4,8 @@ User-visible changes are recorded here for each numbered release. Development be
 
 ## Unreleased
 
+- Allow slower cold SD-card startup for Browser and syntax checks while retaining CPU and memory limits.
+
 - Add an arm64 Debian package for Raspberry Pi OS 64-bit / Debian 13, with prebuilt Python runtimes, APT dependencies, separate HTTPS configuration, verified backup before upgrades and retained account data on removal.
 - Add a smaller Browser resource profile for 2 GB Raspberry Pi systems and require an available memory controller before starting a new sandboxed Browser session.
 

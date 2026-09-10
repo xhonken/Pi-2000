@@ -46,7 +46,8 @@ class Diagnostics:
             if language=='python':limit.append('--as=268435456')
             else:command.insert(1,'--max-old-space-size=64')
             process=await asyncio.create_subprocess_exec(*limit,'--',*command,stdin=asyncio.subprocess.PIPE,stdout=asyncio.subprocess.PIPE,stderr=asyncio.subprocess.PIPE,env={'PATH':'/usr/bin:/bin','LANG':'C.UTF-8'},cwd='/tmp')
-            async with asyncio.timeout(5):out,err=await process.communicate(source.encode())
+            # Keep the three-second CPU budget; allow cold SD-card reads.
+            async with asyncio.timeout(15):out,err=await process.communicate(source.encode())
             self.app.require_current(request)
             if language=='python' and process.returncode==0:return web.json_response({**json.loads(out),'language':language})
             if language.startswith('javascript'):
@@ -58,7 +59,7 @@ class Diagnostics:
                     diagnostics=[{'row':int(line[1])-1 if line else 0,'column':max(0,caret),'text':message[1][:500],'type':'error'}]
                 return web.json_response({'diagnostics':diagnostics,'language':language})
             raise web.HTTPBadRequest(text='The syntax checker reached its resource limit.')
-        except asyncio.TimeoutError:raise web.HTTPRequestTimeout(text='Syntax checking exceeded five seconds.')
+        except asyncio.TimeoutError:raise web.HTTPRequestTimeout(text='Syntax checking exceeded fifteen seconds.')
         finally:
             if process and process.returncode is None:process.kill();await process.wait()
             self.running.discard(uid)

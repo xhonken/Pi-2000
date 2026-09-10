@@ -101,7 +101,10 @@ class BrowserRuntime:
             entry = {'process': process, 'runtime': runtime, 'socket': runtime / 'stream.sock', 'last_seen': time.monotonic(), 'clients': 0}
             entry['oom_baseline'] = self.resources.usage(user_id).get('oom_kills', 0)
             self.sessions[user_id] = entry
-            for _ in range(300):
+            # Cold imports and stream-client extraction on a Pi 4 SD card can
+            # exceed 30 seconds. Bound elapsed time without relaxing resources.
+            deadline = time.monotonic() + 90
+            while time.monotonic() < deadline:
                 if entry['socket'].exists() and (runtime / 'url-ready').exists():
                     self.last_stops.pop(user_id, None)
                     return entry

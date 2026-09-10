@@ -1,4 +1,4 @@
-# Managed by Pi-2000Web. Edit /etc/pi2000web/config.toml, then run update.sh.
+# Managed by Pi-2000Web. Edit /etc/pi2000web/config.toml, then run pi2000web configure.
 {
     admin unix//var/lib/caddy/win2k-admin/control.sock
 }

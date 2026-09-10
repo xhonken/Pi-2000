@@ -22,7 +22,7 @@ def main():
  origin='https://'+a.host;context=ssl.create_default_context(cafile=a.ca);jar=http.cookiejar.CookieJar();opener=urllib.request.build_opener(urllib.request.HTTPSHandler(context=context),urllib.request.HTTPCookieProcessor(jar))
  def api(path,data=None,method=None):
   request=urllib.request.Request(origin+'/api'+path,data=json.dumps(data).encode() if data is not None else None,method=method,headers={'Content-Type':'application/json','Origin':origin})
-  with opener.open(request,timeout=90) as response:return json.load(response)
+  with opener.open(request,timeout=150) as response:return json.load(response)
  user=api('/login',{'username':a.user,'password':secret})
  assert api('/health')['sessions']=='ok';info=api('/version');print('Installed version:',info['version'],flush=True)
  request=urllib.request.Request(origin+'/api/files/upload?parent=files&name=upgrade-preserved.txt',data=b'Package upgrade preservation fixture',headers={'Content-Type':'application/octet-stream','Origin':origin})

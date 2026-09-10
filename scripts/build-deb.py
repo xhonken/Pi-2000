@@ -37,7 +37,7 @@ def runtime(name,requirements,wheels,work):
 
 
 def main():
-    p=argparse.ArgumentParser();p.add_argument('--version',default='0.1.0~alpha.4-3');a=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument('--version',default='0.1.0~alpha.4-4');a=p.parse_args()
     if os.uname().machine!='aarch64' or sys.version_info[:2]!=(3,13):p.error('Build on arm64 with Python 3.13.')
     run('dpkg','--validate-version',a.version)
     work=ROOT/'.deb-build';work.mkdir(exist_ok=True)
