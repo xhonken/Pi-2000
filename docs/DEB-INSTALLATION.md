@@ -6,7 +6,7 @@ installs native dependencies; no pip download or compilation occurs on the Pi.
 32-bit Raspberry Pi OS and Debian 12 are not supported by this build.
 
 ```sh
-sudo apt install ./pi2000web_0.1.0~alpha.4-7_arm64.deb
+sudo apt install ./pi2000web_0.1.0~alpha.4-8_arm64.deb
 sudo pi2000web doctor
 ```
 
@@ -53,7 +53,7 @@ sudo reboot
 
 Reboot only after saving work. A backup of the original boot command line is kept
 privately. A 2 GB Pi uses a 1024 MiB Browser hard limit, an 896 MiB high threshold,
-up to 128 MiB swap and a 256 MiB start reserve;
+up to 128 MiB swap and a 128 MiB start reserve;
 several simultaneous Browser sessions or large web applications may not fit.
 Larger machines retain the existing 1536 MiB Browser budget.
 
@@ -101,7 +101,7 @@ and phpMyAdmin SQL, direct insert, import/export, protected paths and session
 revocation. This is functional coverage, not a long-duration load test on a 2 GB Pi.
 Cold SD-card startup exposed short wall-clock deadlines and reclaim pressure
 from overly low 512/640 MiB high thresholds. The 2 GB profile now uses 896 MiB high
-and a 1024 MiB hard cap, with 1280 MiB available RAM required before starting. Browser now allows up to
+and a 1024 MiB hard cap, with 1152 MiB available RAM required before starting. Browser now allows up to
 90 seconds to initialize and syntax checks allow 15 seconds for startup and disk
 reads while retaining their three-second CPU budget.
 
@@ -128,3 +128,9 @@ physical hardware: chosen admin password, a separate Linux account with password
 sudo, private automatic MariaDB login through phpMyAdmin, and denial for ordinary
 users and additional web administrators. The installer clears its debconf password
 answers and does not create a plaintext initial-password file for a chosen password.
+
+With local MariaDB enabled, the 2 GB profile uses a 128 MiB admission reserve
+(1152 MiB available RAM before starting), while retaining the 1024/896/128 MiB
+hard/high/swap limits. A physical cold-cache test with Raspberry OS desktop and
+MariaDB running passed without a cgroup OOM or hard-limit event. The complete
+backend suite passes 96 tests. This remains a local candidate.

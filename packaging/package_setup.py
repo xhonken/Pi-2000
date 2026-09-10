@@ -70,7 +70,7 @@ def configure(args):
     runtime='WIN2K_ORIGIN='+url+'\n'
     total=int(next(line.split()[1] for line in Path('/proc/meminfo').read_text().splitlines() if line.startswith('MemTotal:')))//1024
     if total<3072:
-        runtime+='WIN2K_BROWSER_MEMORY_MIB=1024\nWIN2K_BROWSER_RESERVE_MIB=256\n'
+        runtime+='WIN2K_BROWSER_MEMORY_MIB=1024\nWIN2K_BROWSER_RESERVE_MIB=128\n'
         atomic('/etc/systemd/system/win2k-sessions.service.d/pi2000-memory.conf','[Service]\nMemoryHigh=1152M\nMemoryMax=1280M\nTasksMax=500\nCPUQuota=200%\n',0o644)
     atomic(CONFIG/'runtime.env',runtime)
     caddy=(Path(__file__).with_name('Caddyfile.template')).read_text().replace('@PUBLIC_URL@',url).replace('@TLS@','tls internal' if tls=='internal' else '# Automatic public HTTPS').replace('@BIND@','    bind '+data['network']['bind_address']+'\n' if data['network']['bind_address'] else '')
