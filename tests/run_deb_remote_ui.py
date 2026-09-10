@@ -45,6 +45,9 @@ def main():
   for command in ({'action':'write','path':'README.md','text':'package fixture','version':None},{'action':'stage','paths':['README.md']},{'action':'commit','message':'Package validation','author':'Fixture','email':'fixture@example.test'}):api('/development/git',dict(command,project=project))
  finally:api('/development/git',{'action':'delete','project':project})
  print('PASS: installed Git sandbox and syntax diagnostics',flush=True)
+ # This account is disposable; previous UI runs intentionally persist windows.
+ # Clear only its window layout so a maximized app cannot cover the desktop.
+ api('/workspace',{'windows':[]},method='PUT')
  env={**os.environ,'PI_TEST_ORIGIN':origin,'PI_TEST_USERNAME':a.user,'PI_TEST_PASSWORD':secret,'NODE_PATH':'/tmp/win2k-browser-check/node_modules'}
  try:
   subprocess.run(['node','tests/upload_picker_ui.cjs'],cwd=ROOT,env=env,check=True)
