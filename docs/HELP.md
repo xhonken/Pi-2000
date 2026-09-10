@@ -123,3 +123,9 @@ The native SQL workspace saves drafts before logoff and warns before leaving an
 active connection. Browser reload warnings cannot guarantee recovery after a
 browser crash, forced close or server-side account revocation. Save work regularly;
 active database transactions are not restored after disconnect or restart.
+
+## Local Terminal and initial database
+
+Package installations offer **Start → Programs → System Tools → Local Terminal** to the installation owner. Enter the selected Linux account password to connect; use `sudo` according to that account's permissions. Other web accounts can use their own SSH profiles but receive no Linux account or sudo rights automatically.
+
+The terminal installer creates a private **Local MariaDB** connection for the owner, with access to the `pi2000_admin` database. Its initial password matches the chosen web admin password. Later web password changes do not change the database or Linux passwords. Existing installations can run `sudo pi2000web setup`; see the [Debian installation guide](DEB-INSTALLATION.md).

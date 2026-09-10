@@ -100,7 +100,9 @@ def main(payload):
     if mode=='Create account with sudo':
         if not state.get('linux_user'):
             subprocess.run(['useradd','--create-home','--shell','/bin/bash',username],check=True)
-            state['linux_user']=username;state['linux_uid']=pwd.getpwnam(username).pw_uid;save()
+            account=pwd.getpwnam(username)
+            Path(account.pw_dir).chmod(0o700)
+            state['linux_user']=username;state['linux_uid']=account.pw_uid;save()
         if state.get('linux_user')!=username:raise ValueError('This setup already created a Linux account. Use Existing account to select another.')
         if not state.get('linux_password_set'):
             subprocess.run(['chpasswd'],input=(username+':'+linux_password+'\n').encode(),check=True)

@@ -3,6 +3,7 @@ Description=Pi-2000Web HTTPS frontend
 After=network-online.target win2k-admin.service
 Wants=network-online.target
 [Service]
+Type=notify
 User=caddy
 Group=caddy
 ExecStart=/usr/bin/caddy run --config /etc/pi2000web/Caddyfile --adapter caddyfile

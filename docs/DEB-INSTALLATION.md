@@ -6,7 +6,7 @@ installs native dependencies; no pip download or compilation occurs on the Pi.
 32-bit Raspberry Pi OS and Debian 12 are not supported by this build.
 
 ```sh
-sudo apt install ./pi2000web_0.1.0~alpha.4-6_arm64.deb
+sudo apt install ./pi2000web_0.1.0~alpha.4-7_arm64.deb
 sudo pi2000web doctor
 ```
 
@@ -70,7 +70,7 @@ code. A legacy script-managed installation is rejected rather than overwritten.
 
 Remove with `sudo apt remove pi2000web`. Account data and backups remain; purge
 removes generated platform configuration but deliberately retains user data and
-credential keys. Reinstallation preserves accounts and saved files. Do not use the source updater
+credential keys. Installer-created Linux accounts, their sudo rule and MariaDB databases/accounts also remain after purge; remove them explicitly only when no longer needed. Reinstallation preserves accounts and saved files. Do not use the source updater
 on a package-managed host: install the next `.deb` through APT instead.
 
 Build on the matching arm64 Python 3.13 host:
@@ -122,3 +122,9 @@ OOM kill occurred. The generated administrator login and account-removal path we
 also checked, then the disposable account was removed. Final package checksum,
 services, trusted HTTPS assets and SQLite checks passed. The matching backend
 suite passed 88 tests. The package is a local candidate, not a GitHub release.
+
+The terminal installer was additionally tested through actual Debian dialogs on
+physical hardware: chosen admin password, a separate Linux account with password-required
+sudo, private automatic MariaDB login through phpMyAdmin, and denial for ordinary
+users and additional web administrators. The installer clears its debconf password
+answers and does not create a plaintext initial-password file for a chosen password.

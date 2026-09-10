@@ -15,6 +15,7 @@ import sys
 import time
 import tomllib
 import urllib.request
+import urllib.error
 
 CONFIG=Path('/etc/pi2000web')
 STATE=Path('/var/lib/win2k-admin')
@@ -99,6 +100,16 @@ def configure(args):
     run('systemctl','restart','pi2000-phpmyadmin','win2k-admin')
     run('systemctl','enable','--now','win2k-admin','pi2000-web','win2k-backup.timer')
     run('systemctl','reload-or-restart','pi2000-web')
+    context=ssl.create_default_context(cafile='/var/lib/caddy/.local/share/caddy/pki/authorities/local/root.crt') if tls=='internal' else ssl.create_default_context()
+    deadline=time.monotonic()+45
+    while True:
+        try:
+            with urllib.request.urlopen(url+'/api/session',context=context,timeout=5):pass
+        except urllib.error.HTTPError as exc:
+            if exc.code==401:break
+        except (OSError,urllib.error.URLError):pass
+        if time.monotonic()>=deadline:raise RuntimeError('The HTTPS/API service did not become ready. Run pi2000web doctor after checking its service log.')
+        time.sleep(.5)
     print('Pi-2000Web installed at '+url,flush=True)
     if (STATE/'initial-password.txt').exists():print('First login: admin. Read the existing generated password locally with sudo cat /var/lib/win2k-admin/initial-password.txt.',flush=True)
     else:print('Sign in as admin with the password chosen during installation.',flush=True)
