@@ -88,3 +88,11 @@ Playwright/MariaDB test dependencies. It reads the test password interactively.
 retains `upgrade-preserved.txt` as a lifecycle fixture and resets only the disposable
 account's saved window layout before UI checks. Remove the disposable account after
 validation.
+
+Final local candidate `0.1.0~alpha.4-5` passed the complete functional suite after
+APT installation and session-worker restart, starting with the Pi's disk cache
+cleared. Its live 1024/896/128 MiB limits were read directly from cgroup files; no
+OOM kill occurred. The generated administrator login and account-removal path were
+also checked, then the disposable account was removed. Final package checksum,
+services, trusted HTTPS assets and SQLite checks passed. The matching backend
+suite passed 88 tests. The package is a local candidate, not a GitHub release.
