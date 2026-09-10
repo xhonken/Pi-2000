@@ -102,8 +102,8 @@ class BrowserRuntime:
             entry['oom_baseline'] = self.resources.usage(user_id).get('oom_kills', 0)
             self.sessions[user_id] = entry
             # Cold imports and stream-client extraction on a Pi 4 SD card can
-            # exceed 30 seconds. Bound elapsed time without relaxing resources.
-            deadline = time.monotonic() + 90
+            # exceed 90 seconds alongside local MariaDB. Keep a bounded startup window.
+            deadline = time.monotonic() + 180
             while time.monotonic() < deadline:
                 if entry['socket'].exists() and (runtime / 'url-ready').exists():
                     self.last_stops.pop(user_id, None)

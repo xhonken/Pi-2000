@@ -8,6 +8,17 @@ import sys
 import time
 
 
+def initial_display():
+    # Keep Xvfb's large RandR maximum, but avoid allocating/rendering a 4K-square
+    # desktop while Chromium and the stream server are still starting.
+    for args in (
+        ['--newmode', '1280x720', '74.50', '1280', '1344', '1472', '1664', '720', '723', '728', '748', '-hsync', '+vsync'],
+        ['--addmode', 'screen', '1280x720'],
+        ['--output', 'screen', '--mode', '1280x720'],
+    ):
+        subprocess.run(['/usr/bin/xrandr', *args], check=True, timeout=10)
+
+
 def main():
     os.umask(0o077)
     home = Path('/home/browser')
@@ -68,6 +79,7 @@ set-default-source browser.monitor
         display = launch([binary('Xvfb'), display_name, '-screen', '0', '4096x4096x24', '-nolisten', 'tcp',
                           '-auth', str(runtime / 'Xauthority'), '-noreset', '-s', '0', '-dpms', '+extension', 'RANDR'])
         wait_for(Path('/tmp/.X11-unix/X' + display_name[1:]), display)
+        initial_display()
         subprocess.run(['/usr/bin/dbus-update-activation-environment', 'DISPLAY', 'XAUTHORITY', 'XDG_RUNTIME_DIR'], check=False)
         pulse_args = [binary('pulseaudio'), '-n', '--daemonize=no', '--exit-idle-time=-1',
                       '--disallow-exit', '--disable-shm=yes', '--log-level=error', '-F', str(runtime / 'pulse.pa')]

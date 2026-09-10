@@ -6,7 +6,7 @@ installs native dependencies; no pip download or compilation occurs on the Pi.
 32-bit Raspberry Pi OS and Debian 12 are not supported by this build.
 
 ```sh
-sudo apt install ./pi2000web_0.1.0~alpha.4-8_arm64.deb
+sudo apt install ./pi2000web_0.1.0~alpha.4-9_arm64.deb
 sudo pi2000web doctor
 ```
 
@@ -102,7 +102,7 @@ revocation. This is functional coverage, not a long-duration load test on a 2 GB
 Cold SD-card startup exposed short wall-clock deadlines and reclaim pressure
 from overly low 512/640 MiB high thresholds. The 2 GB profile now uses 896 MiB high
 and a 1024 MiB hard cap, with 1152 MiB available RAM required before starting. Browser now allows up to
-90 seconds to initialize and syntax checks allow 15 seconds for startup and disk
+180 seconds to initialize and syntax checks allow 15 seconds for startup and disk
 reads while retaining their three-second CPU budget.
 
 `tests/run_deb_remote_ui.py` repeats functional checks against an explicitly
@@ -133,4 +133,9 @@ With local MariaDB enabled, the 2 GB profile uses a 128 MiB admission reserve
 (1152 MiB available RAM before starting), while retaining the 1024/896/128 MiB
 hard/high/swap limits. A physical cold-cache test with Raspberry OS desktop and
 MariaDB running passed without a cgroup OOM or hard-limit event. The complete
-backend suite passes 96 tests. This remains a local candidate.
+backend suite passes 97 tests. This remains a local candidate.
+
+Browser begins at 1280 × 720 while retaining its 4096 × 4096 resize maximum.
+This avoids rendering a large empty desktop before a client connects. Cold SD-card
+startup with MariaDB can exceed 90 seconds, so initialization allows up to three
+minutes without increasing the hard memory limit.
