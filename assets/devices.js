@@ -252,12 +252,13 @@ function edit(item,kind){
 }
 function remove(item){shell.show('Delete '+item.name,`<p>Do you want to ta bort ${escape(item.name)}?</p><p class="error" id="delete-error" role="alert"></p><div class="actions"><button class="win2k-button" data-action="close">Cancel</button><button class="win2k-button" id="confirm-delete">Delete</button></div>`);$('#confirm-delete').onclick=async()=>{try{await api('/items/'+item.id,'DELETE');$('#window').close();await refresh();}catch(error){$('#delete-error').textContent=error.message;}};}
 shell.actions.devices=async()=>{shell.closeStart();if(explorer){explorer.focus();try{await refresh();}catch(error){shell.notify(error.message);}return;}explorer=makeWindow('My Devices','explorer-window');explorer.onclose=()=>{explorer=null;};explorer.status.textContent='Loading devices…';try{await refresh();}catch(error){shell.notify(error.message);}};
+shell.actions.localterminal=async()=>{shell.closeStart();if(!account?.is_owner)return;const owner=account;try{const profile=await api('/local-terminal');if(account===owner)connectDialog(profile);}catch(error){shell.notify(error.message);}};
 function connectDialog(profile){
  shell.show('Connect to '+profile.name,`<form id="ssh-form"><p>${escape(profile.username)}@${escape(profile.host)}:${profile.port}</p><label class="form-row">SSH Password:<input name="password" type="password" autocomplete="off"></label><p class="muted">The password is used only for this connection.</p><div class="actions"><button type="button" class="win2k-button" data-action="close">Cancel</button><button class="win2k-button default">Connect</button></div></form>`);
  $('#ssh-form input').focus();$('#ssh-form').onsubmit=e=>{e.preventDefault();const password=e.target.elements.password.value;e.target.reset();$('#window').close();startTerminal(profile,password);};
 }
 function startTerminal(profile,password,terminalId=null){
- const win=makeWindow(profile.name+' – SSH','terminal-window'); win.terminalId=terminalId;
+ const win=makeWindow(profile.local?'Local Terminal':profile.name+' – SSH','terminal-window'); win.terminalId=terminalId;
  win.body.innerHTML='<div class="terminal-toolbar"><button class="win2k-button reconnect" disabled>Reconnect</button><span>The job continues when you disconnect or log off.</span></div><div class="host-confirm" hidden></div><div class="terminal-surface"></div>';
  const terminal=new Terminal({cursorBlink:true,fontFamily:'Consolas, "Liberation Mono", monospace',fontSize:14,scrollback:5000,theme:{background:'#000000',foreground:'#d8d8d8',cursor:'#ffffff'},convertEol:false});
  const fit=new FitAddon.FitAddon();terminal.loadAddon(fit);terminal.open(win.body.querySelector('.terminal-surface'));
@@ -272,7 +273,7 @@ function startTerminal(profile,password,terminalId=null){
   win.status.textContent=win.terminalId?'Reconnecting to your terminal…':`Connecting to ${profile.username}@${profile.host}:${profile.port}…`;
   win.body.querySelector('.reconnect').disabled=true;
   socket=new WebSocket(`${location.protocol==='https:'?'wss:':'ws:'}//${location.host}/api/terminal`);socket.binaryType='arraybuffer';
-  socket.onopen=()=>{send(win.terminalId?{terminal:win.terminalId}:{profile:profile.id,password,cols:terminal.cols,rows:terminal.rows});password=null;};
+  socket.onopen=()=>{send(win.terminalId?{terminal:win.terminalId}:{profile:profile.id,local:profile.local===true,password,cols:terminal.cols,rows:terminal.rows});password=null;};
   socket.onmessage=e=>{
    if(disposed)return;
    if(e.data instanceof ArrayBuffer){const replay=replaying;replaying=false;terminal.write(new Uint8Array(e.data),()=>{if(replay&&!disposed&&!ended){ready=true;win.onresize();}});return;}

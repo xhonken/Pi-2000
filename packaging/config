@@ -1,0 +1,84 @@
+#!/bin/sh
+set -eu
+. /usr/share/debconf/confmodule
+db_settitle pi2000web/title
+db_get pi2000web/setup-requested
+requested=$RET
+if [ "${1:-}" = reconfigure ]; then
+ db_set pi2000web/setup-requested true
+ requested=true
+fi
+
+# Existing accounts are never reset by package upgrades or reconfiguration.
+# A pending bootstrap is retried by postinst rather than treated as an upgrade.
+if [ "$requested" != true ] && [ -f /var/lib/win2k-admin/admin.sqlite3 ] && [ ! -f /var/lib/pi2000web/bootstrap-pending.json ]; then
+ db_set pi2000web/admin-password ''
+ db_set pi2000web/admin-password-confirm ''
+ db_set pi2000web/linux-password ''
+ db_set pi2000web/linux-password-confirm ''
+ exit 0
+fi
+
+while :; do
+ db_input critical pi2000web/admin-password || true
+ db_input critical pi2000web/admin-password-confirm || true
+ if ! db_go; then
+  db_set pi2000web/admin-password ''
+  db_set pi2000web/admin-password-confirm ''
+  exit 1
+ fi
+ db_get pi2000web/admin-password
+ first=$RET
+ db_get pi2000web/admin-password-confirm
+ if [ "$first" = "$RET" ] && [ "${#first}" -ge 12 ] && [ "${#first}" -le 1024 ]; then
+  unset first RET
+  break
+ fi
+ unset first RET
+ db_set pi2000web/admin-password ''
+ db_set pi2000web/admin-password-confirm ''
+ if [ "${DEBIAN_FRONTEND:-}" = noninteractive ]; then
+  echo 'Pi-2000Web needs a confirmed administrator password for a new installation.' >&2
+  exit 1
+ fi
+ db_input critical pi2000web/password-error || true
+ db_go || exit 1
+ db_fset pi2000web/admin-password seen false
+ db_fset pi2000web/admin-password-confirm seen false
+done
+
+db_input critical pi2000web/local-mode || true
+db_go || exit 1
+db_get pi2000web/local-mode
+mode=$RET
+if [ "$mode" != Disabled ]; then
+ db_get pi2000web/local-user
+ if [ -z "$RET" ] && [ "$mode" = 'Existing account' ] && [ -n "${SUDO_USER:-}" ] && [ "$SUDO_USER" != root ]; then
+  db_set pi2000web/local-user "$SUDO_USER"
+ fi
+ db_input critical pi2000web/local-user || true
+ db_input critical pi2000web/local-port || true
+ db_go || exit 1
+fi
+if [ "$mode" = 'Create account with sudo' ]; then
+ while :; do
+  db_input critical pi2000web/linux-password || true
+  db_input critical pi2000web/linux-password-confirm || true
+  db_go || exit 1
+  db_get pi2000web/linux-password
+  first=$RET
+  db_get pi2000web/linux-password-confirm
+  if [ "$first" = "$RET" ] && [ "${#first}" -ge 12 ] && [ "${#first}" -le 1024 ]; then
+   unset first RET
+   break
+  fi
+  unset first RET
+  db_set pi2000web/linux-password ''
+  db_set pi2000web/linux-password-confirm ''
+  [ "${DEBIAN_FRONTEND:-}" != noninteractive ] || exit 1
+  db_input critical pi2000web/password-error || true
+  db_go || exit 1
+  db_fset pi2000web/linux-password seen false
+  db_fset pi2000web/linux-password-confirm seen false
+ done
+fi

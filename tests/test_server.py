@@ -227,6 +227,45 @@ class ServerTests(unittest.IsolatedAsyncioTestCase):
                 self.assertEqual(conn.execute(f'SELECT COUNT(*) FROM {table} WHERE user_id=?', (uid,)).fetchone()[0], 0)
             self.assertEqual(conn.execute('SELECT COUNT(*) FROM items').fetchone()[0], 2)
 
+    async def test_local_terminal_owner_login_pinning_and_reconnect(self):
+        from unittest.mock import patch
+        import local_terminal
+        config=app.STATE/'local-terminal.json'
+        config.write_text(json.dumps({'username':'pi','port':self.port,'host_keys':[self.key.export_public_key().decode()]}))
+        with patch.object(local_terminal,'CONFIG',config):
+            profile=await (await self.client.get('/api/local-terminal',headers=self.headers)).json()
+            self.assertTrue(profile['local'])
+            ws=await self.client.ws_connect('/api/terminal',headers=self.headers)
+            await ws.send_json({'local':True,'host':'attacker.invalid','username':'root','password':'ssh-test-password'})
+            connected=await ws.receive_json(timeout=5)
+            self.assertEqual(connected['type'],'connected')
+            tid=connected['id']
+            self.assertEqual(app.TERMINALS[tid].profile['username'],'pi')
+            await ws.close()
+            resumed=await self.client.ws_connect('/api/terminal',headers=self.headers)
+            await resumed.send_json({'terminal':tid})
+            self.assertEqual((await resumed.receive_json(timeout=5))['id'],tid)
+            await resumed.close()
+            await self.client.delete('/api/terminals/'+tid,headers=self.headers)
+            config.write_text(json.dumps({'username':'pi','port':self.port,'host_keys':[asyncssh.generate_private_key('ssh-ed25519').export_public_key().decode()]}))
+            ws=await self.client.ws_connect('/api/terminal',headers=self.headers)
+            await ws.send_json({'local':True,'password':'ssh-test-password'})
+            self.assertEqual((await ws.receive_json(timeout=5))['type'],'error')
+            await ws.close()
+
+    async def test_local_terminal_denies_users_and_other_administrators(self):
+        uid=await self.create_account()
+        for role in ('user','admin'):
+            if role=='admin':await self.client.patch('/api/users/'+str(uid),headers=self.headers,json={'role':'admin'})
+            headers=await self.login_account()
+            self.assertEqual((await self.client.get('/api/local-terminal',headers=headers)).status,403)
+            ws=await self.client.ws_connect('/api/terminal',headers=headers)
+            await ws.send_json({'local':True,'password':'irrelevant'})
+            result=await ws.receive_json(timeout=5)
+            self.assertEqual(result['type'],'error')
+            self.assertIn('owner',result['message'])
+            await ws.close()
+
     async def test_background_job_survives_disconnect_and_new_login(self):
         profile = await self.profile()
         ws = await self.client.ws_connect('/api/terminal', headers=self.headers)

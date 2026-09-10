@@ -6,7 +6,7 @@ installs native dependencies; no pip download or compilation occurs on the Pi.
 32-bit Raspberry Pi OS and Debian 12 are not supported by this build.
 
 ```sh
-sudo apt install ./pi2000web_0.1.0~alpha.4-5_arm64.deb
+sudo apt install ./pi2000web_0.1.0~alpha.4-6_arm64.deb
 sudo pi2000web doctor
 ```
 
@@ -15,8 +15,34 @@ To change it, finish live jobs and run
 `sudo pi2000web configure --url https://YOUR-HOST --restart-sessions`.
 The default uses Caddy's local CA: install the public root certificate from
 `/var/lib/caddy/.local/share/caddy/pki/authorities/local/root.crt` on your client.
-Do not copy Caddy's private keys. Read the generated initial password locally with
-`sudo cat /var/lib/win2k-admin/initial-password.txt`, sign in as admin, and change it.
+Do not copy Caddy's private keys. The Debian terminal dialogs ask you to choose
+and confirm the Pi-2000 `admin` password. They also offer an existing Linux account,
+a new Linux account with password-required sudo, or no Local Terminal. A new Linux
+account receives a separate password; existing Linux passwords and permissions are
+preserved. Password fields are cleared from debconf after use and are passed to
+provisioning through stdin, never command-line arguments.
+
+MariaDB is installed locally. Setup creates the `pi2000_admin` database and a
+matching SQL account with privileges on that database only, using the initial web
+admin password. The encrypted connection appears as **Local MariaDB** only for the
+web owner. Existing SQL accounts/databases with those names cause a conflict error
+rather than being overwritten. Later web password changes do not change SQL or
+Linux passwords automatically. Pi-2000's internal account/file metadata stays in
+SQLite.
+
+**Start → Programs → System Tools → Local Terminal** is available only to the
+installation owner. It connects to the selected Linux account through loopback SSH
+and asks for its Linux password each time; sudo follows that account's permissions.
+The installer pins the local SSH server's public host keys. Web administrators and
+ordinary users receive no Linux account or Local Terminal rights automatically.
+
+Upgrades preserve existing accounts and do not rerun account provisioning. On an
+existing installation, run `sudo pi2000web setup` explicitly to add these features;
+enter the current web admin password when asked. Finish active local terminal work
+before changing its Linux mapping. The setup requires a running local MariaDB with
+OS-root socket authentication; it never changes MariaDB's root authentication.
+Unattended fresh installs must preseed both admin password fields and the terminal
+choices through a protected input stream; an empty initial password is rejected.
 
 On systems without the memory controller:
 

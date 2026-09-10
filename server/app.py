@@ -11,6 +11,7 @@ import secrets
 import sqlite3
 import time
 import logging
+import local_terminal
 import sys
 from sftp_tools import SFTPTools
 from task_monitor import TaskMonitor
@@ -78,7 +79,9 @@ async def hash_password(password, salt):
     finally: HASHING-=1
 
 
-def initialize():
+def initialize(initial_password=None):
+    if initial_password is not None and (not isinstance(initial_password, str) or not 12 <= len(initial_password) <= 1024):
+        raise ValueError('The initial password must contain 12 to 1024 characters.')
     STATE.mkdir(parents=True, exist_ok=True)
     with db() as conn:
         conn.executescript('''
@@ -108,12 +111,13 @@ def initialize():
                 conn.execute("INSERT INTO users(username,salt,hash,role) VALUES ('admin',?,?,'admin')", (admin['salt'], admin['hash']))
             conn.execute('DROP TABLE admin')
         if not conn.execute("SELECT 1 FROM users WHERE role='admin'").fetchone():
-            password = secrets.token_urlsafe(18)
+            password = initial_password if initial_password is not None else secrets.token_urlsafe(18)
             salt = secrets.token_hex(16)
             conn.execute("INSERT INTO users(username,salt,hash,role) VALUES ('admin',?,?,'admin')", (salt, password_hash(password, salt)))
-            path = STATE / 'initial-password.txt'
-            path.write_text(password + '\n')
-            path.chmod(0o600)
+            if initial_password is None:
+                path = STATE / 'initial-password.txt'
+                path.write_text(password + '\n')
+                path.chmod(0o600)
 
         owner_id = conn.execute("SELECT id FROM users WHERE username='admin'").fetchone()['id']
         if 'user_id' not in {row['name'] for row in conn.execute('PRAGMA table_info(items)')}:
@@ -530,7 +534,8 @@ class HostCheck(asyncssh.SSHClient):
 
     def validate_host_public_key(self, host, addr, port, key):
         self.presented = key
-        return self.expected == key.export_public_key().decode().strip()
+        exported = key.export_public_key().decode().strip()
+        return exported in self.expected if isinstance(self.expected, list) else self.expected == exported
 
 
 class PersistentTerminal:
@@ -689,24 +694,36 @@ async def terminal(request):
             if not existing or existing.user_id != user_id or existing.state == 'starting':
                 await ws.send_json({'type': 'error', 'message': 'The terminal does not exist.', 'missing': True})
                 return ws
+            if existing.profile.get('local'):
+                current = local_terminal.profile(request[USER])
+                if current != existing.profile:
+                    await ws.send_json({'type': 'error', 'message': 'Local Terminal settings changed. End this session and connect again.'})
+                    return ws
             await attach_terminal(ws, existing, token)
             return ws
         if sum(t.user_id == user_id for t in TERMINALS.values()) >= 8:
             await ws.send_json({'type': 'error', 'message': 'Maximum eight terminals per account. Close a terminal first.'})
             return ws
         with db() as conn:
-            row = conn.execute('SELECT * FROM items WHERE id=? AND user_id=? AND kind="profile"', (data.get('profile'), user_id)).fetchone()
-            if not row:
-                await ws.send_json({'type': 'error', 'message': 'The profile does not exist.'})
-                return ws
-            profile = dict(row)
+            if data.get('local') is True:
+                try:
+                    profile = local_terminal.profile(request[USER])
+                except web.HTTPException as exc:
+                    await ws.send_json({'type': 'error', 'message': exc.text})
+                    return ws
+            else:
+                row = conn.execute('SELECT * FROM items WHERE id=? AND user_id=? AND kind="profile"', (data.get('profile'), user_id)).fetchone()
+                if not row:
+                    await ws.send_json({'type': 'error', 'message': 'The profile does not exist.'})
+                    return ws
+                profile = dict(row)
             saved = conn.execute('SELECT key FROM hostkeys WHERE host=? AND port=? AND user_id=?', (profile['host'], profile['port'], user_id)).fetchone()
         term = PersistentTerminal(user_id, profile)
         TERMINALS[term.id] = term
         password = data.pop('password', '')
         if not isinstance(password, str) or len(password) > 1024:
             raise ValueError('Invalid password')
-        expected = saved['key'] if saved else None
+        expected = local_terminal.host_keys() if profile.get('local') else saved['key'] if saved else None
         for attempt in range(2):
             checker = HostCheck(expected)
             try:
@@ -739,6 +756,9 @@ async def terminal(request):
         await attach_terminal(ws, term, token)
     except asyncssh.PermissionDenied:
         await ws.send_json({'type': 'error', 'message': 'SSH login failed. Check the username and password.'})
+    except web.HTTPException as exc:
+        if not ws.closed:
+            await ws.send_json({'type': 'error', 'message': exc.text})
     except (asyncio.TimeoutError, OSError, asyncssh.Error):
         if not ws.closed:
             await ws.send_json({'type': 'error', 'message': 'Could not connect. Check the address, port and network, and ensure SSH is enabled.'})
@@ -984,6 +1004,9 @@ def make_app():
     app.router.add_get('/api/session', session_info)
     app.router.add_post('/api/password', change_password)
     app.router.add_get('/api/users', users)
+    async def local_terminal_status(request):
+        return await local_terminal.status(request, request[USER])
+    app.router.add_get('/api/local-terminal', local_terminal_status)
     app.router.add_post('/api/users', create_user)
     app.router.add_patch('/api/users/{id}', update_user)
     app.router.add_delete('/api/users/{id}', delete_user)

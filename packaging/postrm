@@ -2,7 +2,12 @@
 set -eu
 if [ -d /run/systemd/system ]; then systemctl daemon-reload; fi
 if [ "$1" = purge ]; then
+ if [ -f /usr/share/debconf/confmodule ]; then
+  . /usr/share/debconf/confmodule
+  db_purge
+ fi
  rm -f /etc/pi2000web/Caddyfile /etc/pi2000web/runtime.env /etc/pi2000web/config.toml
+ rm -f /etc/pi2000web/local-terminal.json
  rm -f /etc/systemd/system/win2k-sessions.service.d/pi2000-memory.conf
  echo 'Pi-2000 account data, credentials and backups have been retained under /var/lib/win2k-admin and /var/backups/win2k.'
 fi

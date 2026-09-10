@@ -72,7 +72,7 @@ function render() {
  category('Accessories',[button('My Files','files'),button('Notes','notes'),button('Calculator','calculator'),button('Search and Favourites','search')]);
  category('Development and Drawing',[button('Code Editor','editor'),button('MariaDB Manager','database'),button('API Tester','apitester'),button('Git Projects','git'),button('Dimension Drawing','cad')],'editor');
  category('Internet and Connections',[button('Browser','browser'),button('My Devices','devices'),button('SFTP – File Transfer','sftp')],'browser');
- category('System Tools',[button('Task Manager','taskmanager'),button('My Activities','activities'),button('System Status','status'),button('About Pi-2000Web','about'),button('My Settings','preferences')],'settings');
+ category('System Tools',[...(desktopUser?.is_owner?[button('Local Terminal','localterminal')]:[]),button('Task Manager','taskmanager'),button('My Activities','activities'),button('System Status','status'),button('About Pi-2000Web','about'),button('My Settings','preferences')],'settings');
  category('My Shortcuts',[...shortcuts.filter(x=>x.start&&!x.deleted).map(x=>link(x)),button('Manage Shortcuts…','links'),button('New Shortcut…','add')]);
  bindStartMenus();window.Win2kUI?.decorate(document.querySelector('#start-menu'));
 
