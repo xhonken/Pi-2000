@@ -4,6 +4,8 @@ User-visible changes are recorded here for each numbered release. Development be
 
 ## Unreleased
 
+- Show a dedicated Local Terminal desktop icon for all administrators.
+
 - Start Browser with a modest display size while preserving large-window resizing, and allow up to three minutes for cold SD-card initialization.
 
 - Wait for HTTPS readiness during package setup and adjust the 2 GB Browser admission reserve for coexistence with local MariaDB, retaining its hard memory limit.

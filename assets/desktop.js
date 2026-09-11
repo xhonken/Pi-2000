@@ -62,6 +62,13 @@ function link(item, desktop = false) {
  const label=document.createElement('span');label.className=desktop?'icon-label':'link-label';label.textContent=item.name;el.append(label);return el;
 }
 function render() {
+ const terminalIcon = $('#desktop-icons > [data-action="localterminal"]');
+ if (desktopUser?.role === 'admin' && !terminalIcon) {
+  const icon = button('', 'localterminal');
+  icon.type = 'button'; icon.className = 'desktop-icon';
+  icon.innerHTML = '<span class="win2k-pixel-icon win2k-icon-run" aria-hidden="true"><i></i></span><span class="icon-label">Local Terminal</span>';
+  $('#desktop-icons').append(icon);
+ } else if (desktopUser?.role !== 'admin') terminalIcon?.remove();
  $('#custom-icons').replaceChildren(...shortcuts.filter(x => x.desktop && !x.deleted).map(x => link(x, true)));
  const programs = $('#programs'); programs.replaceChildren();
  function category(label,entries,icon='folder') {
