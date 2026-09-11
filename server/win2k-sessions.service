@@ -4,6 +4,7 @@ After=network-online.target
 Wants=network-online.target
 
 [Service]
+Environment=WIN2K_ACCOUNTS_SOCKET=/run/pi2000-accounts/control.sock
 User=win2k-admin
 Group=win2k-admin
 WorkingDirectory=/opt/win2k-admin

@@ -3,17 +3,15 @@ set -eu
 if [ "$1" = configure ]; then
  . /usr/share/debconf/confmodule
  db_get pi2000web/admin-password; admin_password=$RET
- db_get pi2000web/linux-password; linux_password=$RET
- db_get pi2000web/local-mode; local_mode=$RET
- db_get pi2000web/local-user; local_user=$RET
- db_get pi2000web/local-port; local_port=$RET
- for question in admin-password admin-password-confirm linux-password linux-password-confirm; do
+ db_get pi2000web/creator-username; creator_username=$RET
+ for question in admin-password admin-password-confirm; do
   db_set "pi2000web/$question" ''
   db_fset "pi2000web/$question" seen false
  done
  unset RET
  db_set pi2000web/setup-requested false
  db_stop
- printf '%s\000%s\000%s\000%s\000%s' "$admin_password" "$linux_password" "$local_mode" "$local_user" "$local_port" | /usr/bin/python3 /usr/lib/pi2000web/package_setup.py configure --bootstrap-stdin
- unset admin_password linux_password
+ printf '%s\000%s' "$admin_password" "$creator_username" | /usr/bin/python3 /usr/lib/pi2000web/package_setup.py configure --bootstrap-stdin
+ unset admin_password
+
 fi

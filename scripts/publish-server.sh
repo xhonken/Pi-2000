@@ -8,6 +8,10 @@ sudo -n install -m 644 "$project_dir/server/browser-config/policies/managed/adbl
 sudo -n /opt/win2k-admin/venv/bin/pip install -r /opt/win2k-admin/requirements.txt
 sudo -n /opt/win2k-admin/venv/bin/pip check
 sudo -n install -m 644 "$project_dir/server/win2k-admin.service" "$project_dir/server/win2k-sessions.service" "$project_dir/server/win2k-backup.service" "$project_dir/server/win2k-backup.timer" /etc/systemd/system/
+sudo -n install -m 644 "$project_dir/server/pi2000-accounts.service" "$project_dir/server/pi2000-terminal.service" /etc/systemd/system/
+sudo -n runuser -u win2k-admin -- /opt/win2k-admin/venv/bin/python -c "import sys;sys.path.insert(0,'/opt/win2k-admin');import app;app.initialize()"
+sudo -n /opt/win2k-admin/venv/bin/python /opt/win2k-admin/account_install.py
+sudo -n systemctl restart pi2000-accounts
 sudo -n install -d -m 700 /var/backups/win2k
 sudo -n systemctl daemon-reload
 # Deliberately start rather than restart: live jobs belong to this worker.

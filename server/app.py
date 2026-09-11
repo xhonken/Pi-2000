@@ -12,6 +12,7 @@ import sqlite3
 import time
 import logging
 import local_terminal
+import accounts
 import sys
 from sftp_tools import SFTPTools
 from task_monitor import TaskMonitor
@@ -53,7 +54,7 @@ TERMINAL_HISTORY_LIMIT = 2 * 1024 * 1024
 def db():
     conn = sqlite3.connect(STATE / 'admin.sqlite3')
     conn.row_factory = sqlite3.Row
-    conn.execute('PRAGMA foreign_keys=ON')
+    conn.execute('PRAGMA foreign_keys=ON'); conn.execute('PRAGMA secure_delete=ON')
     try:
         with conn:
             yield conn
@@ -79,7 +80,7 @@ async def hash_password(password, salt):
     finally: HASHING-=1
 
 
-def initialize(initial_password=None):
+def initialize(initial_password=None, initial_username="admin"):
     if initial_password is not None and (not isinstance(initial_password, str) or not 12 <= len(initial_password) <= 1024):
         raise ValueError('The initial password must contain 12 to 1024 characters.')
     STATE.mkdir(parents=True, exist_ok=True)
@@ -94,16 +95,16 @@ def initialize(initial_password=None):
             version INTEGER NOT NULL DEFAULT 1);
         DROP TRIGGER IF EXISTS protect_admin_delete;
         DROP TRIGGER IF EXISTS protect_admin_update;
-        CREATE TRIGGER protect_admin_delete BEFORE DELETE ON users
-            WHEN OLD.username='admin' COLLATE NOCASE BEGIN SELECT RAISE(ABORT, 'Admin is protected'); END;
-        CREATE TRIGGER IF NOT EXISTS protect_admin_update BEFORE UPDATE ON users
-            WHEN OLD.username='admin' COLLATE NOCASE AND (NEW.role!='admin' OR NEW.active!=1 OR NEW.username!=OLD.username)
-            BEGIN SELECT RAISE(ABORT, 'Admin is protected'); END;
         CREATE TABLE IF NOT EXISTS items (id TEXT PRIMARY KEY, parent TEXT, kind TEXT, name TEXT, host TEXT, port INTEGER, username TEXT);
         CREATE TABLE IF NOT EXISTS hostkeys (host TEXT, port INTEGER, key TEXT, PRIMARY KEY(host, port));
         ''')
         if 'storage_quota' not in {row['name'] for row in conn.execute('PRAGMA table_info(users)')}:
             conn.execute('ALTER TABLE users ADD COLUMN storage_quota INTEGER NOT NULL DEFAULT 52428800')
+        columns = {row['name'] for row in conn.execute('PRAGMA table_info(users)')}
+        for name, definition in [('is_creator', 'INTEGER NOT NULL DEFAULT 0'), ('auth_backend', "TEXT NOT NULL DEFAULT 'legacy'"), ('linux_username', "TEXT NOT NULL DEFAULT ''"), ('account_state', "TEXT NOT NULL DEFAULT 'ready'"), ('linux_managed', 'INTEGER NOT NULL DEFAULT 1')]:
+            if name not in columns: conn.execute('ALTER TABLE users ADD COLUMN '+name+' '+definition)
+        if 'is_creator' not in columns:
+            conn.execute("UPDATE users SET is_creator=1 WHERE username='admin' COLLATE NOCASE")
         legacy = conn.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='admin'").fetchone()
         if legacy:
             admin = conn.execute('SELECT * FROM admin WHERE id=1').fetchone()
@@ -113,13 +114,26 @@ def initialize(initial_password=None):
         if not conn.execute("SELECT 1 FROM users WHERE role='admin'").fetchone():
             password = initial_password if initial_password is not None else secrets.token_urlsafe(18)
             salt = secrets.token_hex(16)
-            conn.execute("INSERT INTO users(username,salt,hash,role) VALUES ('admin',?,?,'admin')", (salt, password_hash(password, salt)))
+            conn.execute("INSERT INTO users(username,salt,hash,role,is_creator) VALUES (?,?,?,'admin',1)", (initial_username, salt, password_hash(password, salt)))
             if initial_password is None:
                 path = STATE / 'initial-password.txt'
                 path.write_text(password + '\n')
                 path.chmod(0o600)
 
-        owner_id = conn.execute("SELECT id FROM users WHERE username='admin'").fetchone()['id']
+        if not conn.execute('SELECT 1 FROM users WHERE is_creator=1').fetchone():
+            conn.execute("UPDATE users SET is_creator=1 WHERE username='admin' COLLATE NOCASE")
+        conn.executescript("""
+        CREATE UNIQUE INDEX IF NOT EXISTS one_creator ON users(is_creator) WHERE is_creator=1;
+        CREATE TRIGGER protect_admin_delete BEFORE DELETE ON users WHEN OLD.is_creator=1
+            BEGIN SELECT RAISE(ABORT, 'Creator is protected'); END;
+        CREATE TRIGGER protect_admin_update BEFORE UPDATE ON users
+            WHEN OLD.is_creator=1 AND (NEW.is_creator!=1 OR NEW.id!=OLD.id OR NEW.role!='admin' OR NEW.active!=1 OR NEW.username!=OLD.username)
+            BEGIN SELECT RAISE(ABORT, 'Creator is protected'); END;
+        CREATE TRIGGER IF NOT EXISTS prevent_creator_grant BEFORE UPDATE ON users
+            WHEN OLD.is_creator=0 AND NEW.is_creator=1
+            BEGIN SELECT RAISE(ABORT, 'Creator is immutable'); END;
+        """)
+        owner_id = conn.execute('SELECT id FROM users WHERE is_creator=1').fetchone()['id']
         if 'user_id' not in {row['name'] for row in conn.execute('PRAGMA table_info(items)')}:
             conn.execute('ALTER TABLE items RENAME TO legacy_items')
             conn.execute('CREATE TABLE items (id TEXT PRIMARY KEY, parent TEXT, kind TEXT, name TEXT, host TEXT, port INTEGER, username TEXT, user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE)')
@@ -136,11 +150,11 @@ def initialize(initial_password=None):
 
 
 def is_owner(user):
-    return user['username'].lower() == 'admin'
+    return bool(user['is_creator'])
 
 
 def public_user(user):
-    return {**{key: user[key] for key in ('id', 'username', 'role', 'active', 'storage_quota')}, 'is_owner': is_owner(user)}
+    return {**{key: user[key] for key in ('id', 'username', 'role', 'active', 'storage_quota', 'auth_backend', 'linux_username', 'linux_managed', 'account_state')}, 'is_owner': is_owner(user)}
 
 
 def session_valid(session):
@@ -240,9 +254,15 @@ async def login(request):
         return error('Incorrect username or password.', 401)
     with db() as conn:
         user = conn.execute('SELECT * FROM users WHERE username=?', (username.strip(),)).fetchone()
-    digest = await hash_password(password, user['salt'] if user else '00' * 16)
-    if not user or not hmac.compare_digest(digest, user['hash']) or not user['active']:
-        return error('Incorrect username or password.', 401)
+    if accounts.enabled():
+        if not user: return error('Incorrect username or password.', 401)
+        await accounts.call('authenticate', user_id=user['id'], password=password)
+        with db() as conn: user=conn.execute('SELECT * FROM users WHERE id=?',(user['id'],)).fetchone()
+    else:
+        if user and user['auth_backend']=='pam': return error('System account service is unavailable.',503)
+        digest = await hash_password(password, user['salt'] if user else '00' * 16)
+        if not user or not hmac.compare_digest(digest, user['hash']) or not user['active']:
+            return error('Incorrect username or password.', 401)
     # Recheck after hashing: an administrator may have revoked this account meanwhile.
     with db() as conn:
         latest = conn.execute('SELECT active,version FROM users WHERE id=?', (user['id'],)).fetchone()
@@ -291,6 +311,10 @@ async def change_password(request):
     if not isinstance(password, str) or not 12 <= len(password) <= 1024 or not isinstance(current, str) or len(current) > 1024:
         return error('The new password must contain at least 12 characters.')
     user = request[USER]
+    if accounts.enabled():
+        await accounts.call('change_password',token=request[TOKEN],current=current,password=password)
+        await revoke_user(user['id'])
+        return web.json_response({'ok':True, 'login_required':True})
     digest = await hash_password(current, user['salt'])
     if not hmac.compare_digest(digest, user['hash']):
         return error('The current password is incorrect.', 403)
@@ -352,6 +376,9 @@ async def create_user(request):
         return error('Usernames must contain 3–64 characters: letters a–z, digits, dots, hyphens or underscores.')
     if not isinstance(password, str) or not 12 <= len(password) <= 1024:
         return error('The password must contain 12–1024 characters.')
+    if accounts.enabled():
+        result=await accounts.call('create',token=request[TOKEN],username=username,password=password)
+        return web.json_response({'id':result['id']},status=201)
     salt = secrets.token_hex(16)
     digest = await hash_password(password, salt)
     if not session_valid(SESSIONS.get(request[TOKEN])):
@@ -368,6 +395,10 @@ async def create_user(request):
 async def update_user(request):
     user_id = int(request.match_info['id'])
     data = await read_json(request)
+    if accounts.enabled():
+        await accounts.call('update',token=request[TOKEN],user_id=user_id,changes=data)
+        await revoke_user(user_id)
+        return web.json_response({'ok':True})
     role_change = set(data) == {'role'}
     if role_change:
         if not is_owner(request[USER]):
@@ -394,6 +425,9 @@ async def update_user(request):
 
 async def delete_user(request):
     user_id = int(request.match_info['id'])
+    if accounts.enabled():
+        data=await read_json(request)
+        await accounts.call('delete',token=request[TOKEN],user_id=user_id,confirm=data.get('confirm'))
     with db() as conn:
         user = conn.execute('SELECT * FROM users WHERE id=?', (user_id,)).fetchone()
         if not user:
@@ -417,6 +451,10 @@ async def reset_password(request):
     password = data.get('password', '')
     if not isinstance(password, str) or not 12 <= len(password) <= 1024:
         return error('The password must contain 12–1024 characters.')
+    if accounts.enabled():
+        await accounts.call('reset',token=request[TOKEN],user_id=user_id,password=password)
+        await revoke_user(user_id)
+        return web.json_response({'ok':True})
     salt = secrets.token_hex(16)
     digest = await hash_password(password, salt)
     if not session_valid(SESSIONS.get(request[TOKEN])):
@@ -719,6 +757,7 @@ async def terminal(request):
                 profile = dict(row)
             saved = conn.execute('SELECT key FROM hostkeys WHERE host=? AND port=? AND user_id=?', (profile['host'], profile['port'], user_id)).fetchone()
         term = PersistentTerminal(user_id, profile)
+        term.account_version = request[USER]['version']
         TERMINALS[term.id] = term
         password = data.pop('password', '')
         if not isinstance(password, str) or len(password) > 1024:
@@ -785,6 +824,8 @@ async def browser_start(request):
             return error('Enter an HTTP or HTTPS address (maximum 4096 characters).', 400)
     try:
         await BROWSERS.start(request[USER]['id'])
+        if hasattr(BROWSERS,'sessions') and request[USER]['id'] in BROWSERS.sessions:
+            BROWSERS.sessions[request[USER]['id']].setdefault('account_version',request[USER]['version'])
         if url is not None:
             await BROWSERS.open_url(request[USER]['id'], url)
     except BrowserUnavailable as exc:
@@ -939,6 +980,16 @@ async def housekeeping(app):
             await asyncio.sleep(5)
             for token, session in list(SESSIONS.items()):
                 if not session_valid(session): await revoke(token)
+            if accounts.enabled():
+                with db() as conn:
+                    versions={row['id']:row['version'] for row in conn.execute('SELECT id,version FROM users WHERE active=1')}
+                for key, term in list(TERMINALS.items()):
+                    if versions.get(term.user_id)!=getattr(term,'account_version',None):
+                        await term.stop(); TERMINALS.pop(key,None)
+                if BROWSERS and hasattr(BROWSERS,'sessions'):
+                    for uid, entry in list(BROWSERS.sessions.items()):
+                        if versions.get(uid)!=entry.get('account_version'):
+                            await BROWSERS.stop(uid)
             for key, term in list(TERMINALS.items()):
                 if term.state == 'ended' and term.ended_at and time.monotonic() - term.ended_at > 86400:
                     TERMINALS.pop(key, None)

@@ -20,7 +20,7 @@ import urllib.error
 CONFIG=Path('/etc/pi2000web')
 STATE=Path('/var/lib/win2k-admin')
 MARKER=Path('/var/lib/pi2000web')
-UNITS=('win2k-sessions','pi2000-phpmyadmin','win2k-admin','pi2000-web','win2k-backup.timer')
+UNITS=('pi2000-accounts','pi2000-terminal','win2k-sessions','pi2000-phpmyadmin','win2k-admin','pi2000-web','win2k-backup.timer')
 
 def run(*args,capture=False):
     r=subprocess.run(list(map(str,args)),check=True,text=True,stdout=subprocess.PIPE if capture else None)
@@ -87,13 +87,15 @@ def configure(args):
     atomic(MARKER/'package-managed','1\n')
     if args.bootstrap_stdin:
         parts=sys.stdin.buffer.read(32768).split(b'\0')
-        if len(parts)!=5:raise RuntimeError('Invalid installer input.')
-        payload=dict(zip(('admin_password','linux_password','local_mode','local_user','local_port'),(part.decode() for part in parts)))
+        if len(parts)!=2:raise RuntimeError('Invalid installer input.')
+        payload=dict(zip(('admin_password','creator_username'),(part.decode() for part in parts)))
         if payload['admin_password']:
             run('systemctl','enable','--now','mariadb')
             subprocess.run(['/opt/win2k-admin/venv/bin/python',str(Path(__file__).with_name('provision.py'))],input=json.dumps(payload).encode(),check=True)
         elif not (STATE/'admin.sqlite3').exists() or (MARKER/'bootstrap-pending.json').exists():
             raise RuntimeError('Complete account setup with sudo pi2000web setup before starting services.')
+    run('/opt/win2k-admin/venv/bin/python','-c',"import sys;sys.path.insert(0,'/opt/win2k-admin');import app;app.initialize()")
+    run('/opt/win2k-admin/venv/bin/python','/opt/win2k-admin/account_install.py')
     run('systemctl','daemon-reload')
     run('systemctl','enable','--now','win2k-sessions','pi2000-phpmyadmin')
     if args.restart_sessions:run('systemctl','restart','win2k-sessions')
@@ -112,7 +114,7 @@ def configure(args):
         time.sleep(.5)
     print('Pi-2000Web installed at '+url,flush=True)
     if (STATE/'initial-password.txt').exists():print('First login: admin. Read the existing generated password locally with sudo cat /var/lib/win2k-admin/initial-password.txt.',flush=True)
-    else:print('Sign in as admin with the password chosen during installation.',flush=True)
+    else:print('Sign in with the creator username and password chosen during installation.',flush=True)
     if 'memory' not in Path('/sys/fs/cgroup/cgroup.controllers').read_text().split():print('Browser requires the memory controller: run sudo pi2000web enable-memory-controller and reboot when convenient.',flush=True)
     print('Account data is retained on remove/purge. Package upgrades preserve the session worker; restart sessions separately when worker code changes.',flush=True)
 

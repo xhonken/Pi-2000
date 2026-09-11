@@ -4,6 +4,12 @@ User-visible changes are recorded here for each numbered release. Development be
 
 ## Unreleased
 
+- Create one Linux identity and private home per web account; authenticate through PAM and remove the legacy application verifier after migration.
+- Protect the installation creator by stable identity, including database and privileged-service guards; ask for the creator username during Debian setup.
+- Give administrators their own Local Terminal via a private loopback SSH listener. Ordinary managed users have no login shell; managed identities are excluded from the host SSH listener. Sudo is an independent OS decision.
+- Add deactivation, exact-name deletion confirmation, protected links to existing Linux identities, recoverable account provisioning and session revocation following external password changes.
+- Include managed account recovery metadata and homes in root-only local backups; preserve linked OS accounts and their homes.
+
 - Show a dedicated Local Terminal desktop icon for all administrators.
 
 - Start Browser with a modest display size while preserving large-window resizing, and allow up to three minutes for cold SD-card initialization.

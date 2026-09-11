@@ -39,6 +39,7 @@ def restore(archive, destination):
                 raise RuntimeError('Disallowed path in the backup')
         tar.extractall(destination, filter='data')
     check_database(destination/'state/admin.sqlite3')
+    if (destination/'system-accounts/accounts.sqlite3').exists(): check_database(destination/'system-accounts/accounts.sqlite3')
     manifest=json.loads((destination/'manifest.json').read_text())
     if manifest['format'] != 1: raise RuntimeError('Unknown backup format')
     return manifest
@@ -72,6 +73,21 @@ async def snapshot(state, target, socket, code, site=None):
                     dest.execute("DELETE FROM files WHERE state='upload'")
                 dest.commit()
             check_database(staging/'state/admin.sqlite3')
+            account_root=Path('/var/lib/pi2000-accounts')
+            account_rows=[]
+            if os.geteuid()==0 and state==Path('/var/lib/win2k-admin') and (account_root/'accounts.sqlite3').exists():
+                (staging/'system-accounts').mkdir(mode=0o700)
+                with closing(sqlite3.connect(account_root/'accounts.sqlite3')) as source, closing(sqlite3.connect(staging/'system-accounts/accounts.sqlite3')) as dest:
+                    source.backup(dest)
+                    dest.row_factory=sqlite3.Row
+                    account_rows=[dict(row) for row in dest.execute('SELECT * FROM bindings')]
+                shutil.copy2(account_root/'generation.key', staging/'system-accounts/generation.key')
+                # Recovery data remains root-only, like the archive itself. Linked OS
+                # passwords/homes are deliberately excluded from application backups.
+                managed={row['name'] for row in account_rows if row['managed']}
+                shadow=[line for line in Path('/etc/shadow').read_text().splitlines() if line.split(':',1)[0] in managed]
+                (staging/'system-accounts/shadow').write_text('\n'.join(shadow)+'\n')
+                (staging/'system-accounts/bindings.json').write_text(json.dumps(account_rows))
             manifest={'format':1,'created':datetime.now(timezone.utc).isoformat(),
                       'profiles':'quiesced filesystem snapshot; Chromium recovers its journals on restore',
                       'sessions':'running processes are not included'}
@@ -89,6 +105,16 @@ async def snapshot(state, target, socket, code, site=None):
                 if (state/'database-credentials.key').exists(): tar.add(state/'database-credentials.key',arcname='state/database-credentials.key',filter=include)
                 if (state/'git-workspaces').exists(): tar.add(state/'git-workspaces',arcname='state/git-workspaces',filter=include)
                 if (state/'files').exists(): tar.add(state/'files',arcname='state/files',filter=include)
+                if (staging/'system-accounts').exists():
+                    tar.add(staging/'system-accounts',arcname='system-accounts',filter=include)
+                    for row in account_rows:
+                        home=Path(row['home'])
+                        if row['managed'] and row['phase']=='ready':
+                            import pwd
+                            identity=pwd.getpwnam(row['name'])
+                            if identity.pw_uid!=row['uid'] or home!=Path('/home')/row['name'] or home.is_symlink():
+                                raise RuntimeError('System account binding mismatch during backup')
+                            tar.add(home,arcname='system-accounts/homes/'+row['name'],filter=include)
                 if site and site.exists(): tar.add(site,arcname='site',filter=include)
                 if code and code.exists():
                     for path in code.iterdir():

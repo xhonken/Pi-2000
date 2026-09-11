@@ -6,7 +6,7 @@ installs native dependencies; no pip download or compilation occurs on the Pi.
 32-bit Raspberry Pi OS and Debian 12 are not supported by this build.
 
 ```sh
-sudo apt install ./pi2000web_0.1.0~alpha.4-10_arm64.deb
+sudo apt install ./pi2000web_0.1.0~alpha.4-11_arm64.deb
 sudo pi2000web doctor
 ```
 
@@ -16,34 +16,25 @@ To change it, finish live jobs and run
 The default uses Caddy's local CA: install the public root certificate from
 `/var/lib/caddy/.local/share/caddy/pki/authorities/local/root.crt` on your client.
 Do not copy Caddy's private keys. The Debian terminal dialogs ask you to choose
-and confirm the Pi-2000 `admin` password. They also offer an existing Linux account,
-a new Linux account with password-required sudo, or no Local Terminal. A new Linux
-account receives a separate password; existing Linux passwords and permissions are
-preserved. Password fields are cleared from debconf after use and are passed to
-provisioning through stdin, never command-line arguments.
+and confirm the protected creator username and password. Each web user gets an
+individual managed Linux identity and a private home. Administrators receive Local
+Terminal without automatic sudo; ordinary users have no local login shell.
+Password fields are cleared from debconf after use and passed through stdin.
 
-MariaDB is installed locally. Setup creates the `pi2000_admin` database and a
-matching SQL account with privileges on that database only, using the initial web
-admin password. The encrypted connection appears as **Local MariaDB** only for the
-web owner. Existing SQL accounts/databases with those names cause a conflict error
-rather than being overwritten. Later web password changes do not change SQL or
-Linux passwords automatically. Pi-2000's internal account/file metadata stays in
-SQLite.
+MariaDB setup creates the `pi2000_admin` database and matching SQL account with
+privileges only on that database, using the initial creator password. Its encrypted
+connection appears only for the creator. Existing SQL accounts/databases are never
+overwritten. Later Linux/web password changes leave SQL credentials independent.
 
-**Start → Programs → System Tools → Local Terminal** is available to all
-web administrators. It connects to the selected Linux account through loopback SSH
-and asks for its Linux password each time; sudo follows that account's permissions.
-The installer pins the local SSH server's public host keys. Web roles do not create Linux accounts or grant sudo rights. Ordinary users cannot
-open Local Terminal. Demoting an administrator ends their terminal sessions and
-removes Local Terminal access after login.
+The private Local Terminal SSH listener binds only to loopback port 2222 and uses
+pinned local host keys. Managed users cannot log in through the host SSH listener.
+An existing Linux identity is linked only by an explicit OS administrator command;
+its password and permissions are preserved. See [system accounts](SYSTEM-ACCOUNTS.md).
 
-Upgrades preserve existing accounts and do not rerun account provisioning. On an
-existing installation, run `sudo pi2000web setup` explicitly to add these features;
-enter the current web admin password when asked. Finish active local terminal work
-before changing its Linux mapping. The setup requires a running local MariaDB with
-OS-root socket authentication; it never changes MariaDB's root authentication.
-Unattended fresh installs must preseed both admin password fields and the terminal
-choices through a protected input stream; an empty initial password is rejected.
+Upgrades preserve users and the creator. Legacy users migrate at their next login.
+Fresh setup requires local MariaDB OS-root socket authentication; it never changes
+MariaDB's root authentication. Unattended fresh installs preseed both admin-password
+fields and `pi2000web/creator-username` through a protected input stream.
 
 On systems without the memory controller:
 
@@ -71,7 +62,7 @@ code. A legacy script-managed installation is rejected rather than overwritten.
 
 Remove with `sudo apt remove pi2000web`. Account data and backups remain; purge
 removes generated platform configuration but deliberately retains user data and
-credential keys. Installer-created Linux accounts, their sudo rule and MariaDB databases/accounts also remain after purge; remove them explicitly only when no longer needed. Reinstallation preserves accounts and saved files. Do not use the source updater
+credential keys. Managed Linux accounts, their access restrictions and MariaDB databases/accounts also remain after purge; remove them explicitly only when no longer needed. Reinstallation preserves accounts and saved files. Do not use the source updater
 on a package-managed host: install the next `.deb` through APT instead.
 
 Build on the matching arm64 Python 3.13 host:

@@ -1,5 +1,6 @@
 """OS-managed mapping for administrators' local SSH terminal; never a web setting."""
 import json
+import accounts
 from pathlib import Path
 import re
 from aiohttp import web
@@ -9,6 +10,11 @@ CONFIG = Path('/etc/pi2000web/local-terminal.json')
 def profile(user):
     if user['role'] != 'admin':
         raise web.HTTPForbidden(text='Only administrators can open Local Terminal.')
+    if accounts.enabled():
+        if user.get('auth_backend')!='pam' or not user.get('linux_username'):
+            raise web.HTTPConflict(text='Log out and sign in again to finish your system account migration.')
+        return {'id':'local-terminal','name':'Local Terminal','kind':'profile','host':'127.0.0.1',
+                'port':2222 if user.get('linux_managed',1) else 22,'username':user['linux_username'],'local':True}
     try:
         data = json.loads(CONFIG.read_text())
     except FileNotFoundError:

@@ -3,8 +3,8 @@ set -eu
 case "$1" in
  remove|deconfigure)
   if [ -d /run/systemd/system ]; then
-   systemctl stop pi2000-web win2k-admin win2k-backup.timer win2k-sessions pi2000-phpmyadmin
-   systemctl disable pi2000-web win2k-admin win2k-backup.timer win2k-sessions pi2000-phpmyadmin
+   systemctl stop pi2000-web win2k-admin win2k-backup.timer win2k-sessions pi2000-phpmyadmin pi2000-terminal pi2000-accounts
+   systemctl disable pi2000-web win2k-admin win2k-backup.timer win2k-sessions pi2000-phpmyadmin pi2000-terminal pi2000-accounts
   fi
  ;;
 esac

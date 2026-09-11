@@ -12,5 +12,5 @@ TimeoutStartSec=240
 Nice=15
 IOSchedulingClass=idle
 ProtectSystem=strict
-ProtectHome=true
+ProtectHome=read-only
 ReadWritePaths=/var/lib/win2k-admin /var/backups/win2k

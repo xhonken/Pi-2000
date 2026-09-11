@@ -1,0 +1,12 @@
+[Unit]
+Description=Pi-2000 private local terminal SSH endpoint
+After=network.target pi2000-accounts.service
+
+[Service]
+ExecStartPre=/usr/sbin/sshd -t -f /etc/pi2000web/sshd_config
+ExecStart=/usr/sbin/sshd -D -e -f /etc/pi2000web/sshd_config
+Restart=on-failure
+KillMode=control-group
+
+[Install]
+WantedBy=multi-user.target

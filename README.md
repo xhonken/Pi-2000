@@ -19,13 +19,19 @@ Current numbered release: **[0.1.0-alpha.3](https://github.com/xhonken/Pi-2000/r
 
 Read the [Alpha 3 release notes](docs/releases/0.1.0-alpha.3.md) for upgrade steps, validation and known limitations, including remaining phpMyAdmin Twig notices.
 
+## System accounts (unreleased)
+
+New installations ask for a protected creator username and password. Every web user receives a private Linux identity and home. Linux-PAM authenticates passwords; the web database retains roles and private resource ownership. Administrators receive Local Terminal automatically, without automatic sudo. Ordinary users keep web access and remote SSH connections.
+
+Existing web accounts migrate on their next successful login. A pre-existing Linux account is linked only by an explicit OS administrator command; linking preserves its Linux password and permissions. See [system account operations and recovery](docs/SYSTEM-ACCOUNTS.md) before upgrading or restoring accounts.
+
 ## Applications
 
 | Application | Features |
 | --- | --- |
 | My Files and Desktop | Private files and folders, upload by drag and drop, folder uploads, rename, move, copy/paste, download and ZIP export. Drag desktop icons to arrange them. |
 | Recycle Bin | Restore deleted files, folders and shortcuts, or delete them permanently. |
-| Local Terminal | Terminal on the Pi for all web administrators, using the Linux account selected in the Debian installer and its existing sudo permissions. |
+| Local Terminal | Private terminal on the Pi under each administrator’s individual Linux identity. Sudo is granted separately by the OS administrator. |
 | My Devices | Organise SSH connection profiles in folders; verify host keys and connect to remote devices. |
 | Browser | Persistent Chromium tabs, separate cookies and profiles for each account, audio, automatic resizing and an enforced uBlock Origin Lite policy. |
 | Code Editor | Local Ace editor with syntax highlighting, tabs, completion, find/replace, undo/redo, word wrap, themes, file trees, recovery drafts, SFTP editing and Python/JavaScript/JSON syntax diagnostics. |
@@ -40,7 +46,7 @@ Read the [Alpha 3 release notes](docs/releases/0.1.0-alpha.3.md) for upgrade ste
 | My Activities | Reopen terminals, inspect transfers, switch windows and end your own sessions. |
 | Task Manager | Applications, processes, CPU/RAM graphs, per-core graphs, uptime, swap, private storage quota and server disk space. |
 | My Settings | Desktop text size, default text viewer, background, password and signed-in sessions. |
-| User Management | Owner/admin account management, account activation and storage quotas. |
+| User Management | Protected installation creator, individual Linux accounts, PAM passwords, activation, confirmed deletion and storage quotas. |
 
 Start → Programs groups applications into **Accessories**, **Development and Drawing**, **Internet and Connections**, **System Tools** and **My Shortcuts**. The common File, Edit, View, Connection and Help menus expose the commands relevant to each application.
 

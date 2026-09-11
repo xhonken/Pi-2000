@@ -4,6 +4,7 @@ After=network-online.target win2k-sessions.service
 Wants=network-online.target win2k-sessions.service
 
 [Service]
+Environment=WIN2K_ACCOUNTS_SOCKET=/run/pi2000-accounts/control.sock
 User=win2k-admin
 Group=win2k-admin
 SupplementaryGroups=pi2000-phpmyadmin

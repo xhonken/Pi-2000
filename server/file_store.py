@@ -291,7 +291,7 @@ class FileStore:
         with self.mutation(),self.db() as conn:
             conn.execute('BEGIN IMMEDIATE');user=conn.execute('SELECT * FROM users WHERE id=?',(uid,)).fetchone()
             if not user:raise web.HTTPNotFound()
-            if actor['username'].lower()!='admin' and user['role']=='admin' and uid!=actor['id']:raise web.HTTPForbidden(text='Only the owner can change other administrator quotas.')
+            if not actor['is_creator'] and user['role']=='admin' and uid!=actor['id']:raise web.HTTPForbidden(text='Only the owner can change other administrator quotas.')
             usage=self.usage(conn,uid)
             if mb*1024**2<usage['used']+usage['reserved']:raise web.HTTPConflict(text='The quota cannot be lower than the storage already used or reserved for uploads.')
             conn.execute('UPDATE users SET storage_quota=? WHERE id=?',(mb*1024**2,uid))

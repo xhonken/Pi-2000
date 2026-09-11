@@ -11,7 +11,7 @@ Description: Run explicit account setup
 Template: pi2000web/admin-password
 Type: password
 Description: Password for the Pi-2000Web administrator:
- For a new installation, choose a password containing 12 to 1024 characters.
+ For a new installation, choose a password containing at least 12 characters, within 512 UTF-8 bytes.
  When running setup on an existing installation, enter its current admin password.
  The same initial password will be used for its MariaDB account.
 
@@ -22,37 +22,14 @@ Description: Enter the administrator password again:
 
 Template: pi2000web/password-error
 Type: error
-Description: The passwords must match and contain 12 to 1024 characters
+Description: The passwords must match and contain at least 12 characters, within 512 UTF-8 bytes
  Please enter and confirm the administrator password again.
 
-Template: pi2000web/local-mode
-Type: select
-Choices: Existing account, Create account with sudo, Disabled
-Default: Existing account
-Description: Linux account for administrators' Local Terminal:
- Existing account preserves its password and permissions. Creating an account
- makes a separate Linux login with password-required sudo. Other web users
- receive no Linux account or sudo permissions.
-
-Template: pi2000web/local-user
+Template: pi2000web/creator-username
 Type: string
-Description: Linux username for Local Terminal:
- Enter an existing regular Linux username, or the new username to create.
- Service accounts and root cannot be used. An existing account is never overwritten.
-
-Template: pi2000web/local-port
-Type: string
-Default: 22
-Description: Local SSH server port:
- Local Terminal connects to 127.0.0.1 on this port. Existing SSH settings are preserved.
-
-Template: pi2000web/linux-password
-Type: password
-Description: Password for the new Linux account:
- Choose a separate password containing 12 to 1024 characters.
- This password is needed for SSH login and sudo. It is not saved in Pi-2000.
-
-Template: pi2000web/linux-password-confirm
-Type: password
-Description: Enter the Linux account password again:
- Repeat the new Linux account password before the account is created.
+Default: admin
+Description: Username for the protected installation creator:
+ This account cannot be deleted, disabled or demoted from the web desktop.
+ Each web account receives its own Linux account. Administrators can open
+ Local Terminal; sudo is granted separately by the OS administrator.
+ Choose 3 to 64 letters, digits, dots, hyphens or underscores.

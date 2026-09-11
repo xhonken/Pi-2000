@@ -1,12 +1,12 @@
 # System accounts and authentication proposal
 
-Status: investigated proposal, 2026-09-11. Not implemented or deployed. No accounts, passwords, PAM configuration or running services were changed for this investigation.
+Status: approved design, implementation added 2026-09-11. The investigation below records the original baseline and intended design. See [current behavior and recovery](../SYSTEM-ACCOUNTS.md) for implementation details, differences and verification.
 
 ## Recommendation
 
 Use one dedicated Linux identity per Pi-2000 user and Linux-PAM as the authority for web/Linux passwords. Keep application identity, roles, creator protection, quotas, preferences and resource ownership in SQLite. Do not retain a second application password verifier after a user migrates to PAM. SQL connection credentials remain a separate concern.
 
-## Current implementation verified in source
+## Original baseline before implementation
 
 - `server/app.py`: creation adds only a SQLite user. Web passwords use salted scrypt; password changes update that verifier and revoke sessions.
 - Creator/owner checks and SQLite protection triggers currently depend on the literal username `admin`.

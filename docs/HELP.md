@@ -84,7 +84,7 @@ These measurements describe the Pi, not your viewing computer. SSH jobs run on t
 
 My Settings changes text size and the default text-file application, opens background settings, changes your password and lists signed-in sessions. You can log off another session belonging to your account.
 
-User Management is available to administrators and the owner. Administrators manage regular users; only the owner changes roles or manages other administrators. Account deletion is permanent. Disabling an account, resetting its password or changing its role ends its sessions. The owner account is protected.
+User Management is available to administrators and the protected installation creator. Administrators manage regular users; only the creator changes roles or manages other administrators. Disable preserves data. Delete requires the exact username and removes managed Linux accounts and homes as well as web data; existing linked Linux accounts are preserved. The creator cannot be disabled, deleted or demoted.
 
 
 ## MariaDB Manager
@@ -126,6 +126,8 @@ active database transactions are not restored after disconnect or restart.
 
 ## Local Terminal and initial database
 
-Package installations offer **Start → Programs → System Tools → Local Terminal** to all web administrators, with a **Local Terminal** desktop icon as well. Enter the selected Linux account password to connect; use `sudo` according to that account's permissions. Other web accounts can use their own SSH profiles but receive no Linux account or sudo rights automatically.
+**Start → Programs → System Tools → Local Terminal** and its desktop icon are available to all administrators. Each uses their own Linux identity and password. Managed accounts receive no sudo automatically; the OS administrator grants that separately. Ordinary users receive a private Linux home and web access, including saved remote SSH connections, but no Local Terminal.
 
-The terminal installer creates a private **Local MariaDB** connection for the owner, with access to the `pi2000_admin` database. Its initial password matches the chosen web admin password. Later web password changes do not change the database or Linux passwords. Existing installations can run `sudo pi2000web setup`; see the [Debian installation guide](DEB-INSTALLATION.md).
+The terminal installer asks for a protected creator username and password and creates a private **Local MariaDB** connection for that creator. Its initial SQL password matches the chosen password; subsequent Linux/web password changes do not change MariaDB credentials. Existing accounts migrate to PAM at their next successful login. Explicitly linked Linux accounts use the existing OS password; change it locally with `passwd`.
+
+See [system account operations](SYSTEM-ACCOUNTS.md) and the [Debian installation guide](DEB-INSTALLATION.md).
