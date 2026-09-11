@@ -44,6 +44,16 @@ async def main():
             payload=json.dumps({'origin':origin,'username':name,'password':secret,'linux_username':profile['username']}).encode()
             await asyncio.to_thread(subprocess.run,['runuser','-u','honken','--','env','NODE_PATH=/tmp/win2k-browser-check/node_modules','/usr/local/bin/node',str(Path(__file__).with_name('installed_accounts_ui.cjs'))],input=payload,check=True)
             assert profile['username']=='pi2k_'+str(uid) and profile['port']==2222
+            if os.environ.get('PI2000_TEST_BACKUP')=='1':
+                await asyncio.to_thread(subprocess.run,['systemctl','start','win2k-backup.service'],check=True)
+                import tarfile
+                archive=sorted(Path('/var/backups/win2k').glob('win2k-*.tar'))[-1]
+                with tarfile.open(archive) as tar:
+                    assert 'system-accounts/accounts.sqlite3' in tar.getnames()
+                    assert 'system-accounts/homes/'+profile['username']+'/.profile' in tar.getnames()
+                    shadow=tar.extractfile('system-accounts/shadow').read().decode()
+                    assert profile['username']+':' in shadow and 'honken:' not in shadow
+                print('PASS: root-only backup includes managed home/registry and excludes linked OS credentials; staging restore verified by backup service.')
             async with regular.ws_connect(origin+'/api/terminal') as ws:
                 await ws.send_json({'local':True,'password':secret,'cols':80,'rows':24})
                 connected=False; output=''; terminal_id=None
