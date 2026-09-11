@@ -14,6 +14,8 @@ if os.environ.get("WIN2K_TEST_PMA_ROOT"):
     phpmyadmin_bridge.SOCKET=os.environ["WIN2K_TEST_PMA_SOCKET"]
 state=tempfile.TemporaryDirectory(prefix='win2k-ui-test-')
 app.STATE=Path(state.name)
+# Never read the real host Local Terminal configuration from a disposable fixture.
+app.local_terminal.CONFIG=app.STATE/'local-terminal.json'
 app.ORIGIN='http://127.0.0.1:18765'
 application=app.make_app()
 with app.db() as conn:

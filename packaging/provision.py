@@ -77,6 +77,7 @@ def main(payload):
     state_file=state_dir/'bootstrap-state.json';pending=state_dir/'bootstrap-pending.json'
     state=json.loads(state_file.read_text()) if state_file.exists() else {}
     save=lambda:write_json(state_file,state)
+    if not state.get('complete'): write_json(pending,{'pending':True})
     sys.path.insert(0,'/opt/win2k-admin')
     import app
     import account_service as broker
