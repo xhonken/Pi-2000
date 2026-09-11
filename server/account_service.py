@@ -234,6 +234,14 @@ def dispatch(data):
         if op=='delete':
             if data.get('confirm')!=u['username']: raise Denied('Type the exact username to permanently delete this account.')
             with database(STATE/'admin.sqlite3') as db: db.execute('UPDATE users SET active=0,version=version+1 WHERE id=?',(u['id'],))
+            if b and b['managed'] and b['uid'] is None:
+                try: pwd.getpwnam(b['name'])
+                except KeyError: pass
+                else: raise Denied('Recover the interrupted Linux identity before deleting it.')
+                if Path(b['home']).exists() or Path(b['home']).is_symlink():
+                    raise Denied('Inspect the reserved home before deleting this pending account.')
+                with database(ROOT/'accounts.sqlite3') as db: db.execute('DELETE FROM bindings WHERE web_id=?',(u['id'],))
+                b=None
             if b and b['managed']:
                 try: identity(b)
                 except Denied:
