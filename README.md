@@ -50,7 +50,9 @@ Existing web accounts migrate on their next successful login. A pre-existing Lin
 
 Start → Programs groups applications into **Accessories**, **Development and Drawing**, **Internet and Connections**, **System Tools** and **My Shortcuts**. The common File, Edit, View, Connection and Help menus expose the commands relevant to each application.
 
-![Pi-2000Web desktop and Start menu](docs/screenshots/desktop.png)
+![Pi-2000Web Alpha 4 desktop with Local Terminal, Browser and Start → Programs → System Tools](docs/screenshots/desktop.png)
+
+*Alpha 4 desktop in a temporary demo session, with Local Terminal, Browser and the System Tools menu open.*
 
 See [the user guide](docs/HELP.md) and [the design rules](docs/DESIGN-RULES.md).
 
