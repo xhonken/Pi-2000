@@ -8,20 +8,20 @@ This is an independent project, not a Microsoft product and not a Windows emulat
 
 ## Versions
 
-Current numbered release: **[0.1.0-alpha.3](https://github.com/xhonken/Pi-2000/releases/tag/v0.1.0-alpha.3)**. See [all releases](https://github.com/xhonken/Pi-2000/releases), the [changelog](CHANGELOG.md), and [versioning instructions](docs/VERSIONING.md) for previous versions, release downloads and installing a specific version. Run `./scripts/version.sh` to identify your source checkout.
+Current numbered release: **[0.1.0-alpha.4](https://github.com/xhonken/Pi-2000/releases/tag/v0.1.0-alpha.4)**. See [all releases](https://github.com/xhonken/Pi-2000/releases), the [changelog](CHANGELOG.md), and [versioning instructions](docs/VERSIONING.md) for previous versions, release downloads and installing a specific version. Run `./scripts/version.sh` to identify your source checkout.
 
-## New in Alpha 3
+## New in Alpha 4
 
-- **MariaDB Manager with phpMyAdmin:** manage local or external databases, tables, SQL, users and privileges, search and import/export inside the classic desktop. Saved connections are private, with verified TLS and optional encrypted passwords.
-- **Saved SQL Workspace:** retain existing SQL drafts, manage closable query tabs, edit table rows directly and build SELECT/JOIN queries with guided table, column and filter choices.
-- **Development tools:** work with sandboxed Git projects, send and save API requests, and check Python, JavaScript and JSON syntax in Code Editor.
-- **Browser and desktop improvements:** memory admission checks, clearer stop reasons, explicit reconnect and a Start menu Search button that fits larger text.
+- **System passwords and private Linux identities:** PAM authentication, individual homes, a protected installation creator, account activation and confirmed deletion. Administrators get their own Local Terminal without automatic sudo.
+- **Debian installer:** an arm64 package with terminal setup dialogs, a chosen creator username/password and a private initial MariaDB connection.
+- **More reliable desktop work:** native upload picker fixes, unsaved-work protection, installed build information in About and broader phpMyAdmin deprecation handling.
+- **Small-Pi Browser improvements:** a measured 2 GB memory profile, smaller initial display and more time for cold SD-card startup.
 
-Read the [Alpha 3 release notes](docs/releases/0.1.0-alpha.3.md) for upgrade steps, validation and known limitations, including remaining phpMyAdmin Twig notices.
+Read the [Alpha 4 release notes](docs/releases/0.1.0-alpha.4.md) for migration steps and validation. The PAM implementation has been tested on the existing Pi 5 installation; **fresh installation of the final package on a reimaged Pi 4 remains pending**.
 
-## System accounts (unreleased)
+## System accounts
 
-New installations ask for a protected creator username and password. Every web user receives a private Linux identity and home. Linux-PAM authenticates passwords; the web database retains roles and private resource ownership. Administrators receive Local Terminal automatically, without automatic sudo. Ordinary users keep web access and remote SSH connections.
+New Debian installations ask for a protected creator username and password. Every managed web user receives a private Linux identity and home. Linux-PAM authenticates passwords; the web database retains roles and private resource ownership. Administrators receive Local Terminal automatically, without automatic sudo. Ordinary users keep web access and remote SSH connections.
 
 Existing web accounts migrate on their next successful login. A pre-existing Linux account is linked only by an explicit OS administrator command; linking preserves its Linux password and permissions. See [system account operations and recovery](docs/SYSTEM-ACCOUNTS.md) before upgrading or restoring accounts.
 
@@ -56,13 +56,13 @@ See [the user guide](docs/HELP.md) and [the design rules](docs/DESIGN-RULES.md).
 
 ## Accounts and private storage
 
-The protected initial account is `admin` and owns the installation. The owner can promote a regular user to administrator or demote an administrator. Administrators can manage regular users; only the owner can manage other administrators or change roles. The owner cannot be deleted, disabled or demoted.
+The installation creator is protected by a stable identity; its username is chosen during Debian setup. Existing installations retain their creator. The owner can promote a regular user to administrator or demote an administrator. Administrators can manage regular users; only the owner can manage other administrators or change roles. The owner cannot be deleted, disabled or demoted.
 
 Each account has its own connections, verified SSH host keys, files, desktop settings, browser profile, notes, drafts, favourites and recent items. New accounts receive **50 MiB** of file storage. Administrators can increase a regular user quota; only the owner can change another administrator quota. Quotas include files on the desktop, items in the Recycle Bin, notes, drawings, editor drafts and upload reservations. Browser profiles and backups are outside this quota.
 
-Passwords contain 12–1024 characters and are stored as salted scrypt hashes. The initial random password is written to `/var/lib/win2k-admin/initial-password.txt`, readable only by root/the service account. Change it using Start → Settings → Change Password; changing it removes the initial-password file. Usernames contain 3–64 letters a–z, digits, dots, hyphens or underscores and are unique without regard to case.
+Migrated accounts authenticate through Linux-PAM; their old web salt/hash fields are cleared. New passwords require at least 12 characters and at most 512 UTF-8 bytes. Managed users change passwords through Settings; explicitly linked existing Linux users use `passwd` locally. Legacy accounts migrate at their next successful login. MariaDB connection passwords remain separate encrypted secrets after initial setup. See [system accounts](docs/SYSTEM-ACCOUNTS.md) for migration and recovery details.
 
-Disabling/deleting an account, administrative password resets and role changes revoke its existing logins and running sessions. Changing your own password preserves the current login while revoking other logins. Web login sessions expire after at most twelve hours. Token digests, rather than raw session tokens, are stored in SQLite.
+Disabling/deleting an account, administrative password resets and role changes revoke its existing logins and running sessions. Changing a PAM password requires logging in again and revokes existing web sessions. Web login sessions expire after at most twelve hours. Token digests, rather than raw session tokens, are stored in SQLite.
 
 ## Persistent work
 
@@ -74,11 +74,12 @@ Use My Activities or Task Manager to end a terminal explicitly. A terminal windo
 
 ## Install on Raspberry Pi
 
-An installable arm64 `.deb` is available as a local Alpha 4 candidate. It includes
+The Alpha 4 release includes an arm64 `.deb` and SHA-256 checksum. It contains
 prebuilt Python runtimes and uses APT for system dependencies. See the
 **[Debian package guide](docs/DEB-INSTALLATION.md)** for Raspberry Pi OS 64-bit
-(Debian 13), first login and upgrades. The package has been installed and tested
-on a physical Raspberry Pi 4 with 2 GB RAM; it is not yet a published release.
+(Debian 13), first login and upgrades. Earlier package candidates passed physical
+Pi 4 installation and lifecycle tests. The final PAM-enabled package is built and
+inspected, but its fresh-install acceptance test on a reimaged Pi 4 is pending.
 
 The source installation below remains available for Raspberry Pi 5:
 

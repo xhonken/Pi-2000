@@ -82,6 +82,8 @@ These measurements describe the Pi, not your viewing computer. SSH jobs run on t
 
 ## Settings and account management
 
+For managed accounts, passwords use Linux-PAM and must contain at least 12 characters and at most 512 UTF-8 bytes. Existing linked Linux accounts change their password locally with `passwd`; the web interface cannot reset them.
+
 My Settings changes text size and the default text-file application, opens background settings, changes your password and lists signed-in sessions. You can log off another session belonging to your account.
 
 User Management is available to administrators and the protected installation creator. Administrators manage regular users; only the creator changes roles or manages other administrators. Disable preserves data. Delete requires the exact username and removes managed Linux accounts and homes as well as web data; existing linked Linux accounts are preserved. The creator cannot be disabled, deleted or demoted.

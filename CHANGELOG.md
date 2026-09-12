@@ -4,6 +4,10 @@ User-visible changes are recorded here for each numbered release. Development be
 
 ## Unreleased
 
+No changes yet.
+
+## 0.1.0-alpha.4 — 2026-09-12
+
 - Create one Linux identity and private home per web account; authenticate through PAM and remove the legacy application verifier after migration.
 - Protect the installation creator by stable identity, including database and privileged-service guards; ask for the creator username during Debian setup.
 - Give administrators their own Local Terminal via a private loopback SSH listener. Ordinary managed users have no login shell; managed identities are excluded from the host SSH listener. Sudo is an independent OS decision.
@@ -33,6 +37,12 @@ User-visible changes are recorded here for each numbered release. Development be
 - Add isolated HTTPS Git clone/fetch/pull/push and rejected-push coverage, and an unprivileged packaged phpMyAdmin test runtime.
 
 - Refresh the README, user guide and GitHub descriptions for Alpha 3, including phpMyAdmin, Git Projects, API Tester, syntax diagnostics and verified Browser memory protection. Documentation only; the published Alpha 3 source tag is unchanged.
+
+### Upgrade and known limitations
+
+Back up before upgrading, finish live jobs and restart the session worker to activate the new account policy. Legacy accounts migrate at successful login; explicitly linked OS accounts retain their Linux password and permissions. MariaDB passwords remain independent. See [system accounts](docs/SYSTEM-ACCOUNTS.md) and the [Alpha 4 release notes](docs/releases/0.1.0-alpha.4.md).
+
+The final PAM-enabled Debian package has not yet passed fresh installation on a reimaged Pi 4. Earlier package candidates passed physical installation/lifecycle tests; PAM and per-user terminals were verified on the existing Pi 5. Full OS-account restore still requires manual UID/home reconciliation.
 
 ## 0.1.0-alpha.3 — 2026-09-09
 

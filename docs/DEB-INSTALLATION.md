@@ -6,7 +6,7 @@ installs native dependencies; no pip download or compilation occurs on the Pi.
 32-bit Raspberry Pi OS and Debian 12 are not supported by this build.
 
 ```sh
-sudo apt install ./pi2000web_0.1.0~alpha.4-11_arm64.deb
+sudo apt install ./pi2000web_0.1.0~alpha.4-12_arm64.deb
 sudo pi2000web doctor
 ```
 
@@ -75,7 +75,11 @@ python3 scripts/build-deb.py
 The output `.deb` and SHA-256 file are under `build/packages/`. Local project notes,
 credentials, runtime databases and machine configuration are never package inputs.
 
-## Validation on physical hardware
+## Final Alpha 4 package status
+
+The release package `0.1.0~alpha.4-12` includes PAM authentication and per-user Linux identities. It is built from the Alpha 4 source release and inspected with package metadata and checksum checks. **Fresh installation of this package on a reimaged Pi 4 is still pending.** PAM/terminal behavior was tested on the existing Pi 5 installation; the earlier physical Pi 4 results below predate that account migration.
+
+## Earlier package validation on physical hardware
 
 The local Alpha 4 candidate was tested on a Raspberry Pi 4 Model B with 2 GB RAM,
 64-bit Raspberry Pi OS / Debian 13.6 and Python 3.13. Tests covered a first APT
@@ -107,7 +111,7 @@ retains `upgrade-preserved.txt` as a lifecycle fixture and resets only the dispo
 account's saved window layout before UI checks. Remove the disposable account after
 validation.
 
-Final local candidate `0.1.0~alpha.4-5` passed the complete functional suite after
+Earlier local candidate `0.1.0~alpha.4-5` passed the complete functional suite after
 APT installation and session-worker restart, starting with the Pi's disk cache
 cleared. Its live 1024/896/128 MiB limits were read directly from cgroup files; no
 OOM kill occurred. The generated administrator login and account-removal path were
@@ -125,7 +129,7 @@ With local MariaDB enabled, the 2 GB profile uses a 128 MiB admission reserve
 (1152 MiB available RAM before starting), while retaining the 1024/896/128 MiB
 hard/high/swap limits. A physical cold-cache test with Raspberry OS desktop and
 MariaDB running passed without a cgroup OOM or hard-limit event. The complete
-backend suite passes 97 tests. This remains a local candidate.
+backend suite passes 97 tests. These results describe the earlier pre-PAM candidate.
 
 Browser begins at 1280 × 720 while retaining its 4096 × 4096 resize maximum.
 This avoids rendering a large empty desktop before a client connects. Cold SD-card

@@ -11,7 +11,7 @@ The first numbered release is **0.1.0-alpha.1**. Earlier work is preserved in [G
 
 The source version does not prove which code is currently deployed. `git pull` changes the checkout; the updater deploys it. After updating, run `sudo ./scripts/doctor.sh` from that same checkout to compare deployed application files against the checkout. The session worker can still be running older code until its next planned restart, as explained in the installation guide.
 
-GitHub releases are based on tags pointing to specific commits and include source archive downloads. Anyone with repository read access can view and compare them. While this repository is private, its releases are private too. See [GitHub's release documentation](https://docs.github.com/en/repositories/releasing-projects-on-github/about-releases).
+GitHub releases are based on tags pointing to specific commits and include source archive downloads. Anyone with repository read access can view and compare them. This repository and its releases are public. See [GitHub's release documentation](https://docs.github.com/en/repositories/releasing-projects-on-github/about-releases).
 
 ## Numbering policy
 
