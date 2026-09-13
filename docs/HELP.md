@@ -101,6 +101,12 @@ The manager opens phpMyAdmin with the Pi-2000 appearance. Select a database or t
 
 Open **Start → Programs → Development and Drawing → Git Projects**. Create a project or clone an HTTPS repository. Edit files, inspect diffs, stage changes and commit with your author details. A commit saves locally; use the Remote commands to fetch, pull or explicitly push. Projects belong to your account and are isolated from the Pi-2000 installation.
 
+## Arduino Workshop
+
+Open **Start → Programs → Development and Drawing → Arduino Workshop**. Create a project, install ESP32 support through **Tools → Boards Manager**, then choose a board and USB port. **Tools → Library Manager** searches and installs library versions and dependencies; **Installed Libraries → Include Library** adds the headers to your code. Save Project stores every file and the board configuration. Verify compiles on the Pi; Upload compiles and flashes the Pi-connected board after confirmation. Serial Monitor receives and sends text at the selected baud rate.
+
+Projects and installed packages are private. All users can compile; USB upload and Serial Monitor require an administrator account. See [Arduino Workshop](ARDUINO-WORKSHOP.md) for first-use steps, imports/exports, job recovery, installation and limits.
+
 ## API Tester
 
 Open **Start → Programs → Development and Drawing → API Tester**. Enter a URL, method, headers and optional body, then Send. **Request → Authentication** configures Basic or Bearer authentication. Inspect the response status, headers, body and timing; save requests to your private encrypted collection if needed. Requests originate from the Pi, so the destination must be reachable from it.

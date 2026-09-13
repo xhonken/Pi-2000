@@ -18,6 +18,8 @@ app.STATE=Path(state.name)
 app.local_terminal.CONFIG=app.STATE/'local-terminal.json'
 app.ORIGIN='http://127.0.0.1:18765'
 application=app.make_app()
+if os.environ.get('WIN2K_TEST_ARDUINO_RUNTIME'):
+    (app.STATE/'arduino-runtime'/'1').symlink_to(Path(os.environ['WIN2K_TEST_ARDUINO_RUNTIME']).resolve(), target_is_directory=True)
 with app.db() as conn:
     salt='12'*16
     conn.execute("UPDATE users SET salt=?,hash=? WHERE username='admin'",(salt,app.password_hash('browser-test-password',salt)))

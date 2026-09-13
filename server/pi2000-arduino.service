@@ -1,0 +1,33 @@
+[Unit]
+Description=Pi-2000Web Arduino Workshop
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=win2k-admin
+Group=win2k-admin
+SupplementaryGroups=dialout
+WorkingDirectory=/opt/win2k-admin
+ExecStart=/opt/win2k-admin/venv/bin/python /opt/win2k-admin/arduino_service.py
+EnvironmentFile=/etc/pi2000web/runtime.env
+Environment=WIN2K_STATE=/var/lib/win2k-admin
+RuntimeDirectory=pi2000-arduino
+RuntimeDirectoryMode=0700
+MemoryHigh=1536M
+MemoryMax=2048M
+MemorySwapMax=128M
+CPUQuota=150%
+TasksMax=128
+Restart=on-failure
+RestartSec=3
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/win2k-admin
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6 AF_NETLINK
+TimeoutStopSec=15
+
+[Install]
+WantedBy=multi-user.target

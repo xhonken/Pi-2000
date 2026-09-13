@@ -19,6 +19,10 @@ Current numbered release: **[0.1.0-alpha.4](https://github.com/xhonken/Pi-2000/r
 
 Read the [Alpha 4 release notes](docs/releases/0.1.0-alpha.4.md) for migration steps and validation. The PAM implementation has been tested on the existing Pi 5 installation; **fresh installation of the final package on a reimaged Pi 4 remains pending**.
 
+## Development after Alpha 4
+
+The current source checkout adds **Arduino Workshop**: private sketches, graphical board and library managers, ESP32/AVR compilation, Pi-connected USB upload and Serial Monitor. See [setup, ownership and limits](docs/ARDUINO-WORKSHOP.md). This is not part of the published Alpha 4 package.
+
 ## System accounts
 
 New Debian installations ask for a protected creator username and password. Every managed web user receives a private Linux identity and home. Linux-PAM authenticates passwords; the web database retains roles and private resource ownership. Administrators receive Local Terminal automatically, without automatic sudo. Ordinary users keep web access and remote SSH connections.
@@ -37,6 +41,7 @@ Existing web accounts migrate on their next successful login. A pre-existing Lin
 | Code Editor | Local Ace editor with syntax highlighting, tabs, completion, find/replace, undo/redo, word wrap, themes, file trees, recovery drafts, SFTP editing and Python/JavaScript/JSON syntax diagnostics. |
 | MariaDB Manager | Embedded phpMyAdmin, private local/external connections, SQL, table data and structure, users/privileges, search and import/export within the database account's permissions. Saved SQL Workspace preserves native drafts, direct row editing and the guided JOIN builder. |
 | Git Projects | Private sandboxed repositories, HTTPS clone/remotes, file editing, status/diffs, staging, commits, branches/history and fetch/pull/push controls. |
+| Arduino Workshop (after Alpha 4) | Private multi-file sketches, board options, library search/version installation and includes, Verify, USB Upload and Serial Monitor. |
 | API Tester | Private encrypted saved requests, methods, headers, Basic/Bearer authentication, request bodies, response inspection and timing. |
 | Dimension Drawing | Dimensioned 2D shapes, rotated cutouts, frame and hole patterns, approximate clearance/collision checks, private saved drawings, SVG and CSV export. |
 | Calculator | Arithmetic, parentheses, powers, scientific functions, memory buttons and session history. Trigonometry uses degrees. |

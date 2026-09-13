@@ -20,7 +20,7 @@ import urllib.error
 CONFIG=Path('/etc/pi2000web')
 STATE=Path('/var/lib/win2k-admin')
 MARKER=Path('/var/lib/pi2000web')
-UNITS=('pi2000-accounts','pi2000-terminal','win2k-sessions','pi2000-phpmyadmin','win2k-admin','pi2000-web','win2k-backup.timer')
+UNITS=('pi2000-arduino','pi2000-accounts','pi2000-terminal','win2k-sessions','pi2000-phpmyadmin','win2k-admin','pi2000-web','win2k-backup.timer')
 
 def run(*args,capture=False):
     r=subprocess.run(list(map(str,args)),check=True,text=True,stdout=subprocess.PIPE if capture else None)
@@ -97,7 +97,7 @@ def configure(args):
     run('/opt/win2k-admin/venv/bin/python','-c',"import sys;sys.path.insert(0,'/opt/win2k-admin');import app;app.initialize()")
     run('/opt/win2k-admin/venv/bin/python','/opt/win2k-admin/account_install.py')
     run('systemctl','daemon-reload')
-    run('systemctl','enable','--now','win2k-sessions','pi2000-phpmyadmin')
+    run('systemctl','enable','--now','win2k-sessions','pi2000-phpmyadmin','pi2000-arduino')
     if args.restart_sessions:run('systemctl','restart','win2k-sessions')
     run('systemctl','restart','pi2000-phpmyadmin','win2k-admin')
     run('systemctl','enable','--now','win2k-admin','pi2000-web','win2k-backup.timer')

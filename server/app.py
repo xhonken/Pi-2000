@@ -32,6 +32,7 @@ from phpmyadmin_bridge import PhpMyAdmin
 from code_diagnostics import Diagnostics
 from api_client import ApiClient
 from git_tools import GitTools
+import arduino_workshop
 
 STATE = Path(os.environ.get('WIN2K_STATE', '/var/lib/win2k-admin'))
 ORIGIN = os.environ.get('WIN2K_ORIGIN', 'https://localhost')
@@ -653,7 +654,7 @@ async def workspace(request):
     if not isinstance(data, dict) or set(data) != {'windows'} or not isinstance(data['windows'], list) or len(data['windows']) > 12:
         return error('Invalid window layout.')
     for window in data['windows']:
-        if (not isinstance(window, dict) or window.get('type') not in ('explorer-window', 'users-window', 'terminal-window', 'browser-window', 'status-window', 'files-window', 'trash-window', 'editor-window', 'preview-window', 'search-window', 'activities-window', 'notes-window', 'preferences-window', 'sftp-window', 'cad-window', 'calculator-window', 'taskmanager-window', 'phpmyadmin-window', 'database-window', 'api-window', 'git-window')
+        if (not isinstance(window, dict) or window.get('type') not in ('explorer-window', 'users-window', 'terminal-window', 'browser-window', 'status-window', 'files-window', 'trash-window', 'editor-window', 'preview-window', 'search-window', 'activities-window', 'notes-window', 'preferences-window', 'sftp-window', 'cad-window', 'calculator-window', 'taskmanager-window', 'phpmyadmin-window', 'database-window', 'api-window', 'git-window', 'arduino-window')
                 or any(type(window.get(key)) not in (int, float) or not -10000 <= window[key] <= 10000 for key in ('left', 'top', 'width', 'height'))
                 or any(type(window.get(key)) is not bool for key in ('hidden', 'maximized'))
                 or any(window.get(key) is not None and (not isinstance(window[key], str) or len(window[key]) > 128) for key in ('terminal', 'folder'))):
@@ -1025,6 +1026,12 @@ def make_app():
     app.router.add_post('/api/login', login)
     git_tools=GitTools(sys.modules[__name__]);git_tools.initialize()
     app.router.add_post('/api/development/git',git_tools.handle)
+    if arduino_workshop.SOCKET:
+        app.router.add_post('/api/development/arduino', arduino_workshop.proxy)
+    else:
+        arduino=arduino_workshop.ArduinoWorkshop(sys.modules[__name__]);arduino.initialize()
+        app.router.add_post('/api/development/arduino', arduino.handle)
+        app.cleanup_ctx.append(arduino.lifecycle)
     diagnostics=Diagnostics(sys.modules[__name__])
     app.router.add_post('/api/development/diagnostics',diagnostics.handle)
     databases=DatabaseTools(sys.modules[__name__]);databases.initialize()

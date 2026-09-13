@@ -37,7 +37,7 @@ def runtime(name,requirements,wheels,work):
 
 
 def main():
-    p=argparse.ArgumentParser();p.add_argument('--version',default='0.1.0~alpha.4-12');a=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument('--version',default='0.1.0~alpha.4-13');a=p.parse_args()
     if os.uname().machine!='aarch64' or sys.version_info[:2]!=(3,13):p.error('Build on arm64 with Python 3.13.')
     run('dpkg','--validate-version',a.version)
     work=ROOT/'.deb-build';work.mkdir(exist_ok=True)
@@ -55,6 +55,9 @@ def main():
         else:shutil.copy2(source,dest)
     for source in (ROOT/'server').glob('*.py'):copy(source,'/opt/win2k-admin/'+source.name)
     for name in ('requirements.txt','browser-config','phpmyadmin'):copy(ROOT/'server'/name,'/opt/win2k-admin/'+name)
+    arduino_tools=work/'arduino-tools'
+    run('python3',ROOT/'scripts/arduino-tools.py',arduino_tools)
+    copy(arduino_tools,'/opt/pi2000-arduino')
     copy(api_runtime,'/opt/win2k-admin/venv');copy(browser_runtime,'/opt/win2k-browser/venv')
     for name in ('browser-requirements.txt','browser-source-revision.txt'):copy(ROOT/'server'/name,'/opt/win2k-browser/'+name)
     files=subprocess.check_output(['git','ls-files','-z'],cwd=ROOT).decode().split('\0')

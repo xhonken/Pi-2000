@@ -298,7 +298,7 @@ def verify(config, compare=True):
     with sqlite3.connect('file:' + str(STATE / 'admin.sqlite3') + '?mode=ro', uri=True) as db:
         if db.execute('PRAGMA integrity_check').fetchone()[0] != 'ok' or db.execute('PRAGMA foreign_key_check').fetchone():
             raise ValueError('Database integrity check failed.')
-    for unit in ('win2k-admin', 'win2k-sessions', 'caddy', 'win2k-backup.timer', 'pi2000-phpmyadmin'):
+    for unit in ('win2k-admin', 'win2k-sessions', 'caddy', 'win2k-backup.timer', 'pi2000-phpmyadmin', 'pi2000-arduino'):
         if not active(unit):
             raise ValueError('Service is not active: ' + unit)
     if subprocess.run(['runuser', '-u', 'win2k-admin', '--', 'test', '-r',

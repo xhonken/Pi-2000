@@ -1,0 +1,15 @@
+.arduino-window{width:min(1100px,95vw);height:min(780px,85vh)}
+.arduino-window .app-body{display:flex;flex-direction:column;min-height:0;overflow:hidden}
+.arduino-window .tool-toolbar{flex-wrap:wrap;flex:none}
+.arduino-error{color:#8b0000;background:#fff4dd;border:1px solid #a07030;padding:6px;max-height:100px;overflow:auto;white-space:pre-wrap;flex:none}
+.arduino-target{display:flex;gap:12px;padding:5px 8px;border-bottom:1px solid #808080;flex:none;min-width:0}
+.arduino-target span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.arduino-board{flex:1}.arduino-layout{display:flex;flex:1;min-height:0;min-width:0;gap:5px;padding:5px}
+.arduino-layout aside{width:165px;flex:none;overflow:auto}.arduino-layout aside label{display:flex;flex-direction:column;gap:5px}.arduino-layout aside select{width:100%;min-height:160px}.arduino-layout aside p{font-size:.9em}
+.arduino-workspace{display:flex;flex:1;min-height:0;min-width:0;flex-direction:column}
+.arduino-tabs{display:flex;overflow:auto;flex:none;min-height:27px}.arduino-tabs button{white-space:nowrap}.arduino-tabs [aria-selected=true]{font-weight:bold;background:#fff;border-bottom-color:#fff}
+.arduino-editor{flex:1;min-height:160px;border:2px inset #eee}.arduino-job{padding:4px 6px;flex:none;border-top:1px solid #808080}
+.arduino-output{height:145px;min-height:65px;max-height:40%;flex:none;resize:vertical;overflow:auto;margin:0;background:#fff;border:2px inset #eee;padding:5px;white-space:pre-wrap;overflow-wrap:anywhere;font:1em/1.4 monospace}
+.arduino-dialog{padding:3px;width:min(690px,94vw);max-height:90vh;border-radius:0;background:#d4d0c8;color:#000}.arduino-dialog::backdrop{background:rgba(0,0,0,.18)}
+.arduino-dialog-content{padding:10px;overflow:auto;max-height:calc(90vh - 45px)}.arduino-dialog label{display:flex;flex-direction:column;gap:4px;margin:7px 0}.arduino-dialog input,.arduino-dialog select{font:inherit;min-width:0;max-width:100%}.arduino-dialog select{width:100%}.arduino-dialog p{white-space:pre-wrap;overflow-wrap:anywhere}.arduino-dialog-toolbar,.serial-buttons{display:flex;gap:5px;flex-wrap:wrap;margin:8px 0}.arduino-dialog-error{color:#8b0000;max-height:150px;overflow:auto}.arduino-dialog .actions{display:flex;justify-content:flex-end;margin-top:10px}.board-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 12px}.library-info{max-height:130px;overflow:auto}.serial-output{height:230px;overflow:auto;background:white;border:2px inset #eee;padding:5px;white-space:pre-wrap;overflow-wrap:anywhere}.arduino-dialog .serial-scroll{flex-direction:row;align-items:center}.serial-controls{display:flex;align-items:end;gap:10px;flex-wrap:wrap}
+@media(max-width:650px){.arduino-layout aside{width:110px}.arduino-target{flex-direction:column;gap:2px}.board-options{grid-template-columns:1fr}.arduino-output{height:100px}.arduino-editor{min-height:100px}}
