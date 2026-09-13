@@ -6,15 +6,18 @@ import subprocess
 
 
 def generate(root):
-    root = Path(root)
-    files = subprocess.check_output(['git', 'ls-files', '-z'], cwd=root).decode().split('\0')
+    root = Path(root).resolve()
+    # Publication runs as root from the operator-owned checkout. Trust only
+    # this explicitly selected path for these read-only metadata commands.
+    git = ['git', '-c', 'safe.directory=' + str(root)]
+    files = subprocess.check_output(git + ['ls-files', '-z'], cwd=root).decode().split('\0')
     digest = hashlib.sha256()
     for name in sorted(filter(None, files)):
         path = root / name
         if path.is_file():
             digest.update(name.encode() + b'\0' + path.read_bytes() + b'\0')
-    revision = subprocess.check_output(['git', 'rev-parse', '--short=12', 'HEAD'], cwd=root).decode().strip()
-    dirty = bool(subprocess.check_output(['git', 'status', '--porcelain', '--untracked-files=no'], cwd=root))
+    revision = subprocess.check_output(git + ['rev-parse', '--short=12', 'HEAD'], cwd=root).decode().strip()
+    dirty = bool(subprocess.check_output(git + ['status', '--porcelain', '--untracked-files=no'], cwd=root))
     return {'version': (root / 'VERSION').read_text().strip(),
             'revision': revision, 'modified': dirty, 'build': digest.hexdigest()[:16]}
 
