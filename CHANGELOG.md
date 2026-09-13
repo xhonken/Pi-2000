@@ -4,6 +4,8 @@ User-visible changes are recorded here for each numbered release. Development be
 
 ## Unreleased
 
+- Prepare missing Arduino catalogs automatically when opening package managers or searching libraries, and allow catalog downloads inside their sandbox. Show search progress and readable failures.
+
 - Add an Arduino Workshop desktop icon as well as its Start menu entry.
 
 - Add Arduino Workshop with private multi-file sketches, classic application menus, board options, graphical board/library version managers, header insertion, import/export, Verify, Pi-connected USB Upload and Serial Monitor.

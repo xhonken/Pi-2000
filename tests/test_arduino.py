@@ -71,6 +71,7 @@ class ArduinoTests(unittest.IsolatedAsyncioTestCase):
         async def execute(uid,args,token,**kw):
             calls.append((args,kw))
             if args[0]=='compile':
+                self.assertFalse(kw.get('network', False))
                 source=kw['work']/'sketch'/p['name']/(p['name']+'.ino')
                 self.assertEqual(source.read_text(),p['files'][p['name']+'.ino'])
             kw['job']['output']+='verified output\n';return ''
@@ -87,6 +88,45 @@ class ArduinoTests(unittest.IsolatedAsyncioTestCase):
         async def failure(*args,**kwargs):raise RuntimeError('fixture compile error')
         self.worker.execute=failure;await self.call('compile',project=p['id'],revision=1)
         self.assertEqual((await self.wait_job())['state'],'failed');self.assertFalse(self.worker.busy)
+
+    async def test_catalog_cold_start_reuse_and_account_isolation(self):
+        calls=[]
+        async def execute(uid,args,token,**kw):
+            calls.append((uid,args))
+            self.assertTrue(kw.get('network'))
+            if args==['core','update-index']:
+                for name in ('package_index.json','package_esp32_index.json','library_index.json'):
+                    (self.worker.runtime(uid)/'data'/name).write_text('{}')
+                return ''
+            return json.dumps({'libraries':[{'name':'Adafruit GC9A01A','latest':{'version':'1.1.1'},'releases':{'1.1.1':{}}}]})
+        self.worker.execute=execute
+        result=await self.call('library_search',query='Adafruit GC9A01A')
+        self.assertEqual(result['result']['libraries'][0]['name'],'Adafruit GC9A01A')
+        await self.call('library_search',query='Adafruit GC9A01A')
+        self.assertEqual(sum(args==['core','update-index'] for _,args in calls),1)
+        self.token='other';await self.call('library_search',query='Adafruit GC9A01A')
+        self.assertEqual([uid for uid,args in calls if args==['core','update-index']],[1,2])
+        # Recover an interrupted bootstrap with only some indexes present.
+        (self.worker.runtime(2)/'data'/'package_esp32_index.json').unlink()
+        await self.call('library_search',query='Adafruit GC9A01A')
+        self.assertEqual(sum(args==['core','update-index'] for _,args in calls),3)
+        self.assertFalse(self.worker.busy)
+
+    async def test_catalog_download_failure_timeout_and_retry(self):
+        async def failure(*args,**kw):
+            raise RuntimeError(json.dumps({'error':'network is unreachable','warnings':['missing library_index.json']}))
+        self.worker.execute=failure
+        result=await self.call('library_search',status=400,query='Adafruit GC9A01A')
+        self.assertIn('Check the Pi internet connection',result['error'])
+        self.assertIn('network is unreachable',result['error'])
+        self.assertNotIn('"warnings"',result['error']);self.assertFalse(self.worker.busy)
+        async def timeout(*args,**kw):raise TimeoutError()
+        self.worker.execute=timeout
+        result=await self.call('library_search',status=504,query='Adafruit GC9A01A')
+        self.assertIn('background job',result['error']);self.assertFalse(self.worker.busy)
+        async def success(*args,**kw):return '{"libraries": []}'
+        self.worker.execute=success
+        await self.call('library_search',query='Adafruit GC9A01A')
     async def test_upload_follows_successful_compile_and_closes_own_monitor(self):
         p=await self.project();calls=[]
         async def execute(uid,args,token,**kw):calls.append(args);return ''

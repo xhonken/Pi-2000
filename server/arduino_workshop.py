@@ -230,9 +230,28 @@ class ArduinoWorkshop:
         if self.busy: raise web.HTTPConflict(text='Arduino tools are busy. Wait for the current job or stop it before refreshing the manager.')
         self.busy = True
         try:
-            result = await self.execute(uid, ['--format', 'json', *args], token)
-            return json.loads(result)
-        except RuntimeError as exc: raise web.HTTPBadRequest(text=str(exc))
+            # A new account has no catalogs or builtin discovery tools. CLI read
+            # commands can initialize these too, or refresh an expired index.
+            # Keep this network access confined to package/catalog operations;
+            # compile and upload still use the offline sandbox by default.
+            async with asyncio.timeout(115):
+                data = self.runtime(uid) / 'data'
+                if any(not (data / name).is_file() for name in
+                       ('package_index.json', 'package_esp32_index.json', 'library_index.json')):
+                    await self.execute(uid, ['core', 'update-index'], token, network=True)
+                result = await self.execute(uid, ['--format', 'json', *args], token, network=True)
+                return json.loads(result)
+        except TimeoutError:
+            raise web.HTTPGatewayTimeout(text='Loading the Arduino catalog took too long. Use Refresh Indexes in Boards Manager or Library Manager, wait for the background job to finish, then try again.')
+        except RuntimeError as exc:
+            detail = str(exc)
+            try:
+                parsed = json.loads(detail)
+                if isinstance(parsed, dict) and isinstance(parsed.get('error'), str): detail = parsed['error']
+            except (ValueError, TypeError): pass
+            raise web.HTTPBadRequest(text='Could not load the Arduino catalog. Check the Pi internet connection and try Refresh Indexes.\n' + detail)
+        except json.JSONDecodeError:
+            raise web.HTTPBadGateway(text='Arduino returned an unreadable catalog. Use Refresh Indexes and try again.')
         finally: self.busy = False
 
     @staticmethod
