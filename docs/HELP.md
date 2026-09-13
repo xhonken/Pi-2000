@@ -103,7 +103,7 @@ Open **Start → Programs → Development and Drawing → Git Projects**. Create
 
 ## Arduino Workshop
 
-Open **Start → Programs → Development and Drawing → Arduino Workshop**. Create a project, install ESP32 support through **Tools → Boards Manager**, then choose a board and USB port. **Tools → Library Manager** searches and installs library versions and dependencies; **Installed Libraries → Include Library** adds the headers to your code. Save Project stores every file and the board configuration. Verify compiles on the Pi; Upload compiles and flashes the Pi-connected board after confirmation. Serial Monitor receives and sends text at the selected baud rate.
+Open the **Arduino Workshop** desktop icon or **Start → Programs → Development and Drawing → Arduino Workshop**. Create a project, install ESP32 support through **Tools → Boards Manager**, then choose a board and USB port. **Tools → Library Manager** searches and installs library versions and dependencies; **Installed Libraries → Include Library** adds the headers to your code. Save Project stores every file and the board configuration. Verify compiles on the Pi; Upload compiles and flashes the Pi-connected board after confirmation. Serial Monitor receives and sends text at the selected baud rate.
 
 Projects and installed packages are private. All users can compile; USB upload and Serial Monitor require an administrator account. See [Arduino Workshop](ARDUINO-WORKSHOP.md) for first-use steps, imports/exports, job recovery, installation and limits.
 

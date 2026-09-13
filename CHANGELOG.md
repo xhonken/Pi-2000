@@ -4,6 +4,8 @@ User-visible changes are recorded here for each numbered release. Development be
 
 ## Unreleased
 
+- Add an Arduino Workshop desktop icon as well as its Start menu entry.
+
 - Add Arduino Workshop with private multi-file sketches, classic application menus, board options, graphical board/library version managers, header insertion, import/export, Verify, Pi-connected USB Upload and Serial Monitor.
 - Run Arduino CLI in a separate memory-limited service and filesystem sandbox, restrict USB access to administrators and preserve the latest job log across service restarts. Include the tools and service in source and Debian installation paths.
 - Verify real ESP32 compilation with ArduinoJson; physical USB flashing remains a hardware acceptance check.

@@ -1,6 +1,6 @@
 # Arduino Workshop
 
-Arduino Workshop is a native Pi-2000Web application for writing sketches, installing board support and libraries, compiling on the Pi, uploading over the Pi's USB connection and using a serial monitor. Open **Start → Programs → Development and Drawing → Arduino Workshop**.
+Arduino Workshop is a native Pi-2000Web application for writing sketches, installing board support and libraries, compiling on the Pi, uploading over the Pi's USB connection and using a serial monitor. Open the **Arduino Workshop** desktop icon or **Start → Programs → Development and Drawing → Arduino Workshop**.
 
 This feature is in the source checkout after Alpha 4; it is not included in the published Alpha 4 package.
 

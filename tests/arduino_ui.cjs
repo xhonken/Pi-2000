@@ -2,7 +2,7 @@ const {chromium}=require('playwright');const assert=require('node:assert/strict'
 (async()=>{const browser=await chromium.launch({executablePath:'/usr/bin/chromium',headless:true});
  try{const page=await browser.newPage({viewport:{width:1280,height:950}}),errors=[];page.on('pageerror',e=>errors.push(e.message));page.setDefaultTimeout(25000);
  await page.goto('http://127.0.0.1:18765');await page.locator('#login-form [name=password]').fill('browser-test-password');await page.locator('#login-form [type=submit]').click();await page.locator('#session').waitFor({state:'visible'});
- await page.evaluate(()=>Win2kShell.actions.arduino());const w=page.locator('.arduino-window');await w.waitFor();
+ await page.locator('#desktop-icons [data-action=arduino]').click();const w=page.locator('.arduino-window');await w.waitFor();
  async function menu(group,label){await w.getByRole('menuitem',{name:group,exact:true}).click();await page.getByRole('menuitem',{name:label,exact:true}).click();}
  let dialog=()=>page.locator('dialog.arduino-dialog');
  await menu('File','New Project');await dialog().locator('[name=projectName]').fill('WorkshopUITest');await dialog().getByRole('button',{name:'Create Project',exact:true}).click();await dialog().waitFor({state:'detached'});
