@@ -14,7 +14,7 @@ Limits: ten projects per account, 64 MB and 20,000 files per project, two concur
 
 Local platform backups include Git workspaces and repository objects. Existing backup policy omits filesystem symlinks and caches; committed symlinks can be reconstructed from Git objects. Never treat an unverified backup as the only copy of important uncommitted work.
 
-## Code Editor diagnostics
+## Pi++ diagnostics
 
 **Code → Check Syntax** checks the active `.py`, `.js`, `.cjs`, `.mjs` or `.json` file. Problems appear as editor annotations and clickable line entries. Editing clears stale annotations. Python is compiled without execution; JavaScript uses Node's syntax-check mode. Neither imports nor executes the user's program.
 

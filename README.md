@@ -38,7 +38,7 @@ Existing web accounts migrate on their next successful login. A pre-existing Lin
 | Local Terminal | Private terminal on the Pi under each administrator’s individual Linux identity. Sudo is granted separately by the OS administrator. |
 | My Devices | Organise SSH connection profiles in folders; verify host keys and connect to remote devices. |
 | Browser | Persistent Chromium tabs, separate cookies and profiles for each account, audio, automatic resizing and an enforced uBlock Origin Lite policy. |
-| Code Editor | Local Ace editor with syntax highlighting, tabs, completion, find/replace, undo/redo, word wrap, themes, file trees, recovery drafts, SFTP editing and Python/JavaScript/JSON syntax diagnostics. |
+| Pi++ | Notepad++-inspired editor with a compact toolbar, document panel, accessible tabs, Save All, search across open documents, bookmarks, language selection, LF/CR LF conversion, private preferences, recovery drafts, SFTP and syntax diagnostics. |
 | MariaDB Manager | Embedded phpMyAdmin, private local/external connections, SQL, table data and structure, users/privileges, search and import/export within the database account's permissions. Saved SQL Workspace preserves native drafts, direct row editing and the guided JOIN builder. |
 | Git Projects | Private sandboxed repositories, HTTPS clone/remotes, file editing, status/diffs, staging, commits, branches/history and fetch/pull/push controls. |
 | Arduino Workshop (after Alpha 4) | Private multi-file sketches, board options, library search/version installation and includes, Verify, USB Upload and Serial Monitor. |
@@ -130,7 +130,7 @@ There are at most three simultaneous Browser sessions globally, subject to avail
 
 Uploads are streamed with quota reservations and current-session validation. File content is stored separately from SQLite metadata. Text saves use content versions and immutable replacement blobs; if the file has changed, save as a new file to preserve your edits. ZIP downloads support up to 1,000 items or 50 MB at a time. Accounts have a maximum of 5,000 file/folder objects and 5,000 connection/folder objects.
 
-Code Editor supports UTF-8 text up to 1 MB per file and up to 100 tabs. Ctrl+S saves the active file. Recovery drafts are saved privately on the server and count towards the quota; they do not replace explicit file saves. Closing/logging off warns if draft saving fails. The default new file name is `untitled.txt`.
+Pi++ supports UTF-8 text up to 1 MB per file and up to 100 tabs. Ctrl+S saves the active file. Recovery drafts are saved privately on the server and count towards the quota; they do not replace explicit file saves. Closing/logging off warns if draft saving fails. The default new file name is `untitled.txt`.
 
 Connection → SFTP – Open Device opens the remote file tree using one of your own SSH profiles. SSH passwords remain in memory and must be entered again after a reload. Unknown SSH host keys require fingerprint verification; changed keys are rejected. SFTP tabs save to the connected device. Save As creates a local file; Save Copy on Device creates a new remote file without replacing an existing file.
 
@@ -144,7 +144,7 @@ MariaDB Manager opens embedded phpMyAdmin by default. Choose a private saved con
 
 **File → Saved SQL Workspace** opens the retained native manager with existing drafts, query management, direct row forms, the guided SELECT/JOIN builder and administration dialogs. See [MariaDB Manager](docs/MARIADB-MANAGER.md) for these tools and their limits.
 
-Git Projects provides isolated private repositories, file editing, staging, commits, branches and HTTPS remote controls. API Tester sends requests from the Pi and saves private encrypted request collections. Code Editor checks Python, JavaScript and JSON syntax without executing the program. See [Development Tools](docs/DEVELOPMENT-TOOLS.md) for workflows, quotas and supported transports.
+Git Projects provides isolated private repositories, file editing, staging, commits, branches and HTTPS remote controls. API Tester sends requests from the Pi and saves private encrypted request collections. Pi++ checks Python, JavaScript and JSON syntax without executing the program. See [Development Tools](docs/DEVELOPMENT-TOOLS.md) for workflows, quotas and supported transports.
 
 Web account roles do not grant access to modify the Pi-2000 installation or its private platform state. Database privileges come from the selected MariaDB account; Git workspaces are separate from the installation.
 

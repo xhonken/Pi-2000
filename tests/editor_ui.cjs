@@ -24,7 +24,7 @@ const assert=require('node:assert/strict');
   await win.getByRole('button',{name:'Find/Replace',exact:true}).click();await win.locator('.ace_search').waitFor({state:'visible'});await page.keyboard.press('Escape');
   const oldWidth=await win.locator('.editor-code').evaluate(el=>el.clientWidth);await win.getByRole('button',{name:'Maximise',exact:true}).click();assert.ok(await win.locator('.editor-code').evaluate(el=>el.clientWidth)>oldWidth);
   const download=page.waitForEvent('download');await command(page,win,'File','Download');assert.equal((await download).suggestedFilename(),'hello.js');
-  await page.waitForTimeout(300);await page.reload();await page.locator('.editor-window .editor-tabs').getByRole('button',{name:'hello.js',exact:true}).waitFor();
+  await page.waitForTimeout(300);await page.reload();await page.locator('.editor-window .editor-tabs').getByRole('tab',{name:'hello.js',exact:true}).waitFor();
   assert.equal(await page.evaluate(()=>ace.edit(document.querySelector('.editor-code')).getValue()),'const answer = 42;\n');
   // A second writer must not be silently overwritten by an older editor tab.
   await page.evaluate(async id=>{const data=await (await fetch('/api/files/'+id+'/content')).json();await fetch('/api/files/'+id+'/content',{method:'PUT',headers:{'If-Match':data.version},body:'external'});},file.id);

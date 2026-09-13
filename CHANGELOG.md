@@ -4,6 +4,8 @@ User-visible changes are recorded here for each numbered release. Development be
 
 ## Unreleased
 
+- Replace the Code Editor presentation with Pi++: an original icon, compact toolbar, document panel, accessible tabs, expanded menus, Save All, graphical open/import, search across open documents, bookmarks, language selection, LF/CR LF conversion and private editor preferences. Preserve existing private files, SFTP connections, conflict checks and recovery drafts.
+
 - Prepare missing Arduino catalogs automatically when opening package managers or searching libraries, and allow catalog downloads inside their sandbox. Show search progress and readable failures.
 
 - Add an Arduino Workshop desktop icon as well as its Start menu entry.

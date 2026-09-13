@@ -93,6 +93,54 @@ input:focus-visible,textarea:focus-visible,select:focus-visible { outline:1px so
 .editor-tab { border-color:#fff #808080 #808080 #fff;margin-right:2px; }.editor-tab.active { border-top:1px solid white;background:#fff; }
 .editor-tab button { padding:4px 6px; }
 .editor-code { border:1px solid;border-color:#808080 #fff #fff #808080; }
+
+/* Pi++ keeps the desktop chrome and gives documents the available space. */
+.editor-window { width:min(1180px,calc(100vw - 20px));height:740px; }
+.editor-window .classic-menubar { flex-wrap:wrap; }
+.editor-window .editor-toolbar { flex-wrap:nowrap;overflow-x:auto;gap:2px;padding:3px 6px;min-height:34px; }
+.editor-toolbar > .win2k-button { position:relative;display:inline-flex;align-items:center;justify-content:center;min-width:30px;height:28px;padding:4px 6px;flex-shrink:0; }
+.editor-toolbar > [data-icon]::before { display:none; }
+.editor-toolbar .win2k-pixel-icon { width:18px!important;height:18px!important;min-width:18px!important;margin:0;vertical-align:middle; }
+.editor-toolbar .piplus-command-glyph { display:inline-block;min-width:18px;font:bold 19px/18px Arial;color:#164880; }
+.editor-toolbar .piplus-command-label { position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap; }
+.editor-toolbar [data-ui-label="Undo"],.editor-toolbar [data-ui-label="Search"],.editor-toolbar [data-ui-label="SFTP – Open Device…"] { margin-left:7px; }
+.editor-toolbar .piplus-save-all::after { content:'+';position:absolute;right:2px;bottom:0;font:bold 13px Arial;color:#166b2b; }
+.editor-sidebar { display:flex;flex-direction:column;width:220px;min-width:150px;max-width:42%;flex-shrink:0;resize:horizontal;overflow:auto;border-right:2px groove white;background:white; }
+.editor-sidebar[hidden] { display:none; }
+.editor-panel-heading { display:flex;align-items:center;justify-content:space-between;gap:6px;padding:4px 6px;background:var(--face);border-bottom:1px solid #aaa;flex-shrink:0; }
+.editor-panel-heading strong { font-weight:normal; }
+.editor-panel-heading button { border:1px solid transparent;background:transparent;padding:0 4px;font:inherit;cursor:pointer; }
+.editor-panel-heading button:hover { border-color:#fff #808080 #808080 #fff; }
+.editor-documents { max-height:28%;min-height:32px;overflow:auto;flex-shrink:0;padding:3px 0; }
+.editor-document { display:block;width:100%;padding:3px 8px;text-align:left;border:0;background:white;color:#000;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:inherit; }
+.editor-document::before { content:'';display:inline-block;width:14px;height:14px;vertical-align:-2px;margin-right:5px;background:var(--icon-file) center/contain no-repeat; }
+.editor-document.selected { background:var(--selection);color:white; }
+.editor-window .editor-tree { width:100%;min-width:0;max-width:none;flex:1;resize:none;border:0; }
+.editor-window .editor-location { font-size:.92em;padding:5px 6px;overflow-wrap:anywhere;min-height:0; }
+.editor-window .editor-tabs { min-height:30px;padding:3px 3px 0;gap:1px; }
+.editor-window .editor-tab { flex-shrink:0;max-width:260px;border:1px solid;border-color:white #808080 #808080 white;position:relative; }
+.editor-window .editor-tab.active { border-bottom-color:white;background:white;box-shadow:inset 0 2px #328333; }
+.editor-window .editor-tab.modified { box-shadow:inset 0 2px #d47a15; }
+.editor-window .editor-tab button[role=tab] { font:inherit;overflow:hidden;text-overflow:ellipsis;max-width:225px;padding:5px 8px; }
+.editor-window .editor-tab button[aria-label^="Close "] { padding:2px 5px;color:#555; }
+.editor-window .editor-tab button[aria-label^="Close "]:hover { background:#e0dddd;color:#000; }
+.editor-window .editor-code { border:0;border-top:1px solid #aaa;min-height:90px; }
+.editor-current-path { border-top:1px solid #aaa;padding:3px 7px;background:var(--face);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex-shrink:0; }
+.editor-window .app-status { font-size:.92em;white-space:normal;line-height:1.4;padding:3px 6px; }
+.editor-window .ace_gutter-cell.piplus-bookmark { background-image:radial-gradient(circle at 7px 50%,#2769bc 0 4px,transparent 5px); }
+.editor-results { flex:0 1 190px;min-height:70px;overflow:auto;border-top:2px groove white;background:white; }
+.editor-results[hidden] { display:none; }
+.editor-results .editor-panel-heading { position:sticky;top:0; }
+.editor-search-result { display:block;width:100%;text-align:left;border:0;background:white;white-space:nowrap;padding:3px 8px;font:inherit; }
+.editor-search-result:hover,.editor-search-result:focus { background:#e9f0fb; }
+.piplus-form { display:flex;flex-direction:column;gap:10px;min-width:0;max-width:580px; }
+.piplus-form label { display:flex;flex-direction:column;gap:4px;margin:4px 0; }
+.piplus-form .piplus-check { flex-direction:row;align-items:center;gap:7px; }
+.piplus-form input:not([type=checkbox]),.piplus-form select { width:100%;min-width:0;font:inherit; }
+.piplus-form fieldset { min-width:0;padding:7px 10px; }
+.piplus-form p { margin:0; }
+.piplus-form-actions { display:flex;justify-content:flex-end;gap:6px; }
+@media(max-width:700px) { .editor-sidebar { width:155px;min-width:105px;max-width:38%; }.editor-window .classic-menubar > button { padding:4px 5px; }.editor-window .editor-tabs { min-height:30px; }.editor-window .app-status { max-height:none; }.piplus-form { width:100%; } }
 .cad-controls { width:270px;padding:8px;font-size:var(--ui-size); }
 .cad-controls fieldset { border:1px groove #fff;padding:8px;margin-bottom:10px; }
 .cad-controls legend { padding:0 4px; }

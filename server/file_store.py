@@ -194,7 +194,7 @@ class FileStore:
         if request.method=='PUT':
             async for chunk in request.content.iter_chunked(65536):
                 body+=chunk
-                if len(body)>limit: raise web.HTTPRequestEntityTooLarge(max_size=limit,actual_size=len(body),text='Code Editor supports up to 1 MB per file.')
+                if len(body)>limit: raise web.HTTPRequestEntityTooLarge(max_size=limit,actual_size=len(body),text='Pi++ supports up to 1 MB per file.')
             try: body.decode('utf-8')
             except UnicodeDecodeError: raise web.HTTPBadRequest(text='The file must use UTF-8.')
             if b'\x00' in body: raise web.HTTPBadRequest(text='Binary files cannot be edited.')
@@ -203,7 +203,7 @@ class FileStore:
             if not self.valid(request): raise web.HTTPUnauthorized()
             row=self.row(conn,uid,key,'live')
             if row['kind']!='file': raise web.HTTPBadRequest(text='Select a text file.')
-            if row['size']>limit: raise web.HTTPBadRequest(text='Code Editor supports up to 1 MB per file.')
+            if row['size']>limit: raise web.HTTPBadRequest(text='Pi++ supports up to 1 MB per file.')
             old=self.blob(uid,row['content_key'] or key)
             contents=old.read_bytes()
             version=hashlib.sha256(contents).hexdigest()

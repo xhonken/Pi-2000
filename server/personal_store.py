@@ -27,7 +27,7 @@ class PersonalStore:
         return web.json_response({'ok':True})
     async def documents(self,request):
         uid=request[FILE_USER]['id'];key=request.match_info.get('key')
-        if key and not re.fullmatch(r'(notes|cad|draft-[a-zA-Z0-9-]{1,80})',key):raise web.HTTPBadRequest()
+        if key and not re.fullmatch(r'(notes|cad|editor-settings|draft-[a-zA-Z0-9-]{1,80})',key):raise web.HTTPBadRequest()
         if request.method=='GET':
             with self.files.db() as db:
                 if not key:
@@ -50,6 +50,6 @@ class PersonalStore:
             if request.headers.get('If-Match','')!=(old['version'] if old else ''):raise web.HTTPConflict(text='The document changed on another page. Reload before continuing.')
             used=self.files.usage(db,uid)
             if used['used']+used['reserved']-(old['size'] if old else 0)+size>used['quota']:raise web.HTTPConflict(text='The draft or note exceeds the storage quota.')
-            if not old and db.execute('SELECT COUNT(*) FROM personal_docs WHERE user_id=?',(uid,)).fetchone()[0]>=102:raise web.HTTPConflict(text='Too many drafts. Remove old drafts first.')
+            if not old and db.execute('SELECT COUNT(*) FROM personal_docs WHERE user_id=?',(uid,)).fetchone()[0]>=103:raise web.HTTPConflict(text='Too many drafts. Remove old drafts first.')
             db.execute('INSERT INTO personal_docs VALUES (?,?,?,?,?,?) ON CONFLICT(user_id,key) DO UPDATE SET data=excluded.data,size=excluded.size,version=excluded.version,modified=excluded.modified',(uid,key,body,size,version,time.time()))
         return web.json_response({'version':version})

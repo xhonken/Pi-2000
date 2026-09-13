@@ -23,7 +23,7 @@ File contains open, create, save and close commands; Edit contains content actio
 | Arrow keys, Home, End, Enter, Escape | Navigate menus |
 | Ctrl+S | Save the active editor file |
 | Ctrl+Shift+S | Save As |
-| Ctrl+F / Ctrl+H | Find / Find and Replace in Code Editor |
+| Ctrl+F / Ctrl+H | Find / Find and Replace in Pi++ |
 
 ## My Files and Recycle Bin
 
@@ -49,9 +49,11 @@ Closing the window preserves the session. End Session stops the browser. Up to t
 
 If server memory is low, starting a new Browser may be refused. Status messages distinguish memory-limit stops, crashes, low disk space and idle timeouts. Use Connection → Reconnect after addressing the cause; saved profiles are retained, but unsaved page state may be lost.
 
-## Code Editor and SFTP
+## Pi++ and SFTP
 
-Open a file from the tree, or use File → New Local File / New Local Folder. Choose a syntax mode, enable word wrap or change the theme. Ctrl+S saves the active file. Save As chooses a local name and folder. Download exports a copy to your computer.
+Pi++ is the former Code Editor, redesigned with a Notepad++-inspired document panel, toolbar and menus. Open a file from the folder panel or File → Open. File → Import from Computer opens UTF-8 files as unsaved tabs. Ctrl+S saves the active file; Save All saves changed documents in order and stops on a conflict or cancelled Save As. Download exports the active text.
+
+Search contains Find/Replace, Find in Open Documents, Go to Line and bookmarks. Language selects syntax highlighting. Encoding converts Unix LF or Windows CR LF line endings. Settings → Preferences saves private appearance, completion and indentation defaults. View controls the sidebar, whitespace, line numbers, folding and zoom; Window selects and closes tabs. See [Pi++](PIPLUS.md) for shortcuts and limits.
 
 Recovery drafts are saved automatically for your account. Reloading restores available drafts and tabs. Explicit saves still control the file contents. If a file changed elsewhere, save a new copy or inspect the other version to avoid overwriting work.
 

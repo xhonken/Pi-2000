@@ -48,6 +48,17 @@ class ToolsTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual((await self.client.delete('/api/sessions/'+sessions[0]['id'],headers=self.headers)).status,404)
         self.assertEqual((await self.client.delete('/api/sessions/'+sessions[0]['id'],headers=alice)).status,200)
         self.assertEqual((await self.client.get('/api/files',headers=alice)).status,401)
+
+    async def test_editor_settings_are_private_and_versioned(self):
+        await self.create_account();alice=await self.login_account()
+        path='/api/documents/editor-settings'
+        r=await self.client.put(path,headers=alice,json={'theme':'monokai','tabSize':2})
+        self.assertEqual(r.status,200);version=(await r.json())['version']
+        self.assertIsNone((await (await self.client.get(path,headers=self.headers)).json())['data'])
+        self.assertEqual((await self.client.put(path,headers=alice,json={'theme':'textmate'})).status,409)
+        self.assertEqual((await self.client.put(path,headers={**alice,'If-Match':version},json={'theme':'textmate'})).status,200)
+        await self.client.delete(path,headers=self.headers)
+        self.assertEqual((await (await self.client.get(path,headers=alice)).json())['data']['theme'],'textmate')
     async def test_sftp_host_trust_transfer_and_overwrite(self):
         remote=app.STATE/'remote';remote.mkdir();(remote/'source.txt').write_bytes(b'from remote')
         server=await asyncssh.create_server(test_server.SSHServer,'127.0.0.1',0,server_host_keys=[self.key],sftp_factory=lambda channel:asyncssh.SFTPServer(channel,chroot=str(remote)))
