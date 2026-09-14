@@ -111,6 +111,33 @@ def run(*args, capture=False, **kwargs):
     return result.stdout.strip() if capture else ''
 
 
+def missing_packages(packages):
+    architecture = run('dpkg', '--print-architecture', capture=True)
+    output = run('dpkg-query', '--show', '--showformat=${Package}\t${Architecture}\t${db:Status-Status}\n', capture=True)
+    installed = set()
+    for line in output.splitlines():
+        fields = line.split('\t')
+        if len(fields) != 3:
+            raise ValueError('Could not read the installed package inventory.')
+        name, arch, status = fields
+        if arch in (architecture, 'all') and status == 'installed':
+            installed.add(name)
+    return [name for name in dict.fromkeys(packages) if name not in installed]
+
+
+def install_system_packages(config, command):
+    packages = list(dict.fromkeys(BASE_PACKAGES + (BROWSER_PACKAGES if config['features']['browser'] else [])))
+    needed = packages if command == 'install' else missing_packages(packages)
+    if needed:
+        print('Installing required system packages: ' + ', '.join(needed), flush=True)
+        run('apt-get', 'update')
+        run('apt-get', 'install', '--yes', '--no-remove', '--no-install-recommends', *needed,
+            env={**os.environ, 'NEEDRESTART_MODE': 'l'})
+        remaining = missing_packages(packages)
+        if remaining:
+            raise ValueError('Required system packages are still missing: ' + ', '.join(remaining))
+
+
 def active(unit):
     return subprocess.run(['systemctl', 'is-active', '--quiet', unit]).returncode == 0
 
@@ -332,9 +359,7 @@ def deploy(config, args):
             if source.exists():
                 shutil.copy2(source, backup / name)
         print('Verified data backup and previous code snapshot:', backup, flush=True)
-    if args.command == 'install':
-        run('apt-get', 'update')
-        run('apt-get', 'install', '--yes', '--no-install-recommends', *(BASE_PACKAGES + (BROWSER_PACKAGES if config['features']['browser'] else [])))
+    install_system_packages(config, args.command)
     ensure_account('win2k-admin', STATE)
     run('install', '-d', '-m', '755', APP, SITE)
     run('install', '-d', '-m', '700', '/var/backups/win2k')

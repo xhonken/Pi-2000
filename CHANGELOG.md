@@ -4,6 +4,8 @@ User-visible changes are recorded here for each numbered release. Development be
 
 ## Unreleased
 
+- Keep CAD-specific Object commands out of Display Studio, and reconcile missing system packages during source updates as well as fresh installation.
+
 - Add Network Tools with private targets, Pi-originated DNS/ping/TCP checks and graphical monitoring; Display Studio with layers, images, round-screen previews and PNG/RGB565/Arduino exports; Archive Manager with safe ZIP extraction and creation; Log Viewer with bounded local/SSH tails, filtering and follow mode.
 - Add Serial Plotter to Arduino Workshop with incremental samples, up to eight curves, scale controls, pause and CSV export. Preserve USB permissions and exclusive-port access.
 

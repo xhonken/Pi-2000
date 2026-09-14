@@ -136,6 +136,8 @@ sudo ./scripts/update.sh --restart-sessions
 
 **Changing the public URL requires a worker restart.** The installer refuses the change without `--restart-sessions` when the worker is running. That flag explicitly ends running terminals and browser sessions. Finish jobs first. With an unchanged origin, normal updates preserve the worker; worker-owned code changes apply on its next restart.
 
+Source updates check installed system packages and install missing declared dependencies before publishing the application. When all required packages are present, this step does not run APT.
+
 If the update fails, retain the printed previous-code snapshot and verified data archives. The installer does not silently revert a migrated database. Correct the reported problem, rerun the update and then doctor. Apt/package and Python-environment changes are not transactionally rolled back. Backups do not replace a full system image when testing system changes.
 
 ### Original installation migration

@@ -79,7 +79,7 @@ function entries(win,name,labels){const rows=win.editorMenu?.(name)||labels.map(
   if(win.type==='search-window')for(const [value,label] of [['all','All Items'],['favorite','Favourites'],['recent','Recent Items']])rows.push({label,checked:win.body.querySelector('.search-filter')?.value===value,run:()=>{const select=win.body.querySelector('.search-filter');select.value=value;select.dispatchEvent(new Event('change'));}});
   if(win.body.querySelector(toolbarSelector))rows.push(null,{label:'Toolbar',checked:!win.element.classList.contains('toolbar-hidden'),run:()=>{win.element.classList.toggle('toolbar-hidden');win.onresize?.();}});rows.push({label:'Maximise / Restore Window',run:()=>win.element.querySelector('[data-control=max]').click()});
  }
- if(name==='Object')rows.push({label:'Outer Shape and Dimensions',run:()=>{const field=win.body.querySelector('[name=outertype]');field?.scrollIntoView({block:'nearest'});field?.focus();}});
+ if(name==='Object'&&win.type==='cad-window')rows.push({label:'Outer Shape and Dimensions',run:()=>{const field=win.body.querySelector('[name=outertype]');field?.scrollIntoView({block:'nearest'});field?.focus();}});
  if(name==='Edit'&&win.type==='calculator-window')rows.push(null,{label:'Copy Result',run:()=>navigator.clipboard.writeText(win.body.querySelector('output').textContent)});
  return rows;
 }

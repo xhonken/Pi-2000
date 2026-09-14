@@ -21,6 +21,39 @@ class SetupTests(unittest.TestCase):
             p.write_text(setup.config_text(config))
             return setup.read_config(p)
 
+    def test_package_inventory_uses_native_installed_packages(self):
+        inventory = 'ready\tarm64\tinstalled\nportable\tall\tinstalled\nforeign\tamd64\tinstalled\npartial\tarm64\tunpacked\nremoved\tarm64\tconfig-files'
+        with patch.object(setup, 'run', side_effect=['arm64', inventory]):
+            self.assertEqual(setup.missing_packages(['ready','portable','foreign','partial','removed','new','new']), ['foreign','partial','removed','new'])
+
+    def test_update_installs_only_missing_dependencies_and_verifies(self):
+        with patch.object(setup, 'missing_packages', side_effect=[['iputils-ping'], []]) as inventory, patch.object(setup, 'run') as run:
+            setup.install_system_packages(self.parse(browser=False), 'update')
+            self.assertEqual(run.call_args_list[0].args, ('apt-get','update'))
+            self.assertEqual(run.call_args_list[1].args, ('apt-get','install','--yes','--no-remove','--no-install-recommends','iputils-ping'))
+            self.assertEqual(inventory.call_count, 2)
+            self.assertNotIn('chromium', inventory.call_args.args[0])
+        with patch.object(setup, 'missing_packages', return_value=[]), patch.object(setup, 'run') as run:
+            setup.install_system_packages(self.parse(), 'update')
+            run.assert_not_called()
+
+    def test_package_failures_stop_update(self):
+        with patch.object(setup, 'missing_packages', side_effect=[['iputils-ping'], ['iputils-ping']]), patch.object(setup, 'run'):
+            with self.assertRaisesRegex(ValueError, 'still missing'):
+                setup.install_system_packages(self.parse(), 'update')
+        with patch.object(setup, 'missing_packages', side_effect=subprocess.CalledProcessError(1, ['dpkg-query'])), patch.object(setup, 'run') as run:
+            with self.assertRaises(subprocess.CalledProcessError):
+                setup.install_system_packages(self.parse(), 'update')
+            run.assert_not_called()
+
+    def test_new_install_keeps_declared_feature_packages(self):
+        with patch.object(setup, 'missing_packages', return_value=[]), patch.object(setup, 'run') as run:
+            setup.install_system_packages(self.parse(), 'install')
+            args = run.call_args_list[1].args
+            self.assertIn('iputils-ping', args)
+            self.assertIn('chromium', args)
+            self.assertEqual(args.count('bubblewrap'), 1)
+
     def test_one_origin_drives_caddy_and_both_services(self):
         config = self.parse('https://PI.EXAMPLE.COM/', 'public', '192.0.2.25')
         rendered = setup.render(config)

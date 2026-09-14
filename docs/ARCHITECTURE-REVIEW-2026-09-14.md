@@ -2,6 +2,10 @@
 
 Review baseline: source commit `a12c7ad77a6b`. This document records findings and a proposed migration plan. It does not implement the proposed refactoring.
 
+## Follow-up fixes
+
+The subsequent bug-fix change scopes the CAD-only Object command to Dimension Drawing (R4) and checks/installs missing declared system packages during source updates (R2). The broader architectural proposals remain pending.
+
 ## Assessment
 
 Pi-2000 should evolve as a modular application while retaining its Python/aiohttp backend, plain JavaScript frontend, classic desktop and existing process boundaries. The useful next step is to make dependencies and contracts explicit. Splitting files into folders alone would leave the current coupling intact and would break parts of deployment.
