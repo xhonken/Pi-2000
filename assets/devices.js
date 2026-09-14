@@ -116,12 +116,19 @@ function saveWorkspace() {
  workspaceQueue=workspaceQueue.catch(()=>{}).then(()=>account===user ? api('/workspace','PUT',data) : undefined);
  return workspaceQueue;
 }
+function keepWindowVisible(element) {
+ if(element.hidden||element.classList.contains('maximized'))return;
+ const rect=element.getBoundingClientRect(),shellHeight=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--shell-height'))||30;
+ const left=Math.max(0,Math.min(rect.left,innerWidth-rect.width)),top=Math.max(0,Math.min(rect.top,innerHeight-shellHeight-rect.height));
+ if(Math.abs(left-rect.left)>.5)element.style.left=left+'px';
+ if(Math.abs(top-rect.top)>.5)element.style.top=top+'px';
+}
 function applyLayout(win, layout) {
  if (!win || !layout) return;
  const el=win.element;
  el.style.width=`${Math.max(280,Math.min(layout.width,innerWidth-8))}px`; el.style.height=`${Math.max(200,Math.min(layout.height,innerHeight-60))}px`;
  el.style.left=`${Math.max(0,Math.min(layout.left,innerWidth-100))}px`; el.style.top=`${Math.max(0,Math.min(layout.top,innerHeight-100))}px`;
- el.classList.toggle('maximized',layout.maximized); el.hidden=layout.hidden; win.task.classList.toggle('active',!layout.hidden); win.onresize?.();
+ el.classList.toggle('maximized',layout.maximized); el.hidden=layout.hidden; win.task.classList.toggle('active',!layout.hidden); keepWindowVisible(el); win.onresize?.();
 }
 async function restoreWorkspace() {
  const user=account; restoring=true;
@@ -202,7 +209,7 @@ function makeWindow(title, type) {
  $('#session').append(element);
  const task = document.createElement('button'); task.className='win2k-button task-entry';task.textContent=title;task.title=title;$('#tasks').append(task);
  const win = {element, type, beforeclose:null, body:element.querySelector('.app-body'), status:element.querySelector('.app-status'), task, onclose:null, onresize:null,
- focus(){ element.hidden=false;element.style.zIndex=++highest;windows.forEach(w=>{w.element.classList.toggle('inactive',w!==win);w.task.classList.toggle('active',w===win);});win.onresize?.(); scheduleWorkspace(); },
+ focus(){ element.hidden=false;keepWindowVisible(element);element.style.zIndex=++highest;windows.forEach(w=>{w.element.classList.toggle('inactive',w!==win);w.task.classList.toggle('active',w===win);});win.onresize?.(); scheduleWorkspace(); },
  async close(detach=false){if(!detach && win.beforeclose && !(await win.beforeclose()))return;observer.disconnect();win.uiCleanup?.();win.onclose?.();element.remove();task.remove();windows.delete(win);scheduleWorkspace();},
  title(value){element.querySelector('strong').textContent=value;task.textContent=value;task.title=value;element.setAttribute('aria-label',value);}
  };
@@ -215,7 +222,7 @@ function makeWindow(title, type) {
  element.querySelector('[data-control=close]').onclick=()=>win.close();
  const header=element.querySelector('header');header.ondblclick=e=>{if(!e.target.closest('button'))maximize();};
  header.onpointerdown=e=>{if(e.target.closest('button')||element.classList.contains('maximized'))return;e.preventDefault();const rect=element.getBoundingClientRect(),dx=e.clientX-rect.left,dy=e.clientY-rect.top;header.setPointerCapture(e.pointerId);header.onpointermove=m=>{element.style.left=`${Math.max(0,Math.min(innerWidth-element.offsetWidth,m.clientX-dx))}px`;element.style.top=`${Math.max(0,Math.min(innerHeight-80,m.clientY-dy))}px`;};header.onpointerup=()=>{header.onpointermove=null;scheduleWorkspace();};};
- const observer=new ResizeObserver(()=>{win.onresize?.();scheduleWorkspace();});observer.observe(win.body);
+ const observer=new ResizeObserver(()=>{keepWindowVisible(element);win.onresize?.();scheduleWorkspace();});observer.observe(win.body);
  window.Win2kUI?.attach(win);return win;
 }
 async function refresh(){const user=account;const result=await api('/items');if(account!==user)return;items=result.items;if(folder&&!items.some(x=>x.id===folder))folder=null;renderExplorer();}
@@ -341,7 +348,7 @@ window.Win2kApps.register({type:'browser-window',singleton:true,restore:async()=
 window.Win2kApps.register({type:'users-window',singleton:true,allowed:user=>user?.role==='admin',restore:async()=>{await shell.actions.users();return usersWindow;}});
 window.Win2kApps.register({type:'terminal-window',restore:(entry,{remaining})=>{const term=remaining.get(entry.terminal);if(!term){shell.notify('A previous terminal ended or was lost when the session service restarted.');return null;}remaining.delete(entry.terminal);return startTerminal(term.profile,null,term.id);}});
 window.Win2kApps.register({type:'status-window',singleton:true,restore:async()=>{await shell.actions.status();return statusWindow;}});
-window.addEventListener('resize',()=>windows.forEach(win=>{if(!win.element.classList.contains('maximized')){const r=win.element.getBoundingClientRect();win.element.style.left=`${Math.max(0,Math.min(r.left,innerWidth-win.element.offsetWidth))}px`;win.element.style.top=`${Math.max(0,Math.min(r.top,innerHeight-100))}px`;}win.onresize?.();}));
+window.addEventListener('resize',()=>windows.forEach(win=>{keepWindowVisible(win.element);win.onresize?.();}));
 window.Win2kDesktop=Object.freeze({api,makeWindow,getUser:()=>account,scheduleWorkspace,listWindows:()=>[...windows],openConnection:profile=>connectDialog(profile),resumeTerminal:term=>startTerminal(term.profile,null,term.id)});
 api('/session').then(unlocked).catch(()=>{});
 })();

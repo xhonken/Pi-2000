@@ -3,7 +3,7 @@ import os,subprocess,time,urllib.request,shutil
 from pathlib import Path
 root=Path(__file__).resolve().parents[1]
 import sys
-for test in (sys.argv[1:] or ['file_batch_ui.cjs','tools_ui.cjs','sketch_ui.cjs','editor_sftp_ui.cjs','classic_ui.cjs','classic_accessibility.cjs','taskmanager_ui.cjs','english_ui.cjs']):
+for test in (sys.argv[1:] or ['file_batch_ui.cjs','tools_ui.cjs','sketch_ui.cjs','editor_sftp_ui.cjs','classic_ui.cjs','window_bounds_ui.cjs','classic_accessibility.cjs','taskmanager_ui.cjs','english_ui.cjs']):
     env={**os.environ,'NODE_PATH':'/tmp/win2k-browser-check/node_modules'}
     if test in ('editor_sftp_ui.cjs','utilities_ui.cjs'):
         remote=Path('/tmp/win2k-editor-sftp-fixture')

@@ -1,0 +1,14 @@
+const {chromium}=require('playwright'),assert=require('node:assert/strict');
+(async()=>{const browser=await chromium.launch({executablePath:'/usr/bin/chromium',headless:true});try{
+ const page=await browser.newPage({viewport:{width:1280,height:720}}),errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.goto('http://127.0.0.1:18765');await page.locator('#login-form [name=password]').fill('browser-test-password');await page.locator('#login-form [type=submit]').click();await page.locator('#session').waitFor({state:'visible'});
+ const types=['cad','display','network','archive','editor'];
+ const bounds=()=>page.evaluate(()=>{const bottom=innerHeight-(parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--shell-height'))||30);return [...document.querySelectorAll('.app-window:not([hidden])')].map(el=>{const r=el.getBoundingClientRect();return {type:el.className,okay:r.left>=-.5&&r.top>=-.5&&r.right<=innerWidth+.5&&r.bottom<=bottom+.5,left:r.left,top:r.top,right:r.right,bottom:r.bottom};});});
+ for(const action of ['cad','displaystudio','network','archive','editor']){await page.evaluate(action=>Win2kShell.actions[action](),action);}
+ await page.locator('.cad-controls:not([inert])').waitFor();await page.waitForTimeout(200);assert.ok((await bounds()).every(r=>r.okay),JSON.stringify(await bounds()));
+ await page.evaluate(async()=>{const windows=Win2kDesktop.listWindows().map(w=>({type:w.type,left:1200,top:650,width:1180,height:650,hidden:false,maximized:false,terminal:null,folder:null}));const response=await fetch('/api/workspace',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({windows})});if(!response.ok)throw Error(await response.text());});
+ await page.reload();for(const type of types)await page.locator('.'+type+'-window').waitFor();await page.waitForTimeout(200);assert.ok((await bounds()).every(r=>r.okay),JSON.stringify(await bounds()));
+ await page.setViewportSize({width:650,height:800});await page.evaluate(()=>document.documentElement.style.setProperty('--personal-font-size','18px'));await page.waitForTimeout(200);assert.ok((await bounds()).every(r=>r.okay),JSON.stringify(await bounds()));
+ await page.evaluate(()=>Win2kDesktop.listWindows().find(w=>w.type==='cad-window').focus());const cad=page.locator('.cad-window');await cad.locator('[data-control=max]').click();await cad.locator('[data-control=max]').click();await page.waitForTimeout(100);assert.ok((await bounds()).every(r=>r.okay));await cad.locator('[data-control=close]').click();await cad.waitFor({state:'detached'});assert.deepEqual(errors,[]);
+ console.log('PASS large-window placement, cascaded apps, offscreen saved layout restoration, narrow 18px resize, maximize/restore and reachable Close.');
+ }finally{await browser.close();}})().catch(e=>{console.error(e);process.exit(1)});

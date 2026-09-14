@@ -4,7 +4,7 @@ Review baseline: source commit `a12c7ad77a6b`. This document records findings an
 
 ## Follow-up fixes
 
-The subsequent bug-fix change scopes the CAD-only Object command to Dimension Drawing (R4) and checks/installs missing declared system packages during source updates (R2). The broader architectural proposals remain pending.
+The subsequent bug-fix change scopes the CAD-only Object command to Dimension Drawing (R4) and checks/installs missing declared system packages during source updates (R2). A further installed UI check found large windows could place their title-bar controls outside the viewport; shared placement now constrains opened/restored/resized windows to the desktop. The broader architectural proposals remain pending.
 
 ## Assessment
 
