@@ -61,3 +61,7 @@ Validated on the development Pi 5: real CLI 1.5.1, ESP32 core 3.3.11, ArduinoJso
 This is a sketch development application, not full Arduino IDE parity: no hardware debugger, OTA flashing, custom platform URLs, ZIP/Git library import, nested sketch directories or serial plotter. It targets USB serial upload for ESP32 and AVR development boards. Other upload transports, devices that change USB identities during flashing and board-specific bootloader behaviour need separate validation.
 
 References: [Arduino CLI integration](https://docs.arduino.cc/arduino-cli/integration-options/), [Arduino CLI releases](https://github.com/arduino/arduino-cli/releases), [Espressif Arduino installation](https://docs.espressif.com/projects/arduino-esp32/en/latest/installing.html).
+
+## Serial graphs and display assets
+
+Tools → Serial Plotter graphs numeric serial lines from the selected port and exports CSV. Display Studio creates PNG, RGB565 and Arduino header assets for display sketches. See [utility tools](UTILITY-TOOLS.md) for formats, sample code and limits.

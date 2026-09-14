@@ -4,6 +4,9 @@ User-visible changes are recorded here for each numbered release. Development be
 
 ## Unreleased
 
+- Add Network Tools with private targets, Pi-originated DNS/ping/TCP checks and graphical monitoring; Display Studio with layers, images, round-screen previews and PNG/RGB565/Arduino exports; Archive Manager with safe ZIP extraction and creation; Log Viewer with bounded local/SSH tails, filtering and follow mode.
+- Add Serial Plotter to Arduino Workshop with incremental samples, up to eight curves, scale controls, pause and CSV export. Preserve USB permissions and exclusive-port access.
+
 - Replace the Code Editor presentation with Pi++: an original icon, compact toolbar, document panel, accessible tabs, expanded menus, Save All, graphical open/import, search across open documents, bookmarks, language selection, LF/CR LF conversion and private editor preferences. Preserve existing private files, SFTP connections, conflict checks and recovery drafts.
 
 - Prepare missing Arduino catalogs automatically when opening package managers or searching libraries, and allow catalog downloads inside their sandbox. Show search progress and readable failures.

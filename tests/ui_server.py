@@ -48,4 +48,26 @@ if os.environ.get('WIN2K_TEST_SFTP_DIR'):
         yield
         server.close();await server.wait_closed()
     application.cleanup_ctx.append(sftp_fixture)
+if os.environ.get('WIN2K_TEST_SERIAL_PTY'):
+    import asyncio, pty, math
+    async def serial_fixture(application):
+        master,slave=pty.openpty();path=os.ttyname(slave);os.set_blocking(master,False)
+        worker=next(r.handler.__self__ for r in application.router.routes() if r.resource.canonical=='/api/development/arduino')
+        worker.port=lambda value:path
+        worker.ports=lambda:[{'path':path,'label':'Serial test fixture','accessible':True}]
+        async def samples():
+            n=0
+            while True:
+                if any(m['state']=='open' for m in worker.monitors.values()):
+                    value=f'temperature:{23+math.sin(n/8)*3:.2f} humidity:{48+math.cos(n/13)*9:.2f}\n'.encode()
+                    os.write(master,value[:15]);await asyncio.sleep(.02);os.write(master,value[15:]);n+=1
+                await asyncio.sleep(.08)
+        task=asyncio.create_task(samples())
+        try:yield
+        finally:
+            task.cancel()
+            try:await task
+            except asyncio.CancelledError:pass
+            os.close(master);os.close(slave)
+    application.cleanup_ctx.append(serial_fixture)
 web.run_app(application,host='127.0.0.1',port=18765,access_log=None)

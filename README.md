@@ -21,7 +21,7 @@ Read the [Alpha 4 release notes](docs/releases/0.1.0-alpha.4.md) for migration s
 
 ## Development after Alpha 4
 
-The current source checkout adds **Arduino Workshop**: private sketches, graphical board and library managers, ESP32/AVR compilation, Pi-connected USB upload and Serial Monitor. See [setup, ownership and limits](docs/ARDUINO-WORKSHOP.md). This is not part of the published Alpha 4 package.
+The current source checkout adds **Arduino Workshop**: private sketches, graphical board and library managers, ESP32/AVR compilation, Pi-connected USB upload and Serial Monitor. See [setup, ownership and limits](docs/ARDUINO-WORKSHOP.md). The checkout also includes Network Tools, Display Studio, Archive Manager, Log Viewer and Serial Plotter; see [workflows and limits](docs/UTILITY-TOOLS.md). These additions are not part of the published Alpha 4 package.
 
 ## System accounts
 
@@ -41,12 +41,16 @@ Existing web accounts migrate on their next successful login. A pre-existing Lin
 | Pi++ | Notepad++-inspired editor with a compact toolbar, document panel, accessible tabs, Save All, search across open documents, bookmarks, language selection, LF/CR LF conversion, private preferences, recovery drafts, SFTP and syntax diagnostics. |
 | MariaDB Manager | Embedded phpMyAdmin, private local/external connections, SQL, table data and structure, users/privileges, search and import/export within the database account's permissions. Saved SQL Workspace preserves native drafts, direct row editing and the guided JOIN builder. |
 | Git Projects | Private sandboxed repositories, HTTPS clone/remotes, file editing, status/diffs, staging, commits, branches/history and fetch/pull/push controls. |
-| Arduino Workshop (after Alpha 4) | Private multi-file sketches, board options, library search/version installation and includes, Verify, USB Upload and Serial Monitor. |
+| Arduino Workshop (after Alpha 4) | Private multi-file sketches, board options, library search/version installation and includes, Verify, USB Upload, Serial Monitor and Serial Plotter. |
 | API Tester | Private encrypted saved requests, methods, headers, Basic/Bearer authentication, request bodies, response inspection and timing. |
 | Dimension Drawing | Dimensioned 2D shapes, rotated cutouts, frame and hole patterns, approximate clearance/collision checks, private saved drawings, SVG and CSV export. |
 | Calculator | Arithmetic, parentheses, powers, scientific functions, memory buttons and session history. Trigonometry uses degrees. |
 | Notes and Tasks | Private notes and checklists with automatic saving. |
 | Search and Favourites | Search private files, folders, applications and connections; save favourites and revisit recent items. |
+| Network Tools (after Alpha 4) | Private targets, DNS, ping, TCP port checks, monitoring and saved results from the Pi. |
+| Display Studio (after Alpha 4) | Graphical display compositions, layers, imported images, round-screen presets and PNG/RGB565/Arduino header export. |
+| Archive Manager (after Alpha 4) | Inspect, select and safely extract private ZIP files; create downloadable archives. |
+| Log Viewer (after Alpha 4) | Bounded private/SSH text logs with level/text filters, follow mode and export. |
 | SFTP – File Transfer | Transfer saved files between My Files and an SSH device; create remote folders. |
 | My Activities | Reopen terminals, inspect transfers, switch windows and end your own sessions. |
 | Task Manager | Applications, processes, CPU/RAM graphs, per-core graphs, uptime, swap, private storage quota and server disk space. |

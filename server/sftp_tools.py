@@ -7,6 +7,7 @@ import secrets
 import stat
 import asyncssh
 from aiohttp import web
+from utility_tools import LOG_BYTES, log_slice
 
 class SFTPTools:
     def __init__(self,app):self.app=app;self.busy=0;self.editor_lock=asyncio.Lock()
@@ -24,7 +25,7 @@ class SFTPTools:
         def ensure():
             a.require_current(request)
             if request.transport is None or request.transport.is_closing():raise web.HTTPBadRequest(text='The transfer was cancelled.')
-        if action not in ('list','mkdir','send','receive','read','write'):raise web.HTTPBadRequest()
+        if action not in ('list','mkdir','send','receive','read','write','tail'):raise web.HTTPBadRequest()
         password=data.get('password','');path=data.get('path','.')
         if not isinstance(password,str) or len(password)>1024 or not isinstance(path,str) or len(path)>2048 or '\x00' in path:raise web.HTTPBadRequest()
         with a.db() as db:
@@ -52,6 +53,14 @@ class SFTPTools:
                     known=db.execute('SELECT key FROM hostkeys WHERE user_id=? AND host=? AND port=?',(uid,profile['host'],profile['port'])).fetchone()[0]
                     if known!=check.presented.export_public_key().decode().strip():raise web.HTTPConflict(text='The host key changed during the connection.')
             async with asyncio.timeout(120),connection.start_sftp_client() as sftp:
+                if action=='tail':
+                    target=await sftp.realpath(path);attrs=await sftp.lstat(target)
+                    if attrs.size is None or not stat.S_ISREG(attrs.permissions or 0):raise web.HTTPBadRequest(text='Select a regular text log file.')
+                    start=max(0,attrs.size-LOG_BYTES)
+                    async with sftp.open(target,'rb') as remote:
+                        await remote.seek(start);body=await remote.read(LOG_BYTES)
+                    ensure()
+                    return web.json_response({'path':target,'name':posixpath.basename(target),**log_slice(body,start,attrs.size)})
                 if action=='list':
                     entries=[]
                     async for row in sftp.scandir(path):

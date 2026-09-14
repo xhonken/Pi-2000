@@ -63,6 +63,12 @@ SFTP – File Transfer sends a saved local file to a remote directory or downloa
 
 Use **Code → Check Syntax** for Python, JavaScript or JSON. Click a reported problem to reach its line. This checks syntax without running your program; it does not check types or runtime behavior.
 
+## Network, display, archives, logs and serial graphs
+
+**Network Tools** saves private host/port targets and runs DNS, ping and TCP checks from the Pi. **Display Studio** draws layered screen designs with a round GC9A01A preset and exports PNG, RGB565 or Arduino headers. **Archive Manager** creates ZIP downloads and safely extracts selected ZIP entries into a new private folder. **Log Viewer** filters and follows private files or logs accessible through your SSH profiles.
+
+**Arduino Workshop → Tools → Serial Plotter** graphs up to eight numeric channels from the selected Pi USB serial device, with pause, scale controls and CSV export. USB access requires an administrator. See [workflows, sample firmware and limits](UTILITY-TOOLS.md).
+
 ## Everyday tools
 
 Notes and Tasks saves your notes and checklist automatically. Search and Favourites searches your own files, folders, apps and SSH connections. Use stars for favourites or filter to recent items. My Activities lists terminal sessions, browser controls, transfers and open windows.

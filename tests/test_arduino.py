@@ -144,7 +144,15 @@ class ArduinoTests(unittest.IsolatedAsyncioTestCase):
         try:
             await self.call('monitor_open',port=path,baud=115200)
             os.write(master,b'ESP32 fixture hello\n');await asyncio.sleep(.1)
-            self.assertIn('ESP32 fixture hello',(await self.call('monitor_poll'))['output'])
+            first=await self.call('monitor_poll');self.assertIn('ESP32 fixture hello',first['output'])
+            self.assertEqual((await self.call('monitor_poll',cursor=first['offset'],stream=first['stream']))['chunk'],'')
+            os.write(master,b'temperature:23.');await asyncio.sleep(.1)
+            part=await self.call('monitor_poll',cursor=first['offset'],stream=first['stream']);self.assertEqual(part['chunk'],'temperature:23.')
+            os.write(master,b'5 humidity:48\n');await asyncio.sleep(.1)
+            last=await self.call('monitor_poll',cursor=part['offset'],stream=part['stream']);self.assertEqual(last['chunk'],'5 humidity:48\n')
+            mon=self.worker.monitors[1];mon['output']='1\n'*32768;mon['offset']+=65536
+            overflow=await self.call('monitor_poll',cursor=0,stream=mon['stream']);self.assertTrue(overflow['dropped'])
+            await self.call('monitor_poll',cursor=-1,status=400)
             await self.call('monitor_send',text='ping',ending='\r\n')
             self.assertEqual(os.read(master,100),b'ping\r\n')
             with app.db() as db:db.execute("UPDATE users SET role='admin' WHERE id=2")

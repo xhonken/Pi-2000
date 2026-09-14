@@ -367,7 +367,9 @@ class ArduinoWorkshop:
                 if not user or user['role'] != 'admin' or time.monotonic() - mon['seen'] > 60:
                     raise RuntimeError('Serial Monitor disconnected because its login or viewer ended.')
                 chunk = mon['serial'].read(min(8192, mon['serial'].in_waiting or 1))
-                mon['output'] = (mon['output'] + decoder.decode(chunk))[-65536:]
+                text = decoder.decode(chunk)
+                mon['output'] = (mon['output'] + text)[-65536:]
+                mon['offset'] += len(text)
                 await asyncio.sleep(.05)
         except asyncio.CancelledError: pass
         except Exception as exc:
@@ -469,7 +471,7 @@ class ArduinoWorkshop:
             try:
                 device = serial.Serial(port, baudrate=baud, timeout=0, write_timeout=.25, exclusive=True)
             except serial.SerialException as exc: raise web.HTTPConflict(text='Cannot open the USB port: '+str(exc))
-            mon = {'port': port, 'serial': device, 'state': 'open', 'output': '', 'error': '', 'seen': time.monotonic()}
+            mon = {'port': port, 'serial': device, 'state': 'open', 'output': '', 'error': '', 'seen': time.monotonic(), 'offset': 0, 'stream': secrets.token_hex(8)}
             self.monitors[uid] = mon; mon['task'] = asyncio.create_task(self.monitor_loop(uid, mon, token))
             return web.json_response({'ok': True})
         if action == 'monitor_close':
@@ -485,8 +487,14 @@ class ArduinoWorkshop:
                 if mon['state'] != 'open': raise web.HTTPConflict(text='Connect Serial Monitor first.')
                 try: mon['serial'].write((content+ending).encode())
                 except Exception as exc: raise web.HTTPConflict(text='Serial write failed: '+str(exc))
-            if action == 'monitor_clear': mon['output'] = ''
-            return web.json_response({k: mon[k] for k in ('state', 'output', 'error', 'port')})
+            if action == 'monitor_clear': mon['output'] = ''; mon['offset'] = 0; mon['stream'] = secrets.token_hex(8)
+            cursor = data.get('cursor',0)
+            if type(cursor) is not int or cursor < 0: raise web.HTTPBadRequest(text='Invalid serial cursor.')
+            start = mon['offset'] - len(mon['output'])
+            # Stream IDs distinguish reconnect/clear from ordinary buffer truncation.
+            if data.get('stream') != mon['stream']: cursor = 0
+            return web.json_response({**{k: mon[k] for k in ('state', 'output', 'error', 'port', 'offset', 'stream')},
+                'dropped': cursor < start, 'chunk': mon['output'][max(0,cursor-start):]})
         raise web.HTTPBadRequest(text='Unknown Arduino command.')
 
     async def lifecycle(self, app):

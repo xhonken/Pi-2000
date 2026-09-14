@@ -5,10 +5,11 @@ root=Path(__file__).resolve().parents[1]
 import sys
 for test in (sys.argv[1:] or ['file_batch_ui.cjs','tools_ui.cjs','sketch_ui.cjs','editor_sftp_ui.cjs','classic_ui.cjs','classic_accessibility.cjs','taskmanager_ui.cjs','english_ui.cjs']):
     env={**os.environ,'NODE_PATH':'/tmp/win2k-browser-check/node_modules'}
-    if test=='editor_sftp_ui.cjs':
+    if test in ('editor_sftp_ui.cjs','utilities_ui.cjs'):
         remote=Path('/tmp/win2k-editor-sftp-fixture')
         if remote.exists():shutil.rmtree(remote)
         env['WIN2K_TEST_SFTP_DIR']=str(remote)
+    if test=='utilities_ui.cjs':env['WIN2K_TEST_SERIAL_PTY']='1'
     with open('/tmp/win2k-classic-fixture.log','w') as log:
         server=subprocess.Popen([str(root/'.venv/bin/python'),'tests/ui_server.py'],cwd=root,env=env,stdout=log,stderr=log)
         try:
