@@ -1,5 +1,9 @@
 # Pi-2000Web User Guide
 
+Alpha 5 includes Pi++, Arduino Workshop and the network, display, archive, log
+and serial plotting tools below. See the [release notes](releases/0.1.0-alpha.5.md)
+for the test installer and remaining hardware checks.
+
 ## Getting started
 
 Log in with your Pi-2000Web account. The desktop, files, connections and browser profile belong to that account. Start → Programs groups your applications by purpose. Start → Settings contains personal settings and, if permitted, User Management.

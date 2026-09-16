@@ -5,8 +5,14 @@ The package includes pinned Python runtimes for the desktop and Browser. APT
 installs native dependencies; no pip download or compilation occurs on the Pi.
 32-bit Raspberry Pi OS and Debian 12 are not supported by this build.
 
+Download the `.deb` and `SHA256SUMS` from the
+[Alpha 5 test release](https://github.com/xhonken/Pi-2000/releases/tag/v0.1.0-alpha.5)
+into the same directory. GitHub changes `~` to `.` in the asset filename; the
+internal Debian version remains `0.1.0~alpha.5-1`.
+
 ```sh
-sudo apt install ./pi2000web_0.1.0~alpha.4-12_arm64.deb
+sha256sum --check SHA256SUMS
+sudo apt install ./pi2000web_0.1.0.alpha.5-1_arm64.deb
 sudo pi2000web doctor
 ```
 
@@ -75,9 +81,23 @@ python3 scripts/build-deb.py
 The output `.deb` and SHA-256 file are under `build/packages/`. Local project notes,
 credentials, runtime databases and machine configuration are never package inputs.
 
-## Final Alpha 4 package status
+## Alpha 5 test package status
 
-The release package `0.1.0~alpha.4-12` includes PAM authentication and per-user Linux identities. It is built from the Alpha 4 source release and inspected with package metadata and checksum checks. **Fresh installation of this package on a reimaged Pi 4 is still pending.** PAM/terminal behavior was tested on the existing Pi 5 installation; the earlier physical Pi 4 results below predate that account migration.
+The release package `0.1.0~alpha.5-1` includes Arduino Workshop and its isolated
+CLI worker, Pi++, the graphical utility tools and the latest desktop fixes,
+alongside PAM authentication and per-user Linux identities. It is built from the
+Alpha 5 source release and checked for content, build identity and checksums.
+**Fresh installation of this package on a reimaged Pi 4 is still pending.** The
+applications were tested on the existing Pi 5 installation; the earlier physical
+Pi 4 results below predate the final PAM account migration and these additions.
+Use a dedicated test system for fresh-install acceptance. This package does not
+convert or overwrite an existing source-managed installation.
+
+Before an upgrade, finish Arduino jobs and disconnect Serial Monitor/Plotter as
+well as other live work. A preserved active Arduino worker must be restarted
+with `sudo systemctl restart pi2000-arduino` once idle to activate its new code.
+Board packages and libraries are downloaded separately for each web account
+through Arduino Workshop; they are not preinstalled by the `.deb`.
 
 ## Earlier package validation on physical hardware
 

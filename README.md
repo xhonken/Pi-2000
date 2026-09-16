@@ -1,6 +1,6 @@
 # Pi-2000Web
 
-**Alpha software.** A personal web desktop for Raspberry Pi 5, inspired by the look and interaction patterns of Windows 2000. It provides private user accounts, persistent SSH terminals, a streamed Chromium browser, file storage, phpMyAdmin-based MariaDB administration, private Git projects, an API tester, a code editor and everyday desktop tools.
+**Alpha software.** A personal web desktop for Raspberry Pi 5, inspired by the look and interaction patterns of Windows 2000. It provides private user accounts, persistent SSH terminals, a streamed Chromium browser, file storage, phpMyAdmin-based MariaDB administration, private Git projects, an API tester, Pi++, Arduino/ESP32 development and everyday desktop tools.
 
 Pi-2000Web uses **Python** (aiohttp, AsyncSSH and SQLite) on the server and **plain JavaScript, HTML and CSS** in the browser. The desktop uses SQLite and does not require React. MariaDB Manager embeds distribution-packaged phpMyAdmin through a dedicated PHP-FPM service and connects to a local or external MariaDB server using your database account. The desktop interface and project documentation are in English.
 
@@ -8,20 +8,21 @@ This is an independent project, not a Microsoft product and not a Windows emulat
 
 ## Versions
 
-Current numbered release: **[0.1.0-alpha.4](https://github.com/xhonken/Pi-2000/releases/tag/v0.1.0-alpha.4)**. See [all releases](https://github.com/xhonken/Pi-2000/releases), the [changelog](CHANGELOG.md), and [versioning instructions](docs/VERSIONING.md) for previous versions, release downloads and installing a specific version. Run `./scripts/version.sh` to identify your source checkout.
+Current numbered release: **[0.1.0-alpha.5](https://github.com/xhonken/Pi-2000/releases/tag/v0.1.0-alpha.5)**. See [all releases](https://github.com/xhonken/Pi-2000/releases), the [changelog](CHANGELOG.md), and [versioning instructions](docs/VERSIONING.md) for previous versions, release downloads and installing a specific version. Run `./scripts/version.sh` to identify your source checkout.
 
-## New in Alpha 4
+## New in Alpha 5
 
-- **System passwords and private Linux identities:** PAM authentication, individual homes, a protected installation creator, account activation and confirmed deletion. Administrators get their own Local Terminal without automatic sudo.
-- **Debian installer:** an arm64 package with terminal setup dialogs, a chosen creator username/password and a private initial MariaDB connection.
-- **More reliable desktop work:** native upload picker fixes, unsaved-work protection, installed build information in About and broader phpMyAdmin deprecation handling.
-- **Small-Pi Browser improvements:** a measured 2 GB memory profile, smaller initial display and more time for cold SD-card startup.
+- **Arduino Workshop:** private multi-file sketches, graphical board/library managers, compilation, Pi-connected USB upload, Serial Monitor and Serial Plotter. Fresh library searches prepare missing catalogs automatically.
+- **Pi++:** a Notepad++-inspired editor with document navigation, Save All, search across open documents, bookmarks, language/line-ending choices and private preferences.
+- **Graphical tools:** Network Tools, Display Studio, Archive Manager and Log Viewer, with private account resources and classic menus.
+- **Desktop fixes:** app-specific menus, visible title-bar controls for large/restored windows and missing system-dependency checks during source updates.
+- **Test installer:** a new arm64 `.deb` containing these changes and the existing PAM accounts, private Linux homes and administrator Local Terminal.
 
-Read the [Alpha 4 release notes](docs/releases/0.1.0-alpha.4.md) for migration steps and validation. The PAM implementation has been tested on the existing Pi 5 installation; **fresh installation of the final package on a reimaged Pi 4 remains pending**.
-
-## Development after Alpha 4
-
-The current source checkout adds **Arduino Workshop**: private sketches, graphical board and library managers, ESP32/AVR compilation, Pi-connected USB upload and Serial Monitor. See [setup, ownership and limits](docs/ARDUINO-WORKSHOP.md). The checkout also includes Network Tools, Display Studio, Archive Manager, Log Viewer and Serial Plotter; see [workflows and limits](docs/UTILITY-TOOLS.md). These additions are not part of the published Alpha 4 package.
+Read the [Alpha 5 release notes](docs/releases/0.1.0-alpha.5.md),
+[Arduino Workshop guide](docs/ARDUINO-WORKSHOP.md), [Pi++ guide](docs/PIPLUS.md)
+and [utility tools guide](docs/UTILITY-TOOLS.md). **Fresh installation of this
+release on a reimaged Pi 4 and physical ESP32/sensor/display acceptance remain
+pending.** This is a prerelease intended for testing.
 
 ## System accounts
 
@@ -41,16 +42,16 @@ Existing web accounts migrate on their next successful login. A pre-existing Lin
 | Pi++ | Notepad++-inspired editor with a compact toolbar, document panel, accessible tabs, Save All, search across open documents, bookmarks, language selection, LF/CR LF conversion, private preferences, recovery drafts, SFTP and syntax diagnostics. |
 | MariaDB Manager | Embedded phpMyAdmin, private local/external connections, SQL, table data and structure, users/privileges, search and import/export within the database account's permissions. Saved SQL Workspace preserves native drafts, direct row editing and the guided JOIN builder. |
 | Git Projects | Private sandboxed repositories, HTTPS clone/remotes, file editing, status/diffs, staging, commits, branches/history and fetch/pull/push controls. |
-| Arduino Workshop (after Alpha 4) | Private multi-file sketches, board options, library search/version installation and includes, Verify, USB Upload, Serial Monitor and Serial Plotter. |
+| Arduino Workshop | Private multi-file sketches, board options, library search/version installation and includes, Verify, USB Upload, Serial Monitor and Serial Plotter. |
 | API Tester | Private encrypted saved requests, methods, headers, Basic/Bearer authentication, request bodies, response inspection and timing. |
 | Dimension Drawing | Dimensioned 2D shapes, rotated cutouts, frame and hole patterns, approximate clearance/collision checks, private saved drawings, SVG and CSV export. |
 | Calculator | Arithmetic, parentheses, powers, scientific functions, memory buttons and session history. Trigonometry uses degrees. |
 | Notes and Tasks | Private notes and checklists with automatic saving. |
 | Search and Favourites | Search private files, folders, applications and connections; save favourites and revisit recent items. |
-| Network Tools (after Alpha 4) | Private targets, DNS, ping, TCP port checks, monitoring and saved results from the Pi. |
-| Display Studio (after Alpha 4) | Graphical display compositions, layers, imported images, round-screen presets and PNG/RGB565/Arduino header export. |
-| Archive Manager (after Alpha 4) | Inspect, select and safely extract private ZIP files; create downloadable archives. |
-| Log Viewer (after Alpha 4) | Bounded private/SSH text logs with level/text filters, follow mode and export. |
+| Network Tools | Private targets, DNS, ping, TCP port checks, monitoring and saved results from the Pi. |
+| Display Studio | Graphical display compositions, layers, imported images, round-screen presets and PNG/RGB565/Arduino header export. |
+| Archive Manager | Inspect, select and safely extract private ZIP files; create downloadable archives. |
+| Log Viewer | Bounded private/SSH text logs with level/text filters, follow mode and export. |
 | SFTP – File Transfer | Transfer saved files between My Files and an SSH device; create remote folders. |
 | My Activities | Reopen terminals, inspect transfers, switch windows and end your own sessions. |
 | Task Manager | Applications, processes, CPU/RAM graphs, per-core graphs, uptime, swap, private storage quota and server disk space. |
@@ -85,11 +86,11 @@ Use My Activities or Task Manager to end a terminal explicitly. A terminal windo
 
 ## Install on Raspberry Pi
 
-The Alpha 4 release includes an arm64 `.deb` and SHA-256 checksum. It contains
+The Alpha 5 test release includes an arm64 `.deb` and SHA-256 checksum. It contains
 prebuilt Python runtimes and uses APT for system dependencies. See the
 **[Debian package guide](docs/DEB-INSTALLATION.md)** for Raspberry Pi OS 64-bit
 (Debian 13), first login and upgrades. Earlier package candidates passed physical
-Pi 4 installation and lifecycle tests. The final PAM-enabled package is built and
+Pi 4 installation and lifecycle tests. This release is built and
 inspected, but its fresh-install acceptance test on a reimaged Pi 4 is pending.
 
 The source installation below remains available for Raspberry Pi 5:

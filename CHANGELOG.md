@@ -4,6 +4,10 @@ User-visible changes are recorded here for each numbered release. Development be
 
 ## Unreleased
 
+No changes yet.
+
+## 0.1.0-alpha.5 — 2026-09-16
+
 - Keep large application windows and their title-bar controls within the desktop when opened, restored or resized.
 
 - Keep CAD-specific Object commands out of Display Studio, and reconcile missing system packages during source updates as well as fresh installation.
@@ -20,6 +24,14 @@ User-visible changes are recorded here for each numbered release. Development be
 - Add Arduino Workshop with private multi-file sketches, classic application menus, board options, graphical board/library version managers, header insertion, import/export, Verify, Pi-connected USB Upload and Serial Monitor.
 - Run Arduino CLI in a separate memory-limited service and filesystem sandbox, restrict USB access to administrators and preserve the latest job log across service restarts. Include the tools and service in source and Debian installation paths.
 - Verify real ESP32 compilation with ArduinoJson; physical USB flashing remains a hardware acceptance check.
+
+### Test installation and remaining checks
+
+Includes a new arm64 test package for Raspberry Pi OS 64-bit / Debian 13 (Trixie).
+Back up and finish live work before upgrading; use the installation method already
+in use on that host. Physical ESP32 flashing, sensor/display hardware and fresh
+installation of this release on a reimaged Pi 4 remain pending. See the
+[Alpha 5 release notes](docs/releases/0.1.0-alpha.5.md).
 
 ## 0.1.0-alpha.4 — 2026-09-12
 

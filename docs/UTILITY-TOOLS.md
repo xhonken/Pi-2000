@@ -1,6 +1,6 @@
 # Network, display, archive, log and serial tools
 
-These tools are available in the source checkout after Alpha 4. They are not included in the published Alpha 4 package. Install the current source with the normal updater; finish Arduino jobs and disconnect Serial Monitor before restarting the Arduino worker to activate worker changes.
+These tools are included in Alpha 5 source and the arm64 test package. Follow the update procedure for your installation method; finish Arduino jobs and disconnect Serial Monitor before restarting the Arduino worker to activate worker changes.
 
 All controls use the classic desktop window, toolbar and menus. Network targets and project/files belong to the signed-in account. A web administrator does not gain access to another user's files or SSH profiles.
 
