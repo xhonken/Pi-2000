@@ -31,7 +31,7 @@ STATE = Path('/var/lib/win2k-admin')
 APP = Path('/opt/win2k-admin')
 SITE = Path('/srv/win2k')
 CA = Path('/var/lib/caddy/.local/share/caddy/pki/authorities/local/root.crt')
-BASE_PACKAGES = ['python3-venv', 'caddy', 'sqlite3', 'git', 'ca-certificates', 'sudo', 'iproute2', 'iputils-ping', 'nodejs', 'bubblewrap', 'openssh-server', 'libpam0g', 'libpam-modules']
+BASE_PACKAGES = ['python3-venv', 'caddy', 'sqlite3', 'git', 'ca-certificates', 'sudo', 'iproute2', 'iputils-ping', 'age', 'nodejs', 'bubblewrap', 'openssh-server', 'libpam0g', 'libpam-modules']
 BROWSER_PACKAGES = ['chromium', 'xvfb', 'pulseaudio', 'pulseaudio-utils', 'bubblewrap',
                     'openbox', 'xauth', 'x11-xserver-utils', 'dbus-x11', 'gnome-keyring',
                     'fonts-liberation', 'nodejs', 'npm', 'build-essential',
@@ -301,9 +301,13 @@ def verify(config, compare=True):
     if b'Pi-2000Web' not in page or b'Content-Security-Policy' not in page:
         raise ValueError('HTTPS did not return the Pi-2000Web desktop.')
     if compare:
-        for source in (ROOT / 'server').glob('*.py'):
-            if source.read_bytes() != (APP / source.name).read_bytes():
-                raise ValueError('Installed API source differs from checkout: ' + source.name)
+        sys.path.insert(0, str(ROOT / 'server'))
+        from deployment import selected, verify as verify_component
+        verify_component(APP, 'server')
+        verify_component(Path('/srv/win2k'), 'web')
+        for name, source in selected(ROOT, 'server').items():
+            if source.read_bytes() != (APP / name).read_bytes():
+                raise ValueError('Installed API source differs from checkout: ' + name)
         for source in (ROOT / 'server/phpmyadmin').glob('*'):
             if source.read_bytes() != (APP / 'phpmyadmin' / source.name).read_bytes():
                 raise ValueError('Installed phpMyAdmin integration differs: ' + source.name)

@@ -197,13 +197,12 @@ sudo journalctl -u caddy -n 100 --no-pager
 
 Doctor verifies HTTPS with the correct certificate authority, served assets against your checkout, anonymous API rejection, SQLite integrity, active services and private Caddy administration. Use the checkout corresponding to the installed version when comparing assets. It reports failure instead of ignoring certificate errors.
 
-To restore a data backup:
-
-```sh
-sudo ./scripts/restore-backup.sh /var/backups/win2k/ARCHIVE.tar
-```
-
-Restore validates a staged copy before replacing data. It stops services, ends running jobs and requires users to log in again. Data archives do not change your installed network TOML. Local backups are on the same disk: arrange off-device copies for disk-failure protection.
+Recovery is an explicit OS-administrator maintenance operation. Generate and
+review a recovery plan before applying it; services and user jobs must already be
+stopped. The helper does not end running jobs automatically. See the full
+[recovery runbook](RECOVERY.md), including managed identities, rollback boundaries
+and encrypted off-device exports. The old single-argument restore command is
+replaced by `plan` and `apply` subcommands.
 
 ## Known Alpha limits
 

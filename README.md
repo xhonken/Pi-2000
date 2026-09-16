@@ -24,6 +24,14 @@ and [utility tools guide](docs/UTILITY-TOOLS.md). **Fresh installation of this
 release on a reimaged Pi 4 and physical ESP32/sensor/display acceptance remain
 pending.** This is a prerelease intended for testing.
 
+## Development maintenance work
+
+Post-Alpha 5 development adds guarded recovery and encrypted backup export,
+installed/running worker build status, idle activation and module-aware deployment.
+See [maintenance](docs/MAINTENANCE.md), [recovery](docs/RECOVERY.md) and the
+[one-command test setup](docs/TESTING.md). These changes are not in the published
+Alpha 5 package; hardware and fresh-install acceptance remain separate checks.
+
 ## System accounts
 
 New Debian installations ask for a protected creator username and password. Every managed web user receives a private Linux identity and home. Linux-PAM authenticates passwords; the web database retains roles and private resource ownership. Administrators receive Local Terminal automatically, without automatic sudo. Ordinary users keep web access and remote SSH connections.

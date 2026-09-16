@@ -1,7 +1,7 @@
 const {chromium}=require('playwright'),assert=require('node:assert/strict');
-(async()=>{const browser=await chromium.launch({executablePath:'/usr/bin/chromium',headless:true});try{
+(async()=>{const browser=await chromium.launch({executablePath:process.env.WIN2K_TEST_CHROMIUM||'/usr/bin/chromium',headless:true});try{
  const page=await browser.newPage({viewport:{width:1280,height:720}}),errors=[];page.on('pageerror',e=>errors.push(e.message));
- await page.goto('http://127.0.0.1:18765');await page.locator('#login-form [name=password]').fill('browser-test-password');await page.locator('#login-form [type=submit]').click();await page.locator('#session').waitFor({state:'visible'});
+ await page.goto((process.env.WIN2K_TEST_URL||'http://127.0.0.1:18765'));await page.locator('#login-form [name=password]').fill('browser-test-password');await page.locator('#login-form [type=submit]').click();await page.locator('#session').waitFor({state:'visible'});
  const types=['cad','display','network','archive','editor'];
  const bounds=()=>page.evaluate(()=>{const bottom=innerHeight-(parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--shell-height'))||30);return [...document.querySelectorAll('.app-window:not([hidden])')].map(el=>{const r=el.getBoundingClientRect();return {type:el.className,okay:r.left>=-.5&&r.top>=-.5&&r.right<=innerWidth+.5&&r.bottom<=bottom+.5,left:r.left,top:r.top,right:r.right,bottom:r.bottom};});});
  for(const action of ['cad','displaystudio','network','archive','editor']){await page.evaluate(action=>Win2kShell.actions[action](),action);}

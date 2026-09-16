@@ -1,22 +1,49 @@
-"""Run each browser regression against its own disposable loopback database."""
-import os,subprocess,time,urllib.request,shutil
+"""Run each UI regression with its own socket, state, SSH fixture and artifacts."""
+import json
+import os
 from pathlib import Path
-root=Path(__file__).resolve().parents[1]
+import socket
+import subprocess
 import sys
-for test in (sys.argv[1:] or ['file_batch_ui.cjs','tools_ui.cjs','sketch_ui.cjs','editor_sftp_ui.cjs','classic_ui.cjs','window_bounds_ui.cjs','classic_accessibility.cjs','taskmanager_ui.cjs','english_ui.cjs']):
-    env={**os.environ,'NODE_PATH':'/tmp/win2k-browser-check/node_modules'}
-    if test in ('editor_sftp_ui.cjs','utilities_ui.cjs'):
-        remote=Path('/tmp/win2k-editor-sftp-fixture')
-        if remote.exists():shutil.rmtree(remote)
-        env['WIN2K_TEST_SFTP_DIR']=str(remote)
-    if test=='utilities_ui.cjs':env['WIN2K_TEST_SERIAL_PTY']='1'
-    with open('/tmp/win2k-classic-fixture.log','w') as log:
-        server=subprocess.Popen([str(root/'.venv/bin/python'),'tests/ui_server.py'],cwd=root,env=env,stdout=log,stderr=log)
-        try:
-            for attempt in range(100):
-                if server.poll() is not None:raise RuntimeError('Fixture exited')
-                try:urllib.request.urlopen('http://127.0.0.1:18765',timeout=1);break
-                except OSError:time.sleep(.1)
-            result=subprocess.run(['node','tests/'+test],cwd=root,env=env)
-            if result.returncode:raise SystemExit(result.returncode)
-        finally:server.terminate();server.wait(timeout=10)
+import tempfile
+import time
+import urllib.request
+
+root = Path(__file__).resolve().parents[1]
+tests = sys.argv[1:] or json.loads((root/'tests/suites.json').read_text())['ui']
+if not (root/'node_modules/playwright/package.json').exists():
+    raise SystemExit('Run npm ci in the project first (see docs/TESTING.md).')
+results = root/'.test-results'
+results.mkdir(exist_ok=True)
+run_dir = Path(tempfile.mkdtemp(prefix='ui-', dir=results))
+print('UI artifacts:', run_dir, flush=True)
+for test in tests:
+    if Path(test).name != test or not (root/'tests'/test).is_file():
+        raise SystemExit('Unknown UI test: '+test)
+    artifacts = run_dir/Path(test).stem
+    artifacts.mkdir()
+    with tempfile.TemporaryDirectory(prefix='pi2000-ui-') as work, socket.socket() as listener:
+        listener.bind(('127.0.0.1',0));listener.listen(128)
+        origin='http://127.0.0.1:'+str(listener.getsockname()[1])
+        env={**os.environ,'NODE_PATH':str(root/'node_modules'),
+             'WIN2K_TEST_URL':origin,'WIN2K_TEST_LISTEN_FD':str(listener.fileno()),
+             'WIN2K_TEST_ARTIFACTS':str(artifacts)}
+        if test in ('editor_sftp_ui.cjs','utilities_ui.cjs'):
+            env['WIN2K_TEST_SFTP_DIR']=str(Path(work)/'sftp')
+        if test=='utilities_ui.cjs':env['WIN2K_TEST_SERIAL_PTY']='1'
+        with (artifacts/'server.log').open('w') as log:
+            server=subprocess.Popen([sys.executable,'tests/ui_server.py'],cwd=root,env=env,
+                                    pass_fds=(listener.fileno(),),stdout=log,stderr=log)
+            try:
+                for attempt in range(150):
+                    if server.poll() is not None:raise RuntimeError('Fixture exited; see '+str(artifacts/'server.log'))
+                    try:
+                        urllib.request.urlopen(origin,timeout=1).close()
+                        break
+                    except OSError:time.sleep(.1)
+                else:raise RuntimeError('Fixture startup timed out')
+                subprocess.run(['node','tests/'+test],cwd=root,env=env,check=True,timeout=300)
+            finally:
+                server.terminate()
+                try:server.wait(timeout=15)
+                except subprocess.TimeoutExpired:server.kill();server.wait()

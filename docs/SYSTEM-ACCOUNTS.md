@@ -54,3 +54,8 @@ Local root-only archives include the binding registry, generation key, managed p
 Automated unit tests cover creator identity across restart, SQL protections, UTF-8 password limits and UID mismatch rejection. `tests/system_accounts_live.py` is an **explicit root-only** integration test using disposable high-ID accounts: five distinct UIDs/homes, PAM login and password changes, ordinary-user denial, admin SSH terminal, host SSH denial, no sudo, disable/reset/re-enable, creator protections and confirmed deletion. It cleans up only its generated fixture accounts. Fresh installation on a reinstalled test Pi remains a separate acceptance step.
 
 Implementation references: [Linux-PAM application interface](https://github.com/linux-pam/linux-pam/blob/master/libpam/include/security/pam_appl.h) and [OpenSSH server configuration](https://man.openbsd.org/sshd_config).
+
+Development after Alpha 5 adds guarded recovery plans, UID/GID and home-mode
+restoration, private rollback journals and encrypted export. Follow the
+[recovery runbook](RECOVERY.md); linked OS accounts remain outside automated
+account restoration.

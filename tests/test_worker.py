@@ -3,6 +3,7 @@ import json
 import os
 from pathlib import Path
 import socket
+import shutil
 import sys
 import tempfile
 import unittest
@@ -26,13 +27,15 @@ class WorkerTests(unittest.IsolatedAsyncioTestCase):
     async def asyncSetUp(self):
         self.temp=tempfile.TemporaryDirectory()
         self.state=Path(self.temp.name)
+        self.code=self.state/'code';shutil.copytree(SERVER,self.code,ignore=shutil.ignore_patterns('__pycache__'))
+        (self.code/'build-info.json').write_text(json.dumps({'version':'fixture','revision':'old','build':'old','modified':False}))
         self.socket=str(self.state/'worker.sock')
         with socket.socket() as sock:
             sock.bind(('127.0.0.1',0));self.port=sock.getsockname()[1]
         self.origin=f'http://127.0.0.1:{self.port}'
         self.env={**os.environ,'WIN2K_STATE':str(self.state),'WIN2K_ORIGIN':self.origin,'WIN2K_CGROUP_LIMITS':'0'}
         self.log=(self.state/'process.log').open('wb')
-        self.worker=await asyncio.create_subprocess_exec(sys.executable,str(SERVER/'app.py'),env={**self.env,'WIN2K_SESSION_WORKER':'1','WIN2K_LISTEN_SOCKET':self.socket},stdout=self.log,stderr=self.log)
+        self.worker=await asyncio.create_subprocess_exec(sys.executable,str(self.code/'app.py'),env={**self.env,'WIN2K_SESSION_WORKER':'1','WIN2K_LISTEN_SOCKET':self.socket},stdout=self.log,stderr=self.log)
         for _ in range(100):
             if Path(self.socket).exists():break
             await asyncio.sleep(.05)
@@ -48,7 +51,7 @@ class WorkerTests(unittest.IsolatedAsyncioTestCase):
         self.ssh=await asyncssh.create_server(SSHServer,'127.0.0.1',0,server_host_keys=[key],process_factory=echo,line_editor=False)
 
     async def start_front(self):
-        self.front=await asyncio.create_subprocess_exec(sys.executable,str(SERVER/'app.py'),env={**self.env,'WIN2K_WORKER_SOCKET':self.socket,'WIN2K_PORT':str(self.port),'WIN2K_SESSION_WORKER':'0'},stdout=self.log,stderr=self.log)
+        self.front=await asyncio.create_subprocess_exec(sys.executable,str(self.code/'app.py'),env={**self.env,'WIN2K_WORKER_SOCKET':self.socket,'WIN2K_PORT':str(self.port),'WIN2K_SESSION_WORKER':'0'},stdout=self.log,stderr=self.log)
         for _ in range(100):
             try:
                 reader,writer=await asyncio.open_connection('127.0.0.1',self.port);writer.close();await writer.wait_closed();return
@@ -78,10 +81,21 @@ class WorkerTests(unittest.IsolatedAsyncioTestCase):
         while True:
             msg=await asyncio.wait_for(ws.receive(),5)
             if msg.type==WSMsgType.BINARY and b'BACKGROUND-JOB-STARTED' in msg.data:break
+        from session_proxy import control
+        lease='fixture-maintenance-lease'
+        drained=await control(self.socket,'drain',lease=lease)
+        self.assertTrue(drained['runtime']['busy'])
+        blocked=await self.http.post(self.origin+'/api/browser/start',headers=self.headers,json={})
+        self.assertEqual(blocked.status,503)
+        (self.code/'build-info.json').write_text(json.dumps({'version':'fixture','revision':'new','build':'new','modified':False}))
         # Simulate an API crash, not a graceful log-out or session-worker restart.
         self.front.kill();await self.front.wait();await ws.close()
         await asyncio.sleep(.3)
         await self.start_front()
+        version=await (await self.http.get(self.origin+'/api/version',headers=self.headers)).json()
+        self.assertEqual(version['components']['sessions']['loaded']['revision'],'old')
+        self.assertTrue(version['components']['sessions']['pending_update'])
+        self.assertEqual(version['components']['web']['loaded']['revision'],'new')
         response=await self.http.get(self.origin+'/api/session',headers=self.headers)
         self.assertEqual(response.status,200)
         response=await self.http.get(self.origin+'/api/terminals',headers=self.headers)
@@ -98,6 +112,7 @@ class WorkerTests(unittest.IsolatedAsyncioTestCase):
         await ws.send_bytes(b'still-running\n')
         msg=await asyncio.wait_for(ws.receive(),5)
         self.assertIn(b'ECHO:still-running',msg.data)
+        await control(self.socket,'resume',lease=lease)
         await self.http.post(self.origin+'/api/logout',headers=self.headers,json={})
         while not ws.closed:
             msg=await asyncio.wait_for(ws.receive(),5)

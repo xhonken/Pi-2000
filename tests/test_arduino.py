@@ -203,4 +203,15 @@ class ArduinoTests(unittest.IsolatedAsyncioTestCase):
         out,err=await proc.communicate();self.assertEqual(proc.returncode,0,err);self.assertEqual((root/'probe').read_text(),'private')
         self.assertFalse((self.worker.root/'2'/'probe').exists())
 
+
+    async def test_drain_rejects_new_work_but_preserves_project_reads(self):
+        project=await self.project()
+        self.worker.process_state.control({'action':'drain','lease':'fixture-lease-123456'})
+        await self.call('status')
+        self.assertEqual((await self.call('open',project=project['id']))['id'],project['id'])
+        await self.call('create',status=503,name='Blocked')
+        self.assertEqual(self.worker.process_state.inflight,0)
+        self.worker.process_state.control({'action':'resume','lease':'fixture-lease-123456'})
+        await self.call('create',name='Allowed')
+
 if __name__=='__main__':unittest.main()

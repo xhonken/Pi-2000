@@ -16,7 +16,7 @@ state=tempfile.TemporaryDirectory(prefix='win2k-ui-test-')
 app.STATE=Path(state.name)
 # Never read the real host Local Terminal configuration from a disposable fixture.
 app.local_terminal.CONFIG=app.STATE/'local-terminal.json'
-app.ORIGIN='http://127.0.0.1:18765'
+app.ORIGIN=os.environ.get('WIN2K_TEST_URL','http://127.0.0.1:18765')
 application=app.make_app()
 if os.environ.get('WIN2K_TEST_ARDUINO_RUNTIME'):
     (app.STATE/'arduino-runtime'/'1').symlink_to(Path(os.environ['WIN2K_TEST_ARDUINO_RUNTIME']).resolve(), target_is_directory=True)
@@ -70,4 +70,8 @@ if os.environ.get('WIN2K_TEST_SERIAL_PTY'):
             except asyncio.CancelledError:pass
             os.close(master);os.close(slave)
     application.cleanup_ctx.append(serial_fixture)
-web.run_app(application,host='127.0.0.1',port=18765,access_log=None)
+if os.environ.get('WIN2K_TEST_LISTEN_FD'):
+    import socket
+    web.run_app(application,sock=socket.socket(fileno=int(os.environ['WIN2K_TEST_LISTEN_FD'])),access_log=None)
+else:
+    web.run_app(application,host='127.0.0.1',port=18765,access_log=None)

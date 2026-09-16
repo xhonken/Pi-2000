@@ -151,3 +151,13 @@ active database transactions are not restored after disconnect or restart.
 The terminal installer asks for a protected creator username and password and creates a private **Local MariaDB** connection for that creator. Its initial SQL password matches the chosen password; subsequent Linux/web password changes do not change MariaDB credentials. Existing accounts migrate to PAM at their next successful login. Explicitly linked Linux accounts use the existing OS password; change it locally with `passwd`.
 
 See [system account operations](SYSTEM-ACCOUNTS.md) and the [Debian installation guide](DEB-INSTALLATION.md).
+
+### Pending service updates
+
+In development builds after Alpha 5, About and System Status also show the build
+actually loaded by each service. **Update pending** means the installed files are
+newer than the running worker. **Waiting for existing jobs** means maintenance is
+blocking new work while existing jobs finish. **Unknown** means an older worker
+cannot report its loaded version. Finish work before asking the OS administrator
+to activate the update; web administrator access does not grant service restart
+permission. See [maintenance](MAINTENANCE.md) and [recovery](RECOVERY.md).

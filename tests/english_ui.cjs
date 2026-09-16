@@ -1,16 +1,16 @@
 const {chromium}=require('playwright');
 const assert=require('node:assert/strict');
 (async()=>{
- const browser=await chromium.launch({executablePath:'/usr/bin/chromium',headless:true});
+ const browser=await chromium.launch({executablePath:process.env.WIN2K_TEST_CHROMIUM||'/usr/bin/chromium',headless:true});
  try{
   const page=await browser.newPage({viewport:{width:1440,height:1000}}),errors=[];
   page.on('pageerror',e=>errors.push(e.message));
-  await page.goto('http://127.0.0.1:18765');
+  await page.goto((process.env.WIN2K_TEST_URL||'http://127.0.0.1:18765'));
   assert.equal(await page.locator('html').getAttribute('lang'),'en');
   assert.equal(await page.title(),'Pi-2000Web – Desktop');
   assert.match(await page.locator('.login-wordmark').innerText(),/Pi-2000\s*Web/);
   assert.doesNotMatch(await page.locator('#logon').innerText(),/Microsoft|Professional/);
-  await page.screenshot({path:'/tmp/pi2000-english-login.png'});
+  await page.screenshot({path:require('node:path').join(process.env.WIN2K_TEST_ARTIFACTS||'/tmp','pi2000-english-login.png')});
   await page.locator('#login-form [name=password]').fill('browser-test-password');
   await page.locator('#login-form [type=submit]').click();
   await page.locator('#session').waitFor({state:'visible'});
@@ -24,7 +24,7 @@ const assert=require('node:assert/strict');
   await page.locator('#start-menu summary').filter({hasText:'Programs'}).first().hover();
   await page.locator('#programs summary').filter({hasText:'System Tools'}).hover();
   await check(page.locator('#start-menu'));
-  await page.screenshot({path:'/tmp/pi2000-english-start.png'});
+  await page.screenshot({path:require('node:path').join(process.env.WIN2K_TEST_ARTIFACTS||'/tmp','pi2000-english-start.png')});
   await page.keyboard.press('Escape');await page.keyboard.press('Escape');await page.keyboard.press('Escape');
   for(const [action,type] of [['files','files'],['trash','trash'],['devices','explorer'],['notes','notes'],['preferences','preferences'],['sftp','sftp'],['calculator','calculator'],['cad','cad'],['editor','editor'],['users','users'],['taskmanager','taskmanager']]){
    await page.evaluate(action=>Win2kShell.actions[action](),action);

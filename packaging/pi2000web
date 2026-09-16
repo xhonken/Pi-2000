@@ -1,2 +1,10 @@
 #!/bin/sh
+if [ "${1:-}" = workers ]; then
+    shift
+    exec /opt/win2k-admin/venv/bin/python /opt/win2k-admin/maintenance.py "$@"
+fi
+if [ "${1:-}" = recovery ]; then
+    shift
+    exec /opt/win2k-admin/venv/bin/python /opt/win2k-admin/recovery.py "$@"
+fi
 exec /usr/bin/python3 /usr/lib/pi2000web/package_setup.py "$@"

@@ -3,11 +3,11 @@ const {chromium}=require('playwright');
 const assert=require('node:assert/strict');
 const fs=require('node:fs/promises');
 (async()=>{
- const browser=await chromium.launch({executablePath:'/usr/bin/chromium',headless:true});
+ const browser=await chromium.launch({executablePath:process.env.WIN2K_TEST_CHROMIUM||'/usr/bin/chromium',headless:true});
  try{
   const page=await browser.newPage({viewport:{width:1400,height:950}}),errors=[];
   page.on('pageerror',error=>errors.push(error.message));
-  await page.goto('http://127.0.0.1:18765');
+  await page.goto((process.env.WIN2K_TEST_URL||'http://127.0.0.1:18765'));
   await page.locator('#login-form [name=password]').fill('browser-test-password');
   await page.locator('#login-form [type=submit]').click();await page.locator('#session').waitFor({state:'visible'});
   await page.locator('#desktop').click({button:'right',position:{x:1250,y:30}});
@@ -52,7 +52,7 @@ const fs=require('node:fs/promises');
   await page.locator('#desktop [data-action=trash]').click();page.once('dialog',dialog=>dialog.accept());await deleted.getByRole('button',{name:'Delete Permanently…'}).click();await deleted.waitFor({state:'detached'});
   await page.waitForTimeout(300);await page.reload();
   await page.locator('.files-window').filter({has:page.locator('.win2k-titlebar strong').filter({hasText:'My Files / File'})}).getByRole('row').filter({hasText:'Test med å.txt'}).waitFor();
-  assert.deepEqual(errors,[]);await page.screenshot({path:process.env.WIN2K_UI_SCREENSHOT||'/tmp/win2k-files-ui.png'});
+  assert.deepEqual(errors,[]);await page.screenshot({path:process.env.WIN2K_UI_SCREENSHOT||require('node:path').join(process.env.WIN2K_TEST_ARTIFACTS||'/tmp','win2k-files-ui.png')});
   // Exercise the quota dialog as a promoted administrator, using disposable accounts.
   await page.evaluate(async()=>{
    async function api(path,method,body){const response=await fetch('/api'+path,{method,headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});if(!response.ok)throw new Error(await response.text());return response.json();}

@@ -48,7 +48,7 @@ def main():
  # This account is disposable; previous UI runs intentionally persist windows.
  # Clear only its window layout so a maximized app cannot cover the desktop.
  api('/workspace',{'windows':[]},method='PUT')
- env={**os.environ,'PI_TEST_ORIGIN':origin,'PI_TEST_USERNAME':a.user,'PI_TEST_PASSWORD':secret,'NODE_PATH':'/tmp/win2k-browser-check/node_modules'}
+ env={**os.environ,'PI_TEST_ORIGIN':origin,'PI_TEST_USERNAME':a.user,'PI_TEST_PASSWORD':secret,'NODE_PATH':str(Path(__file__).resolve().parents[1]/'node_modules')}
  try:
   subprocess.run(['node','tests/upload_picker_ui.cjs'],cwd=ROOT,env=env,check=True)
  finally:

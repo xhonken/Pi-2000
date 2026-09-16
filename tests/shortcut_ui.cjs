@@ -1,13 +1,13 @@
 const {chromium}=require('playwright');
 const assert=require('node:assert/strict');
 (async()=>{
- const browser=await chromium.launch({executablePath:'/usr/bin/chromium',headless:true});
+ const browser=await chromium.launch({executablePath:process.env.WIN2K_TEST_CHROMIUM||'/usr/bin/chromium',headless:true});
  try{
   const page=await browser.newPage({viewport:{width:1400,height:950}}),errors=[],opened=[];
   page.on('pageerror',e=>errors.push(e.message));
   await page.route('**/api/browser/start',route=>{opened.push(route.request().postDataJSON());return route.fulfill({json:{url:'/browser-test-frame'}});});
   await page.route('**/browser-test-frame',route=>route.fulfill({body:'Browser test frame',contentType:'text/html'}));
-  await page.goto('http://127.0.0.1:18765');
+  await page.goto((process.env.WIN2K_TEST_URL||'http://127.0.0.1:18765'));
   await page.locator('#login-form [name=password]').fill('browser-test-password');
   await page.locator('#login-form [type=submit]').click();await page.locator('#session').waitFor({state:'visible'});
   await page.evaluate(()=>Win2kShell.actions.add());

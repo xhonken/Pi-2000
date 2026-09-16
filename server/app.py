@@ -1,5 +1,6 @@
 import asyncio
 import build_info
+from runtime_health import RuntimeIdentity, compare as compare_runtime
 from resource_limits import BROWSER_MEMORY_MAX
 from contextlib import contextmanager
 import hashlib
@@ -741,6 +742,9 @@ async def terminal(request):
                     return ws
             await attach_terminal(ws, existing, token)
             return ws
+        if RUNTIME.draining:
+            await ws.send_json({'type': 'error', 'message': 'The session service is waiting for an update. Reconnecting existing sessions remains available.'})
+            return ws
         if sum(t.user_id == user_id for t in TERMINALS.values()) >= 8:
             await ws.send_json({'type': 'error', 'message': 'Maximum eight terminals per account. Close a terminal first.'})
             return ws
@@ -818,6 +822,17 @@ async def terminal(request):
 
 
 async def browser_start(request):
+    # Existing Browser connections remain usable while new processes are drained.
+    existing = BROWSERS.sessions.get(request[USER]['id'])
+    if existing and existing['process'].returncode is None:
+        RUNTIME.inflight += 1
+        try: return await browser_start_impl(request)
+        finally: RUNTIME.inflight -= 1
+    with RUNTIME.operation():
+        return await browser_start_impl(request)
+
+
+async def browser_start_impl(request):
     data = await read_json(request) if request.can_read_body else {}
     url = data.get('url') if isinstance(data, dict) else None
     if url is not None:
@@ -825,6 +840,9 @@ async def browser_start(request):
         if not valid_browser_url(url):
             return error('Enter an HTTP or HTTPS address (maximum 4096 characters).', 400)
     try:
+        existing = BROWSERS.sessions.get(request[USER]['id'])
+        if RUNTIME.draining and not (existing and existing['process'].returncode is None):
+            RUNTIME.admit()
         await BROWSERS.start(request[USER]['id'])
         if hasattr(BROWSERS,'sessions') and request[USER]['id'] in BROWSERS.sessions:
             BROWSERS.sessions[request[USER]['id']].setdefault('account_version',request[USER]['version'])
@@ -915,8 +933,17 @@ async def browser_proxy(request):
         return error('The browser connection was lost. Select Reconnect in the browser window.', 502)
 
 
+def session_health():
+    return RUNTIME.report({'terminals': sum(t.state in ('starting','running') for t in TERMINALS.values()),
+                           'connections': sum(len(s) for s in SOCKETS.values()),
+                           'browsers': sum(b['process'].returncode is None for b in BROWSERS.sessions.values()) if BROWSERS else 0})
+
+
 async def worker_control(request):
     data = await read_json(request)
+    if data['action'] in ('drain', 'resume', 'status'):
+        RUNTIME.control(data)
+        return web.json_response({**runtime_data(), 'runtime': session_health()})
     if data['action'] == 'token':
         await close_token_sockets(data['token'])
     elif data['action'] in ('user', 'remove'):
@@ -929,8 +956,6 @@ async def worker_control(request):
     elif data['action'] in ('freeze', 'thaw'):
         if data['action'] == 'freeze': await BROWSERS.freeze()
         else: await BROWSERS.thaw()
-    elif data['action'] == 'status':
-        return web.json_response(runtime_data())
     else:
         return error('Unknown control action')
     return web.json_response({'ok': True})
@@ -957,8 +982,27 @@ async def runtime_status(request):
     return web.json_response(runtime_data(None if is_owner(request[USER]) else request[USER]['id']))
 
 
+async def component_health():
+    installed = build_info.installed()
+    result = {'web': compare_runtime(RUNTIME.report(), installed)}
+    async def worker(name, socket):
+        if not socket:
+            return name, compare_runtime(RUNTIME.report(), installed)
+        try:
+            data = await asyncio.wait_for(session_proxy.control(socket, 'status'), 3)
+            return name, compare_runtime(data.get('runtime'), installed)
+        except (ClientError, OSError, asyncio.TimeoutError, ValueError):
+            return name, {'state': 'unavailable', 'message': 'Service is unavailable.'}
+    result.update(await asyncio.gather(worker('sessions', WORKER_SOCKET), worker('arduino', arduino_workshop.SOCKET)))
+    return result
+
+
 async def version_info(request):
-    return web.json_response(build_info.installed(), headers={'Cache-Control': 'no-store'})
+    components = await component_health()
+    if not is_owner(request[USER]):
+        for component in components.values():
+            for key in ('work', 'busy', 'pid', 'instance'): component.pop(key, None)
+    return web.json_response({**build_info.installed(), 'components': components}, headers={'Cache-Control': 'no-store'})
 
 
 async def health(request):
@@ -1015,7 +1059,8 @@ async def shutdown(app):
 
 
 def make_app():
-    global BROWSERS, SESSIONS, FILES
+    global BROWSERS, SESSIONS, FILES, RUNTIME
+    RUNTIME = RuntimeIdentity('sessions' if WORKER_MODE else 'web')
     initialize()
     FILES = FileStore(STATE, db, lambda request: session_valid(SESSIONS.get(request[TOKEN])))
     FILES.initialize(clean_uploads=not WORKER_MODE)

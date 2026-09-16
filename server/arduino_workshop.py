@@ -14,6 +14,7 @@ import tempfile
 import time
 
 from aiohttp import web, ClientSession, UnixConnector
+from runtime_health import RuntimeIdentity
 
 CLI = Path(os.environ.get('WIN2K_ARDUINO_CLI', '/opt/pi2000-arduino/arduino-cli'))
 SOCKET = os.environ.get('WIN2K_ARDUINO_SOCKET', '')
@@ -57,6 +58,7 @@ def version(value):
 class ArduinoWorkshop:
     def __init__(self, app):
         self.app = app
+        self.process_state = RuntimeIdentity("arduino")
         self.root = app.STATE / 'arduino-runtime'
         self.jobs = {}
         self.monitors = {}
@@ -378,6 +380,13 @@ class ArduinoWorkshop:
             mon['serial'].close(); mon['state'] = 'closed'
 
     async def handle(self, request):
+        self.process_state.inflight += 1
+        try:
+            return await self.handle_command(request)
+        finally:
+            self.process_state.inflight -= 1
+
+    async def handle_command(self, request):
         raw = bytearray()
         async for chunk in request.content.iter_chunked(65536):
             raw.extend(chunk)
@@ -387,6 +396,8 @@ class ArduinoWorkshop:
         if not isinstance(data, dict): raise web.HTTPBadRequest(text='Enter an Arduino command.')
         user = self.app.require_current(request); uid = user['id']; token = request[self.app.TOKEN]
         action = data.get('action')
+        if action not in ('status', 'open', 'cancel', 'monitor_close', 'monitor_poll', 'monitor_send', 'monitor_clear'):
+            self.process_state.admit()
         if action == 'status':
             with self.app.db() as db:
                 projects = [dict(r) for r in db.execute('SELECT id,name,revision,updated FROM arduino_projects WHERE user_id=? ORDER BY name', (uid,))]

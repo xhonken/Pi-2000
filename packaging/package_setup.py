@@ -132,6 +132,10 @@ def doctor():
             if response.read()!=(Path('/srv/win2k')/asset.split('?')[0]).read_bytes():raise RuntimeError('Asset mismatch: '+asset)
     with sqlite3.connect('file:'+str(STATE/'admin.sqlite3')+'?mode=ro',uri=True) as db:
         if db.execute('PRAGMA integrity_check').fetchone()[0]!='ok' or db.execute('PRAGMA foreign_key_check').fetchall():raise RuntimeError('Database integrity check failed.')
+    sys.path.insert(0,'/opt/win2k-admin')
+    from deployment import verify as verify_component
+    verify_component(Path('/opt/win2k-admin'),'server')
+    verify_component(Path('/srv/win2k'),'web')
     if run('dpkg','--verify','pi2000web',capture=True):raise RuntimeError('Package files differ from the installed checksums.')
     print('PASS: installed package, services, trusted HTTPS assets and SQLite integrity.')
 

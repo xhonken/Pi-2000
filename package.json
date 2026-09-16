@@ -1,0 +1,7 @@
+{
+  "name": "pi2000-development-checks",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {"test": ".venv/bin/python scripts/check.py", "test:ui": ".venv/bin/python scripts/check.py ui"},
+  "devDependencies": {"playwright": "1.63.0"}
+}

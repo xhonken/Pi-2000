@@ -131,6 +131,14 @@ const actions = {
   show('About Pi-2000Web','<p>Loading installed version…</p>');
   try {const response=await fetch('/api/version',{cache:'no-store'});if(!response.ok)throw Error('Could not read the installed version. Sign in and try again.');const data=await response.json();if($('#window-title').textContent!=='About Pi-2000Web')return;
    $('#window-content').innerHTML='<p><b>Pi-2000Web</b></p><p>A Windows 2000-inspired web desktop.</p><dl><dt>Installed version</dt><dd data-version></dd><dt>Build ID</dt><dd data-build></dd><dt>Source revision</dt><dd data-revision></dd></dl><p>Running SSH and Browser sessions survive a viewer disconnect. Restarting the Pi ends those processes. Database transactions are not restored after disconnect.</p>';
+   const list=document.createElement('dl');list.dataset.components='';
+   for(const [name,component] of Object.entries(data.components||{})){
+    const title=document.createElement('dt'),value=document.createElement('dd');
+    title.textContent={web:'Web API',sessions:'SSH / Browser service',arduino:'Arduino service'}[name]||name;
+    const states={current:'Current',pending:'Update pending',draining:'Waiting for existing jobs',unknown:'Running version unavailable',unavailable:'Service unavailable'};
+    value.textContent=(states[component.state]||component.state)+(component.loaded?' · '+component.loaded.version+' · '+component.loaded.revision:'');list.append(title,value);
+   }
+   $('#window-content').append(list);
    $('[data-version]').textContent=data.version;$('[data-build]').textContent=data.build;$('[data-revision]').textContent=data.revision+(data.modified?' (local changes)':'');
   }catch(error){if($('#window-title').textContent==='About Pi-2000Web')$('#window-content').textContent=error.message;}
  },

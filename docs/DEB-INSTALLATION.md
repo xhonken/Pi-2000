@@ -155,3 +155,11 @@ Browser begins at 1280 × 720 while retaining its 4096 × 4096 resize maximum.
 This avoids rendering a large empty desktop before a client connects. Cold SD-card
 startup with MariaDB can exceed 90 seconds, so initialization allows up to three
 minutes without increasing the hard memory limit.
+
+## Development maintenance tools
+
+Packages built after Alpha 5 include `pi2000web workers` for status and idle-only
+activation, and `pi2000web recovery` for planned restoration and encrypted export.
+See [maintenance](MAINTENANCE.md) and [recovery](RECOVERY.md). These are OS-root
+commands; they are not web administrator privileges. The published Alpha 5-1
+package does not contain these later changes.

@@ -4,11 +4,11 @@ const {chromium}=require('playwright');
 const assert=require('node:assert/strict');
 (async()=>{
  assert.ok(!process.env.WIN2K_TEST_ARDUINO_RUNTIME,'This regression needs an empty runtime');
- const browser=await chromium.launch({executablePath:'/usr/bin/chromium',headless:true});
+ const browser=await chromium.launch({executablePath:process.env.WIN2K_TEST_CHROMIUM||'/usr/bin/chromium',headless:true});
  try {
   const page=await browser.newPage({viewport:{width:1280,height:950}}),errors=[];
   page.on('pageerror',e=>errors.push(e.message));page.setDefaultTimeout(125000);
-  await page.goto('http://127.0.0.1:18765');
+  await page.goto((process.env.WIN2K_TEST_URL||'http://127.0.0.1:18765'));
   await page.locator('#login-form [name=password]').fill('browser-test-password');
   await page.locator('#login-form [type=submit]').click();await page.locator('#session').waitFor({state:'visible'});
   await page.locator('#desktop-icons [data-action=arduino]').click();const w=page.locator('.arduino-window');
@@ -25,7 +25,7 @@ const assert=require('node:assert/strict');
    assert.ok(await d.locator('.library-version option').count()>1);
    assert.equal(await d.locator('.arduino-dialog-error').textContent(),'');
   }
-  await page.screenshot({path:'/tmp/pi2000-arduino-catalog-cold.png'});
+  await page.screenshot({path:require('node:path').join(process.env.WIN2K_TEST_ARTIFACTS||'/tmp','pi2000-arduino-catalog-cold.png')});
   await d.getByRole('button',{name:'Install Library',exact:true}).click();
   await d.waitFor({state:'detached'});
   await w.locator('.arduino-job').filter({hasText:'lib install · succeeded'}).waitFor();

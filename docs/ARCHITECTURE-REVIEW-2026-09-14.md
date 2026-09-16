@@ -191,3 +191,12 @@ flowchart TB
 5. **Split larger apps and handlers:** Pi++, Arduino and MariaDB, one feature at a time. Keep formatting-only changes separate from behavior changes. Measure performance and introduce lazy loading only with a demonstrated benefit.
 
 Each step should be a reviewable local change with relevant regression tests and explicit installed verification when deployed. Preserve the established rule that working SSH/Browser sessions and Arduino jobs are not terminated to make an update convenient.
+
+## Local follow-up — 2026-09-16
+
+The approved stabilization work now provides the deployment/backup inventory,
+pinned test setup and suite manifest, running worker build identities and
+idle-activation protocol. See MAINTENANCE.md, RECOVERY.md and TESTING.md for the
+implementation and remaining acceptance boundaries. This establishes the support
+needed for later feature-module extraction; it does not claim that the large UI
+and API modules have already been split.

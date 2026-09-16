@@ -1,0 +1,5 @@
+{
+  "format": 1,
+  "server": ["server/**/*.py", "server/*.service", "server/*.timer", "server/requirements.txt", "server/browser-requirements.txt", "server/browser-source-revision.txt", "server/browser-config/**/*.json", "server/phpmyadmin/*"],
+  "web": ["index.html", "assets/**/*", "dist/**/*"]
+}

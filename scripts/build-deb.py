@@ -10,6 +10,7 @@ import subprocess
 import sys
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'server'))
 from build_info import generate
+from deployment import stage as stage_component
 
 ROOT=Path(__file__).resolve().parents[1]
 
@@ -53,23 +54,14 @@ def main():
         dest=stage/dest.lstrip('/');dest.parent.mkdir(parents=True,exist_ok=True)
         if source.is_dir():shutil.copytree(source,dest,symlinks=True)
         else:shutil.copy2(source,dest)
-    for source in (ROOT/'server').glob('*.py'):copy(source,'/opt/win2k-admin/'+source.name)
-    for name in ('requirements.txt','browser-config','phpmyadmin'):copy(ROOT/'server'/name,'/opt/win2k-admin/'+name)
+    info=generate(ROOT);info['version']=a.version
+    stage_component(ROOT,stage/'opt/win2k-admin','server',info)
+    stage_component(ROOT,stage/'srv/win2k','web',info)
     arduino_tools=work/'arduino-tools'
     run('python3',ROOT/'scripts/arduino-tools.py',arduino_tools)
     copy(arduino_tools,'/opt/pi2000-arduino')
     copy(api_runtime,'/opt/win2k-admin/venv');copy(browser_runtime,'/opt/win2k-browser/venv')
     for name in ('browser-requirements.txt','browser-source-revision.txt'):copy(ROOT/'server'/name,'/opt/win2k-browser/'+name)
-    files=subprocess.check_output(['git','ls-files','-z'],cwd=ROOT).decode().split('\0')
-    for name in files:
-        if name.startswith(('assets/','dist/')) and (ROOT/name).is_file():copy(ROOT/name,'/srv/win2k/'+name)
-    import re
-    page=(ROOT/'index.html').read_text()
-    def hashed(m):return m[1]+'="'+m[2]+'?v='+hashlib.sha256((ROOT/m[2]).read_bytes()).hexdigest()[:16]+'"'
-    page=re.sub(r'(src|href)="((?:assets|dist)/[^"?#]+)"',hashed,page)
-    (stage/'srv/win2k/index.html').write_text(page)
-    info=generate(ROOT);info['version']=a.version
-    (stage/'opt/win2k-admin/build-info.json').write_text(json.dumps(info)+'\n')
     for source in (ROOT/'server').glob('*.service'):copy(source,'/usr/lib/systemd/system/'+source.name)
     copy(ROOT/'server/win2k-backup.timer','/usr/lib/systemd/system/win2k-backup.timer')
     copy(ROOT/'server/phpmyadmin/pi2000-phpmyadmin.service','/usr/lib/systemd/system/pi2000-phpmyadmin.service')
@@ -83,9 +75,11 @@ def main():
     for name in ('README.md',):copy(ROOT/name,'/usr/share/doc/pi2000web/'+name)
     copy(ROOT/'docs/DEB-INSTALLATION.md','/usr/share/doc/pi2000web/DEB-INSTALLATION.md')
     copy(ROOT/'docs/SYSTEM-ACCOUNTS.md','/usr/share/doc/pi2000web/SYSTEM-ACCOUNTS.md')
+    for name in ('RECOVERY.md','MAINTENANCE.md','TESTING.md'):
+        copy(ROOT/'docs'/name,'/usr/share/doc/pi2000web/'+name)
     control=stage/'DEBIAN';control.mkdir()
     size=sum(f.stat().st_size for f in stage.rglob('*') if f.is_file())//1024
-    dependencies='debconf (>= 0.5), whiptail, mariadb-server, openssh-server, libpam0g, libpam-modules, sudo, python3 (>= 3.13), python3 (<< 3.14), caddy, sqlite3, git, ca-certificates, iproute2, iputils-ping, nodejs, bubblewrap, phpmyadmin, php8.4-fpm, php8.4-mysql, php8.4-mbstring, php8.4-xml, php8.4-zip, php8.4-gd, chromium, xvfb, pulseaudio, pulseaudio-utils, openbox, xauth, x11-xserver-utils, dbus-x11, gnome-keyring, fonts-liberation, libva-drm2, libva-x11-2, libxtst6, libffi8, libssl3t64'
+    dependencies='debconf (>= 0.5), whiptail, mariadb-server, openssh-server, libpam0g, libpam-modules, sudo, python3 (>= 3.13), python3 (<< 3.14), caddy, sqlite3, git, ca-certificates, iproute2, iputils-ping, age, nodejs, bubblewrap, phpmyadmin, php8.4-fpm, php8.4-mysql, php8.4-mbstring, php8.4-xml, php8.4-zip, php8.4-gd, chromium, xvfb, pulseaudio, pulseaudio-utils, openbox, xauth, x11-xserver-utils, dbus-x11, gnome-keyring, fonts-liberation, libva-drm2, libva-x11-2, libxtst6, libffi8, libssl3t64'
     (control/'control').write_text(f'Package: pi2000web\nVersion: {a.version}\nArchitecture: arm64\nMaintainer: Pi-2000Web maintainers <noreply@github.com>\nSection: web\nPriority: optional\nInstalled-Size: {size}\nDepends: {dependencies}\nHomepage: https://github.com/xhonken/Pi-2000\nDescription: Private Windows 2000-inspired web desktop for Raspberry Pi\n Includes SSH, files, development tools, phpMyAdmin and a private Browser.\n Targets 64-bit Raspberry Pi OS based on Debian 13.\n')
     for name in ('preinst','postinst','prerm','postrm','config'):
         shutil.copy2(ROOT/'packaging'/name,control/name);(control/name).chmod(0o755)

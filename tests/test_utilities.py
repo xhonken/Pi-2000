@@ -1,3 +1,4 @@
+import uuid
 import io
 import stat
 import zipfile
@@ -21,7 +22,7 @@ class UtilityTests(unittest.IsolatedAsyncioTestCase):
         stream=io.BytesIO()
         with zipfile.ZipFile(stream,'w',compression=compression) as z:
             for name,body in entries:z.writestr(name,body)
-        return await self.upload('archive-'+str(len(list(app.STATE.iterdir())))+'-'+str(id(stream))+'.zip',stream.getvalue())
+        return await self.upload('archive-'+uuid.uuid4().hex+'.zip',stream.getvalue())
     async def test_network_private_targets_real_dns_ping_tcp(self):
         payload={'action':'save','name':'Local SSH','host':'localhost','port':self.port}
         saved=await self.call('network',payload)

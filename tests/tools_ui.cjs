@@ -1,15 +1,15 @@
 const {command}=require('./classic_helpers.cjs');
 const {chromium}=require('playwright'),assert=require('node:assert/strict');
-(async()=>{const browser=await chromium.launch({executablePath:'/usr/bin/chromium',headless:true});try{
+(async()=>{const browser=await chromium.launch({executablePath:process.env.WIN2K_TEST_CHROMIUM||'/usr/bin/chromium',headless:true});try{
  const page=await browser.newPage({viewport:{width:1500,height:1000}}),errors=[];page.on('pageerror',e=>errors.push(e.message));
- await page.goto('http://127.0.0.1:18765');await page.locator('#login-form [name=password]').fill('browser-test-password');await page.locator('#login-form [type=submit]').click();await page.locator('#session').waitFor({state:'visible'});
+ await page.goto((process.env.WIN2K_TEST_URL||'http://127.0.0.1:18765'));await page.locator('#login-form [name=password]').fill('browser-test-password');await page.locator('#login-form [type=submit]').click();await page.locator('#session').waitFor({state:'visible'});
  const open=name=>page.evaluate(name=>window.Win2kShell.actions[name](),name);
  const close=type=>page.locator('.'+type+' [data-control=close]').click();
  await open('notes');await page.locator('.notes-text').fill('Privat anteckning åäö');await page.locator('.todo-form [name=task]').fill('Mät ramen');await page.locator('.todo-form button').click();await page.locator('.notes-window .app-status').filter({hasText:'Saved on server'}).waitFor();await close('notes-window');
  await open('notes');await page.waitForFunction(()=>document.querySelector('.notes-text').value==='Privat anteckning åäö');await close('notes-window');
  await open('cad');const cad=page.locator('.cad-window');await cad.locator('.cad-controls:not([inert])').waitFor();await cad.locator('summary').click();await cad.getByRole('button',{name:'Holes Along Frame',exact:true}).click();assert.equal(await cad.locator('tbody tr').count(),10);assert.equal(await cad.locator('.cad-invalid').count(),0);
  await command(page,cad,'File','Save Drawing');await cad.locator('.app-status').filter({hasText:'The drawing has been saved'}).waitFor();
- const dl=page.waitForEvent('download');await command(page,cad,'File','Export SVG');assert.equal((await dl).suggestedFilename(),'dimension-drawing.svg');await page.screenshot({path:'/tmp/win2k-cad-tools.png'});await close('cad-window');
+ const dl=page.waitForEvent('download');await command(page,cad,'File','Export SVG');assert.equal((await dl).suggestedFilename(),'dimension-drawing.svg');await page.screenshot({path:require('node:path').join(process.env.WIN2K_TEST_ARTIFACTS||'/tmp','win2k-cad-tools.png')});await close('cad-window');
  await open('cad');await page.waitForFunction(()=>document.querySelectorAll('.cad-table tbody tr').length===10);await close('cad-window');
  await open('editor');await page.evaluate(()=>ace.edit(document.querySelector('.editor-code')).setValue('const recover = "utkast";',-1));await page.locator('.editor-window .app-status').filter({hasText:'Recovery draft saved'}).waitFor();
  await page.reload();await page.waitForFunction(()=>document.querySelector('.editor-code')&&ace.edit(document.querySelector('.editor-code')).getValue().includes('utkast'));

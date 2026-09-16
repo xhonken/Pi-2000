@@ -49,3 +49,6 @@ config/local*.toml
 # Debian package build artifacts
 .deb-build/
 build/packages/
+
+# Disposable test artifacts
+.test-results/

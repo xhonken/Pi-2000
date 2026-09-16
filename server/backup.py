@@ -14,6 +14,7 @@ import tempfile
 import time
 from datetime import datetime, timezone
 from session_proxy import control
+from deployment import backup_files
 
 EXCLUDED = {'Cache','Code Cache','GPUCache','ShaderCache','GrShaderCache','DawnCache','session.log', 'SingletonLock','SingletonSocket','SingletonCookie'}
 
@@ -34,14 +35,17 @@ def restore(archive, destination):
     if destination.exists() and any(destination.iterdir()): raise RuntimeError('The restore directory must be empty')
     destination.mkdir(parents=True, exist_ok=True, mode=0o700)
     with tarfile.open(archive, 'r:') as tar:
+        seen = set()
         for member in tar.getmembers():
+            if member.name in seen: raise RuntimeError('Duplicate path in the backup')
+            seen.add(member.name)
             if not (member.isfile() or member.isdir()) or member.name.startswith('/') or '..' in Path(member.name).parts:
                 raise RuntimeError('Disallowed path in the backup')
         tar.extractall(destination, filter='data')
     check_database(destination/'state/admin.sqlite3')
     if (destination/'system-accounts/accounts.sqlite3').exists(): check_database(destination/'system-accounts/accounts.sqlite3')
     manifest=json.loads((destination/'manifest.json').read_text())
-    if manifest['format'] != 1: raise RuntimeError('Unknown backup format')
+    if manifest['format'] not in (1, 2): raise RuntimeError('Unknown backup format')
     return manifest
 
 async def snapshot(state, target, socket, code, site=None):
@@ -88,18 +92,27 @@ async def snapshot(state, target, socket, code, site=None):
                 shadow=[line for line in Path('/etc/shadow').read_text().splitlines() if line.split(':',1)[0] in managed]
                 (staging/'system-accounts/shadow').write_text('\n'.join(shadow)+'\n')
                 (staging/'system-accounts/bindings.json').write_text(json.dumps(account_rows))
-            manifest={'format':1,'created':datetime.now(timezone.utc).isoformat(),
+            manifest={'format':2,'metadata':{},'created':datetime.now(timezone.utc).isoformat(),
                       'profiles':'quiesced filesystem snapshot; Chromium recovers its journals on restore',
                       'sessions':'running processes are not included'}
-            (staging/'manifest.json').write_text(json.dumps(manifest,indent=2))
+            identities = []
+            import pwd, grp
+            for row in account_rows:
+                if row['managed'] and row['phase'] == 'ready':
+                    identity = pwd.getpwnam(row['name'])
+                    identities.append({'name': row['name'], 'uid': identity.pw_uid, 'gid': identity.pw_gid, 'group': grp.getgrgid(identity.pw_gid).gr_name})
+            if account_rows:
+                (staging/'system-accounts/identities.json').write_text(json.dumps(identities))
+            if code and (code/'build-info.json').exists():
+                manifest['application'] = json.loads((code/'build-info.json').read_text())
             def include(info):
                 if info.name.endswith('.part') or '/garbage' in info.name or any(part in EXCLUDED for part in Path(info.name).parts) or not (info.isfile() or info.isdir()): return None
+                manifest['metadata'][info.name] = {'uid': info.uid, 'gid': info.gid, 'mode': info.mode & 0o777}
                 info.uid=info.gid=0;info.uname=info.gname='root'
                 info.mode=0o700 if info.isdir() else 0o600
                 return info
             partial=archive.with_suffix('.partial')
             with tarfile.open(partial,'w:') as tar:
-                tar.add(staging/'manifest.json',arcname='manifest.json',filter=include)
                 tar.add(staging/'state',arcname='state',filter=include)
                 if (state/'browsers').exists(): tar.add(state/'browsers',arcname='state/browsers',filter=include)
                 if (state/'database-credentials.key').exists(): tar.add(state/'database-credentials.key',arcname='state/database-credentials.key',filter=include)
@@ -115,11 +128,16 @@ async def snapshot(state, target, socket, code, site=None):
                             if identity.pw_uid!=row['uid'] or home!=Path('/home')/row['name'] or home.is_symlink():
                                 raise RuntimeError('System account binding mismatch during backup')
                             tar.add(home,arcname='system-accounts/homes/'+row['name'],filter=include)
-                if site and site.exists(): tar.add(site,arcname='site',filter=include)
+                if site and site.exists():
+                    for path in backup_files(site, 'web'):
+                        tar.add(path,arcname='site/'+path.relative_to(site).as_posix(),filter=include)
                 if code and code.exists():
-                    for path in code.iterdir():
-                        if path.suffix in ('.py','.service','.timer','.txt') or path.name in ('browser-config', 'phpmyadmin', 'build-info.json'):
-                            tar.add(path,arcname='code/'+path.name,filter=include)
+                    for path in backup_files(code, 'server'):
+                        tar.add(path,arcname='code/'+path.relative_to(code).as_posix(),filter=include)
+                (staging/'manifest.json').write_text(json.dumps(manifest,indent=2))
+                # Metadata is private and non-executable, like the archive itself.
+                (staging/'manifest.json').chmod(0o600)
+                tar.add(staging/'manifest.json',arcname='manifest.json')
             partial.chmod(0o600);partial.replace(archive)
         files_lock.close()
         if frozen:

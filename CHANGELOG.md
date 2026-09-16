@@ -4,7 +4,19 @@ User-visible changes are recorded here for each numbered release. Development be
 
 ## Unreleased
 
-No changes yet.
+- Add guarded OS-administrator recovery planning and application for managed identities,
+  account data and homes; preserve UID/GID and file modes in new backups, retain
+  rollback data and an operation journal, and support age-encrypted external exports.
+- Show installed and running component builds in About and System Status; add
+  leased draining and idle-only activation for session and Arduino workers.
+- Share a module-aware deployment inventory between source installation, Debian
+  packages and backups; verify staged/installed hashes and exclude private notes.
+- Pin the development test dependencies, isolate UI test sockets/artifacts, include
+  all ordinary applications in one test entrypoint and add a GitHub CI workflow.
+
+These changes are local development work, not part of the published Alpha 5
+package. Fresh-machine recovery and installed worker activation remain acceptance
+checks; see [maintenance](docs/MAINTENANCE.md) and [recovery](docs/RECOVERY.md).
 
 ## 0.1.0-alpha.5 — 2026-09-16
 

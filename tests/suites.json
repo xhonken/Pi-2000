@@ -1,0 +1,45 @@
+{
+  "ui": [
+    "file_batch_ui.cjs",
+    "files_ui.cjs",
+    "tools_ui.cjs",
+    "sketch_ui.cjs",
+    "editor_ui.cjs",
+    "editor_sftp_ui.cjs",
+    "piplus_ui.cjs",
+    "arduino_ui.cjs",
+    "utilities_ui.cjs",
+    "development_ui.cjs",
+    "stabilization_ui.cjs",
+    "upload_picker_ui.cjs",
+    "shortcut_ui.cjs",
+    "icon_drag_ui.cjs",
+    "classic_ui.cjs",
+    "window_bounds_ui.cjs",
+    "classic_accessibility.cjs",
+    "taskmanager_ui.cjs",
+    "english_ui.cjs",
+    "maintenance_ui.cjs"
+  ],
+  "geometry": [
+    "cad_geometry.cjs",
+    "sketch_geometry.cjs"
+  ],
+  "network": [
+    "arduino_catalog_ui.cjs"
+  ],
+  "database": [
+    "database_ui.cjs",
+    "database_workspace_ui.cjs"
+  ],
+  "installed": [
+    "installed_accounts_ui.cjs",
+    "installed_setup_ui.cjs"
+  ],
+  "hardware": [
+    "ESP32 USB upload",
+    "real sensor plot",
+    "GC9A01A display",
+    "fresh Pi4 install and disaster recovery"
+  ]
+}
