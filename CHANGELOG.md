@@ -4,6 +4,11 @@ User-visible changes are recorded here for each numbered release. Development be
 
 ## Unreleased
 
+- Add a personal Vault application with client-encrypted titles/content, separate
+  A/B passphrases, fresh B unlock per entry, automatic locking, password generation,
+  encrypted export/import and a user-held recovery key. Account-bound APIs include
+  no administrator read override; Vault ciphertext participates in quotas/backups.
+
 - Add guarded OS-administrator recovery planning and application for managed identities,
   account data and homes; preserve UID/GID and file modes in new backups, retain
   rollback data and an operation journal, and support age-encrypted external exports.

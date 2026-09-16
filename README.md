@@ -42,6 +42,7 @@ Existing web accounts migrate on their next successful login. A pre-existing Lin
 
 | Application | Features |
 | --- | --- |
+| Vault | Private encrypted passwords, API keys, text and links; separate list/content passwords, per-entry unlock, automatic locking, encrypted export/import and recovery. See [Vault](docs/VAULT.md); development after Alpha 5. |
 | My Files and Desktop | Private files and folders, upload by drag and drop, folder uploads, rename, move, copy/paste, download and ZIP export. Drag desktop icons to arrange them. |
 | Recycle Bin | Restore deleted files, folders and shortcuts, or delete them permanently. |
 | Local Terminal | Private terminal on the Pi under each administrator’s individual Linux identity. Sudo is granted separately by the OS administrator. |

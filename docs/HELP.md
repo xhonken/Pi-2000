@@ -161,3 +161,14 @@ blocking new work while existing jobs finish. **Unknown** means an older worker
 cannot report its loaded version. Finish work before asking the OS administrator
 to activate the update; web administrator access does not grant service restart
 permission. See [maintenance](MAINTENANCE.md) and [recovery](RECOVERY.md).
+
+## Personal Vault
+
+Open the Vault desktop icon or Start → Programs → System Tools → Vault. Create two
+different passphrases: A opens titles/categories/dates; B opens one entry and must
+be entered again after closing or switching entries. Secrets lock after 30 seconds
+of inactivity and the list after five minutes. Save edits before leaving.
+Keep the recovery key outside the Pi. File and Security menus provide encrypted
+export/import, password changes and recovery. Other web users and administrators
+have no access to your Vault contents. Read the [Vault guide](VAULT.md) for clipboard,
+backup, plaintext export and trusted-browser boundaries. Development after Alpha 5.

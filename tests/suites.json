@@ -19,7 +19,8 @@
     "classic_accessibility.cjs",
     "taskmanager_ui.cjs",
     "english_ui.cjs",
-    "maintenance_ui.cjs"
+    "maintenance_ui.cjs",
+    "vault_ui.cjs"
   ],
   "geometry": [
     "cad_geometry.cjs",

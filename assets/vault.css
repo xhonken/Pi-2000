@@ -1,0 +1,20 @@
+.vault-window{width:780px;height:600px;max-width:calc(100vw - 8px)}
+.vault-window .app-body{display:flex;flex-direction:column;overflow:auto;min-height:0}
+.vault-toolbar{display:flex;gap:4px;flex-wrap:wrap;padding:5px;border-bottom:1px solid #808080}
+.vault-content{padding:10px;min-height:0;overflow:auto;flex:1}
+.vault-message{padding:8px;background:#ffffdf;border-bottom:1px solid #808080;overflow-wrap:anywhere}
+.vault-form{max-width:650px;display:flex;flex-direction:column;gap:9px;margin:auto}
+.vault-form h2,.vault-recovery h2{font-size:1.1em;margin:4px 0}
+.vault-form p{margin:0}
+.vault-form label,.vault-filters label{display:flex;flex-direction:column;gap:3px;min-width:0}
+.vault-form input,.vault-form textarea,.vault-form select,.vault-filters input,.vault-filters select,.vault-recovery textarea{font:inherit;box-sizing:border-box;width:100%;min-width:0;background:white;color:#000}
+.vault-form input[type=checkbox]{width:auto;align-self:start}
+.vault-form-actions,.vault-entry-actions{display:flex;flex-wrap:wrap;gap:5px;justify-content:flex-end}
+.vault-filters{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:10px}.vault-filters label:first-child{flex:1}
+.vault-table{overflow:auto;background:white;border:2px inset #fff;min-height:130px}
+.vault-table table{width:100%;border-collapse:collapse}.vault-table th,.vault-table td{padding:6px;text-align:left;border-bottom:1px solid #ddd;overflow-wrap:anywhere}
+.vault-table th{background:#d4d0c8}.vault-table .selected{background:#0a246a;color:#fff}
+.vault-title{font:inherit;color:inherit;background:transparent;border:0;text-align:left;cursor:pointer;max-width:240px;overflow-wrap:anywhere}
+.vault-hint{margin-bottom:0}.vault-masked{-webkit-text-security:disc}
+.vault-recovery textarea{height:5em}.vault-content :focus-visible{outline:2px solid #0a246a;outline-offset:1px}
+@media(max-width:680px){.vault-window{width:calc(100vw - 8px)}.vault-table th,.vault-table td{padding:4px}.vault-table small{display:block}.vault-form{max-width:100%}}

@@ -27,6 +27,7 @@ from aiohttp import web, WSMsgType, ClientSession, UnixConnector, ClientError
 from yarl import URL
 from browser_runtime import BrowserRuntime, BrowserUnavailable
 from file_store import FileStore, FILE_USER
+from vault import Vault
 from personal_store import PersonalStore
 from database_tools import DatabaseTools
 from phpmyadmin_bridge import PhpMyAdmin
@@ -656,7 +657,7 @@ async def workspace(request):
     if not isinstance(data, dict) or set(data) != {'windows'} or not isinstance(data['windows'], list) or len(data['windows']) > 12:
         return error('Invalid window layout.')
     for window in data['windows']:
-        if (not isinstance(window, dict) or window.get('type') not in ('explorer-window', 'users-window', 'terminal-window', 'browser-window', 'status-window', 'files-window', 'trash-window', 'editor-window', 'preview-window', 'search-window', 'activities-window', 'notes-window', 'preferences-window', 'sftp-window', 'cad-window', 'calculator-window', 'taskmanager-window', 'phpmyadmin-window', 'database-window', 'api-window', 'git-window', 'arduino-window', 'network-window', 'display-window', 'archive-window', 'log-window')
+        if (not isinstance(window, dict) or window.get('type') not in ('explorer-window', 'users-window', 'terminal-window', 'browser-window', 'status-window', 'files-window', 'trash-window', 'editor-window', 'preview-window', 'search-window', 'activities-window', 'notes-window', 'preferences-window', 'sftp-window', 'cad-window', 'calculator-window', 'taskmanager-window', 'phpmyadmin-window', 'database-window', 'api-window', 'git-window', 'arduino-window', 'network-window', 'display-window', 'archive-window', 'log-window', 'vault-window')
                 or any(type(window.get(key)) not in (int, float) or not -10000 <= window[key] <= 10000 for key in ('left', 'top', 'width', 'height'))
                 or any(type(window.get(key)) is not bool for key in ('hidden', 'maximized'))
                 or any(window.get(key) is not None and (not isinstance(window[key], str) or len(window[key]) > 128) for key in ('terminal', 'folder'))):
@@ -1070,6 +1071,10 @@ def make_app():
     BROWSERS = None if WORKER_SOCKET else BrowserRuntime(STATE)
     app = web.Application(middlewares=[guard], client_max_size=16384)
     app.router.add_post('/api/login', login)
+    vault=Vault(sys.modules[__name__]);vault.initialize()
+    app.router.add_get('/api/vault',vault.handle)
+    app.router.add_get('/api/vault/status',vault.handle)
+    app.router.add_put('/api/vault',vault.handle)
     git_tools=GitTools(sys.modules[__name__]);git_tools.initialize()
     app.router.add_post('/api/development/git',git_tools.handle)
     if arduino_workshop.SOCKET:
