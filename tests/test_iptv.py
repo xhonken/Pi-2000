@@ -140,7 +140,19 @@ class IPTVTests(unittest.IsolatedAsyncioTestCase):
         source=await self.add();item=next(i for i in (await self.catalog(source))['items'] if i['name']=='British Test TS');path='/api/iptv/sources/'+source+'/entries/'+item['id']+'/play'
         for mode in ('audio','compatible'):
             r=await self.client.post(path,headers=self.headers,json={'mode':mode});self.assertEqual(r.status,200);data=await r.json()
-            r=await self.client.get(data['url'],headers=self.headers);raw=await r.read();self.assertEqual(r.status,200,raw[:200]);self.assertGreater(len(raw),5000);self.assertEqual(raw[0],0x47)
+            # Capture diagnostics only for generated fixtures, never provider media.
+            launch=asyncio.create_subprocess_exec
+            diagnostics=[]
+            async def capture(*args,**kwargs):
+                if '/usr/bin/ffmpeg' in args:kwargs['stderr']=asyncio.subprocess.PIPE
+                process=await launch(*args,**kwargs)
+                if '/usr/bin/ffmpeg' in args:
+                    diagnostics.append(asyncio.create_task(process.stderr.read(16384)))
+                return process
+            with patch('iptv_media.asyncio.create_subprocess_exec',capture):
+                r=await self.client.get(data['url'],headers=self.headers);raw=await r.read()
+            details=await asyncio.wait_for(asyncio.gather(*diagnostics),5)
+            self.assertEqual(r.status,200,(mode,raw[:200],details));self.assertGreater(len(raw),5000);self.assertEqual(raw[0],0x47)
             for _ in range(100):
                 if not self.library.media.converting:break
                 await asyncio.sleep(.02)

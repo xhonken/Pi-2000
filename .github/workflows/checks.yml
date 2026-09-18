@@ -34,7 +34,7 @@ jobs:
         run: runuser -u pi2000-test -- bwrap --unshare-all --ro-bind /usr /usr --symlink usr/bin /bin --symlink usr/lib /lib --ro-bind-try /lib64 /lib64 --proc /proc --dev /dev -- /usr/bin/true
       - name: Backend, geometry and all ordinary UI checks
         run: runuser -u pi2000-test -- .venv/bin/python scripts/check.py
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v6
         if: always()
         with:
           name: disposable-ui-artifacts
