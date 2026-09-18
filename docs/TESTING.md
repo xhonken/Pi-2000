@@ -107,3 +107,9 @@ python tests/run_classic_suite.py iptv_stability_ui.cjs iptv_ui.cjs
 
 `WIN2K_TEST_BASELINE=1` records stall/seek metrics without their zero assertions
 when comparing older playback settings. This switch affects only the test.
+
+The GitHub job uses an Ubuntu 22.04 host with a Debian 13 container. Newer Ubuntu
+hosts restrict unprivileged user namespaces through AppArmor and can reject
+nested Bubblewrap UID maps even with an unconfined container profile. A dedicated
+sandbox preflight must pass before the tests run; isolation tests are never skipped
+to hide a host policy failure. This affects the disposable CI host, not Pi settings.

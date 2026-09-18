@@ -8,7 +8,9 @@ permissions:
   contents: read
 jobs:
   application:
-    runs-on: ubuntu-latest
+    # Ubuntu 24.04+ host AppArmor restrictions block nested uid maps even
+    # with the container profile unconfined. Keep the Debian 13 test userspace.
+    runs-on: ubuntu-22.04
     timeout-minutes: 30
     container:
       image: debian:trixie-slim
@@ -27,6 +29,8 @@ jobs:
           runuser -u pi2000-test -- python3 -m venv .venv
           runuser -u pi2000-test -- .venv/bin/pip install -r server/requirements.txt
           runuser -u pi2000-test -- npm ci --ignore-scripts
+      - name: Verify nested sandbox support
+        run: runuser -u pi2000-test -- bwrap --unshare-all --ro-bind /usr /usr --symlink usr/bin /bin --symlink usr/lib /lib --proc /proc --dev /dev -- /usr/bin/true
       - name: Backend, geometry and all ordinary UI checks
         run: runuser -u pi2000-test -- .venv/bin/python scripts/check.py
       - uses: actions/upload-artifact@v5
