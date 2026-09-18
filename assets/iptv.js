@@ -6,7 +6,7 @@
  function open(saved={}){
   s.closeStart();if(current){current.focus();return current;}const owner=d.getUser()?.id;if(!owner)return;
   const w=d.makeWindow('IPTV Player','iptv-window');current=w;
-  let closed=false,sources=[],items=[],source=String(saved.source||''),kind=saved.kind||'live',parent='',selected=null,playing=null,hls=null,ts=null,session=null,offset=0,total=0,loading=0,playEpoch=0,importing=false,lastSave=0,searchTimer=null,seekTo=0;
+  let closed=false,sources=[],items=[],source=String(saved.source||''),kind=saved.kind||'live',parent='',selected=null,playing=null,hls=null,ts=null,session=null,offset=0,total=0,loading=0,playEpoch=0,importing=false,lastSave=0,searchTimer=null,startTimer=null,seekTo=0;
   const controllers=new Set(),alive=()=>!closed&&d.getUser()?.id===owner;
   w.body.innerHTML=`<div class="tool-toolbar iptv-toolbar"></div><div class="iptv-error" role="alert" hidden></div>
    <div class="iptv-source-bar"><label>Playlist<select aria-label="IPTV playlist"></select></label><span class="iptv-library-summary"></span></div>
@@ -52,11 +52,25 @@
   function clock(value){value=Math.floor(value||0);return Math.floor(value/3600)+':'+String(Math.floor(value%3600/60)).padStart(2,'0')+':'+String(value%60).padStart(2,'0');}
   function savePosition(keepalive=false){if(!playing||!alive()&&!keepalive||!Number.isFinite(video.currentTime))return Promise.resolve();lastSave=Date.now();return api(entryPath(playing.item,playing.source),{position:video.currentTime},'PATCH',keepalive).catch(()=>{});}
   function stop(notify=true,closing=false){
-   playEpoch++;savePosition(closing);hls?.destroy();hls=null;ts?.destroy();ts=null;video.pause();video.removeAttribute('src');video.load();playing=null;seekTo=0;
+   playEpoch++;clearTimeout(startTimer);startTimer=null;savePosition(closing);hls?.destroy();hls=null;ts?.destroy();ts=null;video.pause();video.removeAttribute('src');video.load();playing=null;seekTo=0;
    if(session){api('/play/'+session,undefined,'DELETE',closing||!alive()).catch(()=>{});session=null;}
    $('.iptv-empty').hidden=false;$('.iptv-now').textContent='Nothing playing';if(notify)status('Playback stopped');
   }
-  function playbackError(){message('Playback failed. Try Reconnect, another channel or a compatible playback mode. The provider may be offline, geo-blocked, over its connection limit, DRM-protected or using an unsupported codec.');status('Playback unavailable');}
+  function playbackError(){clearTimeout(startTimer);startTimer=null;message('Playback failed. Try Reconnect, another channel or a compatible playback mode. The provider may be offline, geo-blocked, over its connection limit, DRM-protected or using an unsupported codec.');status('Playback unavailable');}
+  function bufferedAhead(){
+   for(let i=0;i<video.buffered.length;i++)if(video.currentTime>=video.buffered.start(i)-.1&&video.currentTime<=video.buffered.end(i))return video.buffered.end(i)-Math.max(video.currentTime,video.buffered.start(i));
+   return 0;
+  }
+  function startLive(epoch){
+   // Build a cushion before consuming a real-time TS stream. Never keep a stale
+   // channel/account alive or restart playback after Stop/Close/manual Play.
+   const deadline=performance.now()+12000;
+   const ready=()=>{
+    startTimer=null;if(!alive()||epoch!==playEpoch||!video.paused)return;
+    if(bufferedAhead()>=4||performance.now()>=deadline){video.play().catch(()=>status('Press Play to start audio and video.'));return;}
+    status('Buffering live TV · '+bufferedAhead().toFixed(1)+' / 4 s');startTimer=setTimeout(ready,200);
+   };ready();
+  }
   async function activate(item,start){
    if(item.series_folder){status('Loading seasons and episodes…');await api(entryPath(item)+'/episodes',{});if(!alive())return;parent=item.id;$('.iptv-breadcrumb span').textContent=item.name;await catalog(true);return;}
    select(item);await play(item,start);
@@ -65,11 +79,11 @@
    stop(false);const epoch=playEpoch;status('Connecting…');message('');
    const data=await api(entryPath(item,src)+'/play',{mode:$('[aria-label="Playback mode"]').value,...(start===undefined?{}:{start})});
    if(!alive()||epoch!==playEpoch){api('/play/'+data.session,undefined,'DELETE',true).catch(()=>{});return;}
-   session=data.session;playing={item,source:src,start};seekTo=!data.live&&start===undefined?item.position||0:0;
+   session=data.session;playing={item,source:src,start,live:data.live};seekTo=!data.live&&start===undefined?item.position||0:0;
    $('.iptv-empty').hidden=true;$('.iptv-now').textContent=data.name+(start===undefined?'':' · TV archive');
    const quality=$('[aria-label="Stream quality"]'),audio=$('[aria-label="Audio track"]'),subtitles=$('[aria-label="Subtitle track"]');quality.replaceChildren(new Option('Automatic','-1'));audio.replaceChildren(new Option('Default','0'));subtitles.replaceChildren(new Option('Off','-1'));
    if(data.format==='hls'&&Hls.isSupported()){
-    hls=new Hls({enableWorker:true,backBufferLength:30,maxBufferLength:30,maxMaxBufferLength:60,liveSyncDurationCount:3});const player=hls;
+    hls=new Hls({enableWorker:true,backBufferLength:30,maxBufferLength:30,maxMaxBufferLength:60,lowLatencyMode:false,liveSyncDurationCount:5,capLevelToPlayerSize:true});const player=hls;
     player.on(Hls.Events.MANIFEST_PARSED,()=>{if(epoch!==playEpoch)return;player.levels.forEach((v,i)=>quality.add(new Option((v.height?v.height+'p':'Stream '+(i+1))+(v.bitrate?' · '+Math.round(v.bitrate/1000)+' kb/s':''),String(i))));video.play().catch(()=>status('Press Play to start audio and video.'));});
     player.on(Hls.Events.AUDIO_TRACKS_UPDATED,(_,e)=>{audio.replaceChildren();e.audioTracks.forEach((t,i)=>audio.add(new Option(t.name||t.lang||'Audio '+(i+1),String(i))));});
     player.on(Hls.Events.SUBTITLE_TRACKS_UPDATED,(_,e)=>{subtitles.replaceChildren(new Option('Off','-1'));e.subtitleTracks.forEach((t,i)=>subtitles.add(new Option(t.name||t.lang||'Subtitles '+(i+1),String(i))));});
@@ -77,15 +91,15 @@
     player.loadSource(data.url);player.attachMedia(video);
    }else if(data.format==='ts'){
     if(!mpegts.isSupported()){stop(false);throw Error('This browser does not support TS playback. Try a browser with Media Source Extensions or an HLS source.');}
-    ts=mpegts.createPlayer({type:'mpegts',isLive:data.live,url:new URL(data.url,location.origin).href},{enableWorker:true,enableStashBuffer:true,stashInitialSize:384*1024,lazyLoad:!data.live,liveBufferLatencyChasing:data.live,autoCleanupSourceBuffer:true,autoCleanupMaxBackwardDuration:30,autoCleanupMinBackwardDuration:15});
-    ts.on(mpegts.Events.ERROR,()=>{if(epoch===playEpoch)playbackError();});ts.attachMediaElement(video);ts.load();ts.play().catch(()=>status('Press Play to start audio and video.'));
+    ts=mpegts.createPlayer({type:'mpegts',isLive:data.live,url:new URL(data.url,location.origin).href},{enableWorker:true,enableStashBuffer:true,stashInitialSize:384*1024,lazyLoad:!data.live,liveBufferLatencyChasing:data.live,liveBufferLatencyMaxLatency:20,liveBufferLatencyMinRemain:6,liveBufferLatencyChasingOnPaused:false,autoCleanupSourceBuffer:true,autoCleanupMaxBackwardDuration:30,autoCleanupMinBackwardDuration:15});
+    ts.on(mpegts.Events.ERROR,()=>{if(epoch===playEpoch)playbackError();});ts.attachMediaElement(video);ts.load();if(data.live)startLive(epoch);else ts.play().catch(()=>status('Press Play to start audio and video.'));
    }else {video.src=data.url;video.play().catch(()=>status('Press Play to start audio and video.'));}
    status('Buffering · '+(data.live?'Live TV':'On demand'));api(entryPath(item,src),{position:item.position||0},'PATCH').catch(()=>{});
   }
   video.addEventListener('loadedmetadata',()=>{if(seekTo>0&&Number.isFinite(video.duration)&&seekTo<video.duration-5){video.currentTime=seekTo;seekTo=0;}});
   video.addEventListener('playing',()=>{message('');status('Playing · '+video.videoWidth+' × '+video.videoHeight);});video.addEventListener('waiting',()=>{if(playing)status('Buffering…');});video.addEventListener('error',()=>{if(playing)playbackError();});
-  video.addEventListener('timeupdate',()=>{if(Date.now()-lastSave>10000)savePosition();});video.addEventListener('pause',()=>savePosition());video.addEventListener('ended',()=>savePosition());
-  $('[aria-label="Stream quality"]').onchange=e=>{if(hls)hls.currentLevel=Number(e.target.value);};$('[aria-label="Audio track"]').onchange=e=>{if(hls)hls.audioTrack=Number(e.target.value);};$('[aria-label="Subtitle track"]').onchange=e=>{if(hls){hls.subtitleTrack=Number(e.target.value);hls.subtitleDisplay=Number(e.target.value)>=0;}};
+  video.addEventListener('timeupdate',()=>{if(playing&&!playing.live&&Date.now()-lastSave>10000)savePosition();});video.addEventListener('pause',()=>savePosition());video.addEventListener('ended',()=>savePosition());
+  $('[aria-label="Stream quality"]').onchange=e=>{if(hls)hls.loadLevel=Number(e.target.value);};$('[aria-label="Audio track"]').onchange=e=>{if(hls)hls.audioTrack=Number(e.target.value);};$('[aria-label="Subtitle track"]').onchange=e=>{if(hls){hls.subtitleTrack=Number(e.target.value);hls.subtitleDisplay=Number(e.target.value)>=0;}};
   $('[aria-label="Picture fit"]').onchange=e=>video.style.objectFit=e.target.value;
   $('[aria-label="Playback mode"]').onchange=()=>run(()=>{if(playing){const value=playing;return play(value.item,value.start,value.source);}status('Playback mode selected.');});
   async function guide(){

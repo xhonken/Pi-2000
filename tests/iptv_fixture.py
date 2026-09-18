@@ -1,5 +1,6 @@
 """In-memory provider fixtures, used only by tests; no production network bypass."""
 from contextlib import asynccontextmanager
+import asyncio
 import base64
 import json
 from pathlib import Path
@@ -31,6 +32,17 @@ class Content:
             value=await self.read(size)
             if not value:return
             yield value
+
+class JitterContent(Content):
+    """1.2 Mbit/s live TS, a 2.5 s outage at 10 s, then provider catch-up."""
+    def __init__(self,data):
+        super().__init__(data);self.started=time.monotonic();self.delayed=False
+    async def read(self,size=-1):
+        if self.offset>=len(self.data):return b''
+        if self.offset>=150000*10 and not self.delayed:
+            self.delayed=True;await asyncio.sleep(2.5)
+        await asyncio.sleep(max(0,self.started+self.offset/150000-time.monotonic()))
+        return await super().read(min(size if size>0 else 37600,37600))
 
 class Response:
     def __init__(self,data,mime='application/octet-stream',status=200,headers=None):
@@ -72,7 +84,9 @@ class FixtureNetwork:
         if headers and headers.get('Range'):
             start,_,end=headers['Range'].removeprefix('bytes=').partition('-');start=int(start or 0);end=int(end) if end else len(data)-1
             extra['Content-Range']=f'bytes {start}-{end}/{len(data)}';data=data[start:end+1];status=206
-        yield Response(data,mime,status,extra),target
+        response=Response(data,mime,status,extra)
+        if urlsplit(target).path=='/jitter.ts':response.content=JitterContent((self.media/'jitter.ts').read_bytes());response.headers={}
+        yield response,target
 
 def make_media(root):
     root=Path(root);(root/'hls').mkdir(parents=True,exist_ok=True)
@@ -84,3 +98,8 @@ def make_media(root):
 def attach(application,media=None):
     library=next(r.handler.library for r in application.router.routes() if r.resource.canonical=='/api/iptv/sources')
     library.network=FixtureNetwork(media);return library
+
+
+def make_jitter_media(root):
+    root=Path(root)
+    subprocess.run(['ffmpeg','-hide_banner','-loglevel','error','-y','-f','lavfi','-i','testsrc2=size=320x180:rate=25','-f','lavfi','-i','sine=frequency=440:sample_rate=48000','-t','30','-c:v','libx264','-threads','1','-preset','ultrafast','-pix_fmt','yuv420p','-g','25','-b:v','600k','-maxrate','600k','-bufsize','1200k','-c:a','aac','-b:a','96k','-muxrate','1200k','-f','mpegts',str(root/'jitter.ts')],check=True)

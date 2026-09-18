@@ -4,6 +4,11 @@ User-visible changes are recorded here for each numbered release. Development be
 
 ## Unreleased
 
+- Stabilize IPTV live playback with a startup buffer and less aggressive live
+  catch-up, buffered HLS quality changes and window-aware automatic quality.
+  Avoid periodic position writes for live TV; retain on-demand resume saving.
+  Add a real browser playback regression with a simulated network outage.
+
 - Add a private IPTV Player with M3U/Xtream import, live/movie/series views,
   country/group/search filters, favorites, viewing positions, XMLTV and provider
   catchup. Stream HLS, TS and media files through login-bound opaque URLs; add

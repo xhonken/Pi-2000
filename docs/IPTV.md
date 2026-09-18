@@ -55,6 +55,23 @@ first video/audio stream; it does not provide alternative audio or subtitles.
 Use **Playback → Reconnect** after an interruption. Closing the app or stopping
 ends playback; minimizing leaves it playing.
 
+Live TS starts with a target four-second playback buffer (up to twelve seconds
+of startup waiting). This adds a short channel-change delay to absorb network
+jitter. Live catch-up only runs when the buffer grows beyond twenty seconds and
+retains six seconds, instead of repeatedly jumping to half a second from the
+live edge. HLS uses a five-segment live target with low-latency mode disabled.
+The provider's available live window can limit this buffer.
+
+In Automatic quality, HLS also accounts for the video window's size to avoid
+downloading unnecessarily large variants; fullscreen allows higher resolutions.
+Manual quality choices apply to newly downloaded segments without discarding
+the existing buffer, so the visible change may take a little time. These choices
+follow the [mpegts.js playback settings](https://github.com/xqq/mpegts.js/blob/v1.8.2/docs/api.md#config)
+and [HLS.js quality/buffer API](https://github.com/video-dev/hls.js/blob/v1.7.3/docs/API.md).
+Leave Playback on Original quality when the browser supports the channel;
+compatibility video conversion costs additional Pi CPU. Buffering cannot repair
+a persistently slow provider, insufficient bandwidth or unsupported codecs.
+
 ## Playback modes and limits
 
 | Mode | Behaviour |
@@ -142,5 +159,8 @@ parsing, series/guide/timeshift construction and real sandboxed FFmpeg conversio
 `iptv_ui.cjs` uses generated H.264/AAC test media and a disposable provider to check
 decoded HLS/TS/MP4 audio/video, compatibility playback, controls, private URLs,
 episodes/archive, recovery, keyboard-accessible menus and narrow 18 px layouts.
+`iptv_stability_ui.cjs` streams generated live H.264/AAC at 1.2 Mbit/s, inserts a
+2.5-second network outage, and checks decoded audio/video without playback stalls
+or latency-chasing seeks. It also checks cancellation during startup buffering.
 Real-provider catalogues and installed HTTPS checks are separate acceptance;
 fixtures do not establish that every external channel or codec works.

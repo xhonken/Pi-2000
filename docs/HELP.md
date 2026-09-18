@@ -69,7 +69,9 @@ Load Guide fetches Xtream listings or displays imported XMLTV. Watch Archive is
 available only when the provider supplies completed programmes within its archive
 window. Playback mode offers original quality or direct TS/file audio/video
 compatibility conversion on the Pi. Saved viewing positions resume when the media
-supports seeking; restored windows never autoplay. Read the [IPTV guide](IPTV.md)
+supports seeking; restored windows never autoplay. Live TV buffers briefly at
+startup to absorb network interruptions. Automatic HLS quality follows the player
+size; manual quality changes preserve buffered video. Read the [IPTV guide](IPTV.md)
 for supported formats, guide setup and limitations.
 
 ## Pi++ and SFTP

@@ -24,7 +24,8 @@
     "vault_ui.cjs",
     "workspace_recovery_ui.cjs",
     "security_crypto_ui.cjs",
-    "iptv_ui.cjs"
+    "iptv_ui.cjs",
+    "iptv_stability_ui.cjs"
   ],
   "geometry": [
     "cad_geometry.cjs",

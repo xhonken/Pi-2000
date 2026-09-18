@@ -96,3 +96,14 @@ through the production gateway, verifies decoded audio/video and tests the UI,
 recovery and account-safe URLs. The fake provider is injected only by the test
 fixture; production has no private-network bypass. FFmpeg is required for these
 tests. Real-provider availability and installed PAM/HTTPS verification are separate.
+
+`iptv_stability_ui.cjs` adds a timed live TS fixture (1.2 Mbit/s, 2.5 seconds of
+network interruption), asserting decoded audio/video without stalls or catch-up
+seeks and cancellation of buffered startup after Stop. Run both player suites:
+
+```sh
+python tests/run_classic_suite.py iptv_stability_ui.cjs iptv_ui.cjs
+```
+
+`WIN2K_TEST_BASELINE=1` records stall/seek metrics without their zero assertions
+when comparing older playback settings. This switch affects only the test.
