@@ -2,7 +2,7 @@
 
 **Alpha software.** A personal web desktop for Raspberry Pi 5, inspired by the look and interaction patterns of Windows 2000. It provides private user accounts, persistent SSH terminals, a streamed Chromium browser, file storage, phpMyAdmin-based MariaDB administration, private Git projects, an API tester, Pi++, Arduino/ESP32 development, Pi-IPTV, an encrypted Pi-Vault and everyday desktop tools.
 
-Pi-2000 uses **Python** (aiohttp, AsyncSSH and SQLite) on the server and **plain JavaScript, HTML and CSS** in the browser. The desktop uses SQLite and does not require React. MariaDB Manager embeds distribution-packaged phpMyAdmin through a dedicated PHP-FPM service and connects to a local or external MariaDB server using your database account. The desktop interface and project documentation are in English.
+Pi-2000 uses **Python** (aiohttp, AsyncSSH and SQLite) on the server and **plain JavaScript, HTML and CSS** in the browser. The desktop uses SQLite and does not require React. Pi-DB Manager embeds distribution-packaged phpMyAdmin through a dedicated PHP-FPM service and connects to a local or external MariaDB server using your database account. The desktop interface and project documentation are in English.
 
 This is an independent project, not a Microsoft product and not a Windows emulator. The Chromium browser runs on the server; external websites retain their own appearance and language.
 
@@ -23,7 +23,7 @@ Current numbered release: **[0.1.0-alpha.6](https://github.com/xhonken/Pi-2000/r
   rotation, request limits, Browser version checks, guarded backup/recovery and
   visibility into installed versus running worker builds.
 - **Test installer:** a new arm64 `.deb` with these additions and the existing
-  Pi++, Arduino Workshop, PAM identities and desktop applications.
+  Pi++, Pi-Arduino, PAM identities and desktop applications.
 
 Read the [Alpha 6 release notes](docs/releases/0.1.0-alpha.6.md).
 **Fresh installation on a reimaged Pi 4 and physical power-loss/recovery acceptance
@@ -62,12 +62,12 @@ Existing web accounts migrate on their next successful login. A pre-existing Lin
 | Pi-IPTV | Private M3U/Xtream library, countries/groups, live/films/series, favorites, programme guide and provider archive. See [IPTV](docs/IPTV.md). |
 | Browser | Persistent Chromium tabs, separate cookies and profiles for each account, audio, automatic resizing and an enforced uBlock Origin Lite policy. |
 | Pi++ | Notepad++-inspired editor with a compact toolbar, document panel, accessible tabs, Save All, search across open documents, bookmarks, language selection, LF/CR LF conversion, private preferences, recovery drafts, SFTP and syntax diagnostics. |
-| MariaDB Manager | Embedded phpMyAdmin, private local/external connections, SQL, table data and structure, users/privileges, search and import/export within the database account's permissions. Saved SQL Workspace preserves native drafts, direct row editing and the guided JOIN builder. |
-| Git Projects | Private sandboxed repositories, HTTPS clone/remotes, file editing, status/diffs, staging, commits, branches/history and fetch/pull/push controls. |
-| Arduino Workshop | Private multi-file sketches, board options, library search/version installation and includes, Verify, USB Upload, Serial Monitor and Serial Plotter. |
-| API Tester | Private encrypted saved requests, methods, headers, Basic/Bearer authentication, request bodies, response inspection and timing. |
+| Pi-DB Manager | Embedded phpMyAdmin, private local/external connections, SQL, table data and structure, users/privileges, search and import/export within the database account's permissions. Saved SQL Workspace preserves native drafts, direct row editing and the guided JOIN builder. |
+| Pi-Git Projects | Private sandboxed repositories, HTTPS clone/remotes, file editing, status/diffs, staging, commits, branches/history and fetch/pull/push controls. |
+| Pi-Arduino | Private multi-file sketches, board options, library search/version installation and includes, Verify, USB Upload, Serial Monitor and Serial Plotter. |
+| Pi-API | Private encrypted saved requests, methods, headers, Basic/Bearer authentication, request bodies, response inspection and timing. |
 | Dimension Drawing | Dimensioned 2D shapes, rotated cutouts, frame and hole patterns, approximate clearance/collision checks, private saved drawings, SVG and CSV export. |
-| Calculator | Arithmetic, parentheses, powers, scientific functions, memory buttons and session history. Trigonometry uses degrees. |
+| Pi-Calt | Arithmetic, parentheses, powers, scientific functions, memory buttons and session history. Trigonometry uses degrees. |
 | Notes and Tasks | Private notes and checklists with automatic saving. |
 | Search and Favourites | Search private files, folders, applications and connections; save favourites and revisit recent items. |
 | Network Tools | Private targets, DNS, ping, TCP port checks, monitoring and saved results from the Pi. |
@@ -173,11 +173,11 @@ SFTP transfers support up to 50 MB per file, two simultaneous operations per acc
 
 ## Database and development tools
 
-MariaDB Manager opens embedded phpMyAdmin by default. Choose a private saved connection to manage databases, table structures and rows, SQL, users/privileges and imports/exports. Available operations depend on the connected database account. Optional bookmarks, tracking and designer metadata require phpMyAdmin configuration storage on an authorized database. See [phpMyAdmin integration](docs/PHPMYADMIN.md) for setup, session behavior and resource limits.
+Pi-DB Manager opens embedded phpMyAdmin by default. Choose a private saved connection to manage databases, table structures and rows, SQL, users/privileges and imports/exports. Available operations depend on the connected database account. Optional bookmarks, tracking and designer metadata require phpMyAdmin configuration storage on an authorized database. See [phpMyAdmin integration](docs/PHPMYADMIN.md) for setup, session behavior and resource limits.
 
-**File → Saved SQL Workspace** opens the retained native manager with existing drafts, query management, direct row forms, the guided SELECT/JOIN builder and administration dialogs. See [MariaDB Manager](docs/MARIADB-MANAGER.md) for these tools and their limits.
+**File → Saved SQL Workspace** opens the retained native manager with existing drafts, query management, direct row forms, the guided SELECT/JOIN builder and administration dialogs. See [Pi-DB Manager](docs/MARIADB-MANAGER.md) for these tools and their limits.
 
-Git Projects provides isolated private repositories, file editing, staging, commits, branches and HTTPS remote controls. API Tester sends requests from the Pi and saves private encrypted request collections. Pi++ checks Python, JavaScript and JSON syntax without executing the program. See [Development Tools](docs/DEVELOPMENT-TOOLS.md) for workflows, quotas and supported transports.
+Pi-Git Projects provides isolated private repositories, file editing, staging, commits, branches and HTTPS remote controls. Pi-API sends requests from the Pi and saves private encrypted request collections. Pi++ checks Python, JavaScript and JSON syntax without executing the program. See [Development Tools](docs/DEVELOPMENT-TOOLS.md) for workflows, quotas and supported transports.
 
 Web account roles do not grant access to modify the Pi-2000 installation or its private platform state. Database privileges come from the selected MariaDB account; Git workspaces are separate from the installation.
 
@@ -187,7 +187,7 @@ Dimension Drawing supports rectangles, squares, circles, ellipses, three-sided t
 
 Curves are approximated by polygons for collision/clearance checks; the displayed tolerance describes that approximation. Areas use shape formulae, and net area is withheld for invalid or overlapping cutouts. These drawings are dimension-planning aids, not certified manufacturing output. Save stores the drawing for your account; SVG and CSV export create local downloads. Existing older rectangle/hole drawings are migrated when opened.
 
-Calculator uses a bounded arithmetic parser without `eval`. Functions include `sqrt`, `abs`, `sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `log` and `ln`, with `pi` and `e`. Decimal points and commas are accepted. `%` divides the complete expression by 100. Calculator memory/history belongs to the open window.
+Pi-Calt uses a bounded arithmetic parser without `eval`. Functions include `sqrt`, `abs`, `sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `log` and `ln`, with `pi` and `e`. Decimal points and commas are accepted. `%` divides the complete expression by 100. Pi-Calt memory/history belongs to the open window.
 
 ## Task Manager
 

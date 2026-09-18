@@ -155,7 +155,7 @@ class ArduinoWorkshop:
 
     def command(self, uid, args, *, network=False, work=None, port=None):
         if not CLI.is_file() or not Path('/usr/bin/bwrap').is_file():
-            raise web.HTTPServiceUnavailable(text='Arduino tools are not installed yet. Ask the Pi operator to finish the Arduino Workshop installation.')
+            raise web.HTTPServiceUnavailable(text='Arduino tools are not installed yet. Ask the Pi operator to finish the Pi-Arduino installation.')
         root = self.runtime(uid)
         cmd = ['/usr/bin/prlimit', '--cpu=900', '--as=4294967296', '--fsize=2147483648', '--nofile=256', '--',
                '/usr/bin/bwrap', '--unshare-all', '--die-with-parent', '--new-session']

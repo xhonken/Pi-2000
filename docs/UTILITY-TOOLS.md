@@ -26,7 +26,7 @@ File exports:
 - **RGB565:** two bytes per pixel, little-endian, left-to-right and top-to-bottom. The 240 × 240 export is 115,200 bytes.
 - **Arduino Header:** a `const uint16_t[] PROGMEM` image with width/height constants, ready to include in a sketch using Adafruit GFX `drawRGBBitmap()` and the appropriate display driver.
 
-The corners outside the round mask are black in all exports. The header contains rasterized text and images, so browser fonts are baked into pixels. It does not contain GPIO wiring, a display driver or a complete sketch. Choose those in Arduino Workshop's board/library managers.
+The corners outside the round mask are black in all exports. The header contains rasterized text and images, so browser fonts are baked into pixels. It does not contain GPIO wiring, a display driver or a complete sketch. Choose those in Pi-Arduino's board/library managers.
 
 Limits: 16–512 pixels per dimension, 100 layers, 500 points per pencil stroke and a 1 MB saved project. Imported images may be up to 10 MB and 4,096 × 4,096 pixels; large embedded images can reach the project limit. No executable project content or external image URLs are accepted.
 
@@ -48,7 +48,7 @@ Start Following refreshes every five seconds while the window is open; Stop Foll
 
 ## Serial Plotter
 
-In Arduino Workshop choose Tools → Select Port, then Tools → Serial Plotter. Connect at the baud rate used by the sketch. Show Monitor and Show Plotter switch views of the same connection. Pi-connected USB serial access retains the existing administrator requirement and exclusive-port lock. Opening the serial port may reset the board.
+In Pi-Arduino choose Tools → Select Port, then Tools → Serial Plotter. Connect at the baud rate used by the sketch. Show Monitor and Show Plotter switch views of the same connection. Pi-connected USB serial access retains the existing administrator requirement and exclusive-port lock. Opening the serial port may reset the board.
 
 Send one sample per newline, with up to eight numeric channels:
 

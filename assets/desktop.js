@@ -89,8 +89,8 @@ function render() {
   summary.innerHTML='<span class="win2k-pixel-icon win2k-icon-'+icon+'" aria-hidden="true"></span><span class="menu-label"></span><span class="menu-arrow" aria-hidden="true">▸</span>';
   summary.querySelector('.menu-label').textContent=label;panel.className='submenu';panel.append(...entries);details.append(summary,panel);programs.append(details);
  }
- category('Accessories',[button('My Files','files'),button('Notes','notes'),button('Calculator','calculator'),button('Archive Manager','archive'),button('Search and Favourites','search')]);
- category('Development and Drawing',[button('Pi++','editor'),button('MariaDB Manager','database'),button('API Tester','apitester'),button('Git Projects','git'),button('Arduino Workshop','arduino'),button('Dimension Drawing','cad'),button('Display Studio','displaystudio')],'editor');
+ category('Accessories',[button('My Files','files'),button('Notes','notes'),button('Pi-Calt','calculator'),button('Archive Manager','archive'),button('Search and Favourites','search')]);
+ category('Development and Drawing',[button('Pi++','editor'),button('Pi-DB Manager','database'),button('Pi-API','apitester'),button('Pi-Git Projects','git'),button('Pi-Arduino','arduino'),button('Dimension Drawing','cad'),button('Display Studio','displaystudio')],'editor');
  category('Internet and Connections',[button('Browser','browser'),button('Pi-IPTV','iptv'),button('My Devices','devices'),button('Network Tools','network'),button('SFTP – File Transfer','sftp')],'browser');
  category('System Tools',[...(desktopUser?.role==='admin'?[button('Local Terminal','localterminal')]:[]),button('Task Manager','taskmanager'),button('Pi-Vault','vault'),button('Log Viewer','logviewer'),button('My Activities','activities'),button('System Status','status'),button('About Pi-2000','about'),button('My Settings','preferences')],'settings');
  category('My Shortcuts',[...shortcuts.filter(x=>x.start&&!x.deleted).map(x=>link(x)),button('Manage Shortcuts…','links'),button('New Shortcut…','add')]);

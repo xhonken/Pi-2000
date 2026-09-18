@@ -82,15 +82,15 @@ this is not protection against failed storage hardware. Keep verified backups.
 | --- | --- |
 | Pi++ | Open saved files, server recovery drafts (including unsaved new text/SFTP drafts), active document, cursor and scroll. Drafts do not overwrite the original file. |
 | Notes | Autosaved notes and task list. |
-| Arduino Workshop | Open project, selected source tab, unsaved source/board changes and cursor. Original project revision is retained so a later Save still detects conflicts. Builds, uploads and serial monitoring are not restarted automatically. |
+| Pi-Arduino | Open project, selected source tab, unsaved source/board changes and cursor. Original project revision is retained so a later Save still detects conflicts. Builds, uploads and serial monitoring are not restarted automatically. |
 | Display Studio | Composition, embedded images, unsaved changes, selected layer, grid and zoom. Saving the project file remains explicit. |
 | Dimension Drawing | Drawing, cutouts and control values, including changes not yet saved with Save Drawing. |
-| Calculator | Expression, output, memory and recent history. |
+| Pi-Calt | Expression, output, memory and recent history. |
 | Terminal | Existing processes reconnect when available. After a reboot, the window returns with Reconnect; a new authenticated connection is required. Commands and terminal passwords are never checkpointed or replayed. |
 | Browser | The window reopens using the existing private Chromium profile. Live website state, unfinished forms and media playback are not guaranteed to recover. |
 | Pi-Vault | Window only; it always opens locked. Unlocked keys, passwords and unsaved secret forms are excluded. |
 | Database tools | Windows and the SQL workspace's existing saved drafts. Connections and transactions must be reopened; phpMyAdmin forms/unsent SQL are not checkpointed. |
-| Other applications | The window returns. Content is restored only where the app already saves it; unsaved API Tester credentials/requests, Git edits and open modal dialogs are not included. Use each app's Save command. |
+| Other applications | The window returns. Content is restored only where the app already saves it; unsaved Pi-API credentials/requests, Git edits and open modal dialogs are not included. Use each app's Save command. |
 
 One failed application does not stop the others from restoring. Failed recovery
 retains its checkpoint rather than replacing it with a default window. A failed

@@ -1,4 +1,4 @@
-/* Focused Windows 2000 administration dialogs for MariaDB Manager. */
+/* Focused Windows 2000 administration dialogs for Pi-DB Manager. */
 (() => {
  'use strict';
  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));

@@ -1,8 +1,8 @@
 # Development tools
 
-All tools are available under **Start → Programs → Development and Drawing**. They use the shared Windows 2000 menus, keyboard navigation and window manager. MariaDB administration is documented separately in [MariaDB Manager](MARIADB-MANAGER.md).
+All tools are available under **Start → Programs → Development and Drawing**. They use the shared Windows 2000 menus, keyboard navigation and window manager. MariaDB administration is documented separately in [Pi-DB Manager](MARIADB-MANAGER.md).
 
-## Git Projects
+## Pi-Git Projects
 
 **File → New Project** initializes a private repository. **Clone Repository** accepts HTTPS URLs, with optional username and access token supplied for that operation only. Clones initially fetch the latest commit. Configure **Remote → Remote URL** to add or change `origin`.
 
@@ -20,7 +20,7 @@ Local platform backups include Git workspaces and repository objects. Existing b
 
 Checks support up to 256 KB, run with a short timeout/resource limits, and do not provide type checking, dependency analysis or runtime correctness. `.mjs` uses JavaScript module syntax; `.js` and `.cjs` use CommonJS syntax.
 
-## API Tester
+## Pi-API
 
 Enter a URL, method, headers and optional body, then **Send**. Headers use `Name: value`, one per line. **Request → Authentication** prepares Bearer or Basic authentication. Inspect raw body, formatted JSON, response headers, status, elapsed time and size; download raw response bytes through File.
 
@@ -28,7 +28,7 @@ Saved requests, including bodies and headers, are encrypted with the private cre
 
 Requests originate from the Pi, not from the user's browser. TLS certificates are verified. Pi login cookies are never forwarded automatically. Redirects are shown without being followed, and compressed responses remain raw. Responses are capped at 1 MB and requests at 30 seconds. A timeout does not establish whether a remote write succeeded.
 
-API Tester blocks metadata/link-local addresses and Pi-2000 administration endpoints. Local development services may use ports 3000, 3001, 4000, 5000, 5001, 5173, 8000, 8001, 8080, 8081 or 9000. DNS addresses are checked and pinned for each request. External or LAN APIs must be reachable from the Pi.
+Pi-API blocks metadata/link-local addresses and Pi-2000 administration endpoints. Local development services may use ports 3000, 3001, 4000, 5000, 5001, 5173, 8000, 8001, 8080, 8081 or 9000. DNS addresses are checked and pinned for each request. External or LAN APIs must be reachable from the Pi.
 
 ## Verification
 

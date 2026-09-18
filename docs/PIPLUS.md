@@ -17,7 +17,7 @@ The tab strip and **Document List** select open documents. An orange tab edge an
 - **Bookmarks:** Toggle a bookmark on the current line, then navigate forwards or backwards. Bookmarks follow inserted/deleted text while the tab is open. They are not saved across application restarts.
 - **Language:** Choose a common syntax mode directly or filter the complete language list. This changes highlighting, not the file extension. Reopening a saved file detects its mode from the file name.
 - **Encoding:** Files use UTF-8; an existing UTF-8 BOM is preserved. Convert the active tab's line endings to Unix LF or Windows CR LF, then save. Other character encodings need conversion before opening. Mixed line endings are normalized by the editor.
-- **Code → Check Syntax:** Check Python, JavaScript or JSON without running the program. File extensions determine the checker. This is separate from Arduino Workshop's compile/upload workflow.
+- **Code → Check Syntax:** Check Python, JavaScript or JSON without running the program. File extensions determine the checker. This is separate from Pi-Arduino's compile/upload workflow.
 
 ## View and preferences
 

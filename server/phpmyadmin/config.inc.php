@@ -2,7 +2,7 @@
 /* Only the authenticated Pi-2000 gateway can supply FastCGI parameters. */
 $bridge = json_decode(base64_decode($_SERVER['PI2000_BRIDGE'] ?? '', true) ?: '', true);
 if (!is_array($bridge) || !preg_match('/^[a-f0-9]{48}$/', $bridge['sid'] ?? '')) {
-    http_response_code(403); exit('Open MariaDB Manager from Pi-2000.');
+    http_response_code(403); exit('Open Pi-DB Manager from Pi-2000.');
 }
 /* Install before routing/template rendering, including AJAX requests which do
    not render config.header.inc.php. phpMyAdmin records E_USER_DEPRECATED even

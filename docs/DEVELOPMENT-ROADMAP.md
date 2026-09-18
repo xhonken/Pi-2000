@@ -1,6 +1,6 @@
 # Development workboard
 
-Current scope: Browser memory verification, MariaDB Manager, private Git projects, editor diagnostics and API Tester. MariaDB has priority. Interfaces preserve classic Windows 2000 menus, compact toolbars and separate administration dialogs.
+Current scope: Browser memory verification, Pi-DB Manager, private Git projects, editor diagnostics and Pi-API. MariaDB has priority. Interfaces preserve classic Windows 2000 menus, compact toolbars and separate administration dialogs.
 
 ## Implemented coverage
 
@@ -19,7 +19,7 @@ Current scope: Browser memory verification, MariaDB Manager, private Git project
 | Discovery | Database text search, foreign-key diagram and details | Search caps 50 tables / 250 matching previews; diagram caps 80 related tables |
 | Git | Private sandboxed projects, HTTPS clone, file editing, status/diff, staging/commit, branches/history, fetch/pull/push interface | 64 MB projects; no SSH/LFS/merge editor; external remote round trips not part of automated verification |
 | Diagnostics | Python, JavaScript/CommonJS/modules, JSON syntax checks with annotations/line navigation | Syntax only, 256 KB; no full language-server/type analysis |
-| API Tester | Private encrypted saved requests, headers/auth/body, HTTP response/timing, JSON/header views and downloads | 1 MB response, verified TLS, redirects explicit; protects platform endpoints |
+| Pi-API | Private encrypted saved requests, headers/auth/body, HTTP response/timing, JSON/header views and downloads | 1 MB response, verified TLS, redirects explicit; protects platform endpoints |
 
 ## Remaining beyond this implementation
 
@@ -29,7 +29,7 @@ Database users and Pi-2000 users are separate. New-user database access is an ex
 
 References: [phpMyAdmin features](https://docs.phpmyadmin.net/en/latest/intro.html), [user administration](https://docs.phpmyadmin.net/en/latest/privileges.html), [MariaDB privileges](https://mariadb.com/docs/server/reference/sql-statements/account-management-sql-statements/grant), [CREATE USER](https://mariadb.com/docs/server/reference/sql-statements/account-management-sql-statements/create-user).
 
-See [MariaDB Manager](MARIADB-MANAGER.md) and [Development Tools](DEVELOPMENT-TOOLS.md) for behavior, security boundaries, limits and verification commands. Installation state must be verified separately from repository test results.
+See [Pi-DB Manager](MARIADB-MANAGER.md) and [Development Tools](DEVELOPMENT-TOOLS.md) for behavior, security boundaries, limits and verification commands. Installation state must be verified separately from repository test results.
 
 ## Alpha 3 integration update
 

@@ -4,6 +4,9 @@ User-visible changes are recorded here for each numbered release. Development be
 
 ## Unreleased
 
+- Rename Arduino Workshop to Pi-Arduino, Calculator to Pi-Calt, MariaDB Manager
+  to Pi-DB Manager, API Tester to Pi-API and Git Projects to Pi-Git Projects.
+  Preserve familiar Windows-style tool names and personal desktop labels.
 - Use Pi-2000 throughout the interface and documentation, and rename IPTV Player
   to Pi-IPTV and Vault to Pi-Vault. Existing data, encrypted exports, application
   identifiers and custom desktop names remain compatible.
@@ -80,15 +83,15 @@ installation remain acceptance checks. See the [release notes](docs/releases/0.1
 - Keep CAD-specific Object commands out of Display Studio, and reconcile missing system packages during source updates as well as fresh installation.
 
 - Add Network Tools with private targets, Pi-originated DNS/ping/TCP checks and graphical monitoring; Display Studio with layers, images, round-screen previews and PNG/RGB565/Arduino exports; Archive Manager with safe ZIP extraction and creation; Log Viewer with bounded local/SSH tails, filtering and follow mode.
-- Add Serial Plotter to Arduino Workshop with incremental samples, up to eight curves, scale controls, pause and CSV export. Preserve USB permissions and exclusive-port access.
+- Add Serial Plotter to Pi-Arduino with incremental samples, up to eight curves, scale controls, pause and CSV export. Preserve USB permissions and exclusive-port access.
 
 - Replace the Code Editor presentation with Pi++: an original icon, compact toolbar, document panel, accessible tabs, expanded menus, Save All, graphical open/import, search across open documents, bookmarks, language selection, LF/CR LF conversion and private editor preferences. Preserve existing private files, SFTP connections, conflict checks and recovery drafts.
 
 - Prepare missing Arduino catalogs automatically when opening package managers or searching libraries, and allow catalog downloads inside their sandbox. Show search progress and readable failures.
 
-- Add an Arduino Workshop desktop icon as well as its Start menu entry.
+- Add an Pi-Arduino desktop icon as well as its Start menu entry.
 
-- Add Arduino Workshop with private multi-file sketches, classic application menus, board options, graphical board/library version managers, header insertion, import/export, Verify, Pi-connected USB Upload and Serial Monitor.
+- Add Pi-Arduino with private multi-file sketches, classic application menus, board options, graphical board/library version managers, header insertion, import/export, Verify, Pi-connected USB Upload and Serial Monitor.
 - Run Arduino CLI in a separate memory-limited service and filesystem sandbox, restrict USB access to administrators and preserve the latest job log across service restarts. Include the tools and service in source and Debian installation paths.
 - Verify real ESP32 compilation with ArduinoJson; physical USB flashing remains a hardware acceptance check.
 
@@ -130,7 +133,7 @@ installation of this release on a reimaged Pi 4 remain pending. See the
 - Include phpMyAdmin integration and build identity in code backups; verify private restored API requests, Git files and SQL drafts without reviving login tokens.
 - Add isolated HTTPS Git clone/fetch/pull/push and rejected-push coverage, and an unprivileged packaged phpMyAdmin test runtime.
 
-- Refresh the README, user guide and GitHub descriptions for Alpha 3, including phpMyAdmin, Git Projects, API Tester, syntax diagnostics and verified Browser memory protection. Documentation only; the published Alpha 3 source tag is unchanged.
+- Refresh the README, user guide and GitHub descriptions for Alpha 3, including phpMyAdmin, Pi-Git Projects, Pi-API, syntax diagnostics and verified Browser memory protection. Documentation only; the published Alpha 3 source tag is unchanged.
 
 ### Upgrade and known limitations
 
@@ -140,17 +143,17 @@ The final PAM-enabled Debian package has not yet passed fresh installation on a 
 
 ## 0.1.0-alpha.3 — 2026-09-09
 
-- Integrate upstream phpMyAdmin in MariaDB Manager with a Windows 2000 theme, private saved connections and an authenticated, isolated PHP-FPM gateway. Preserve the native saved SQL workspace as a separate tool.
+- Integrate upstream phpMyAdmin in Pi-DB Manager with a Windows 2000 theme, private saved connections and an authenticated, isolated PHP-FPM gateway. Preserve the native saved SQL workspace as a separate tool.
 
 - Separate MariaDB table data from SQL editing; use a single scrolling query strip with close buttons, a query selector and bulk management. Preserve legacy drafts, reuse empty tabs, bound new tab growth and isolate recent results by query. Prevent SQL tab names from intercepting application menu commands.
 
 - Row forms now execute inserts/edits/deletes directly on OK and refresh the table; explicit defaults, NULL and current-time modes avoid blank auto-ID/datetime errors. Add a tabbed SELECT builder with guided LEFT/RIGHT/INNER/CROSS joins, foreign-key suggestions, columns, filters, sorting and editable SQL output.
 
-- Expand MariaDB Manager with classic administration dialogs for databases, users/hosts, exact database grants, roles, account security/limits, table design, indexes, foreign keys, routines/events and maintenance. Review single-use SQL plans before applying; passwords stay out of previews and saved SQL drafts.
+- Expand Pi-DB Manager with classic administration dialogs for databases, users/hosts, exact database grants, roles, account security/limits, table design, indexes, foreign keys, routines/events and maintenance. Review single-use SQL plans before applying; passwords stay out of previews and saved SQL drafts.
 - Add MariaDB filtering/sorting, bounded database text search and relationship diagrams. Export all table rows and programmable objects through private transfer jobs; restore SQL with DELIMITER support, progress, cancellation and partial-completion reporting. Document size/consistency limits.
-- Add Git Projects with sandboxed private workspaces, HTTPS remotes, file editing, status/diffs, staging/commits, branches/history and fetch/pull/push controls. Include project data in local backups.
+- Add Pi-Git Projects with sandboxed private workspaces, HTTPS remotes, file editing, status/diffs, staging/commits, branches/history and fetch/pull/push controls. Include project data in local backups.
 - Add Code Editor syntax diagnostics for Python, JavaScript and JSON without executing source code.
-- Add API Tester with encrypted private saved requests, HTTP methods/headers/auth/body, formatted responses and timing. Protect platform endpoints and avoid forwarding Pi login credentials.
+- Add Pi-API with encrypted private saved requests, HTTP methods/headers/auth/body, formatted responses and timing. Protect platform endpoints and avoid forwarding Pi login credentials.
 
 - Show MariaDB connection failures in a prominent alert, report connection progress, and explain login/TLS/network errors, including unexpected proxy responses.
 
@@ -190,7 +193,7 @@ First numbered Alpha release. This captures the existing application and its ins
 - English Windows 2000 styled web desktop, grouped Start menu, movable icons and application windows.
 - Private accounts, owner/admin roles, per-user storage quotas, file uploads, folders and Recycle Bin.
 - Persistent SSH terminals, per-account Chromium profiles with audio and ad blocking, code editor and SFTP editing.
-- Dimension Drawing, Calculator, Notes and Tasks, search, favourites and Task Manager with resource graphs.
+- Dimension Drawing, Pi-Calt, Notes and Tasks, search, favourites and Task Manager with resource graphs.
 - Configurable Raspberry Pi 5 installer, updater, health checks, Caddy HTTPS setup and SQLite initialization.
 - Verified local backups, recovery documentation and organized configuration, Caddy and maintenance examples.
 - A version file, version-reporting command, release documentation and this changelog.

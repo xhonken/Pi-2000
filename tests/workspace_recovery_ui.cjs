@@ -43,7 +43,7 @@ const {spawn}=require('node:child_process'),{once}=require('node:events');
    assert.equal(await p.locator('.notes-text').inputValue(),'notes account '+i);if(i===2)assert.equal(await p.locator('.editor-window.maximized').count(),1);
    const calc=p.locator('.calculator-window');assert.equal(await calc.isVisible(),false);
    const saved=await state(p);assert.equal(saved.windows.find(w=>w.type==='calculator-window').state.expression,String(i)+'+42');assert.equal(saved.windows.find(w=>w.type==='calculator-window').left,20+i*30);
-   await p.locator('#tasks button').filter({hasText:'Calculator'}).click();assert.equal(await calc.locator('input').inputValue(),String(i)+'+42');
+   await p.locator('#tasks button').filter({hasText:'Pi-Calt'}).click();assert.equal(await calc.locator('input').inputValue(),String(i)+'+42');
   }
   const p=restored[0];await p.unroute('**/api/terminals');
   assert.match(await p.locator('.terminal-window .app-status').innerText(),/previous terminal process ended/i);assert.equal(await p.locator('.terminal-window button.reconnect').isEnabled(),true);

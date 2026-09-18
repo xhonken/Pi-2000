@@ -103,7 +103,7 @@ class PhpMyAdmin:
         key = request.match_info['sid']
         session = self.sessions.get(key)
         if not session or session['token'] != request[self.app.TOKEN]:
-            raise web.HTTPUnauthorized(text='Database session ended. Reconnect from MariaDB Manager.')
+            raise web.HTTPUnauthorized(text='Database session ended. Reconnect from Pi-DB Manager.')
         profile, secret = self.databases.profile(session['uid'], session['profile_id'])
         if hashlib.sha256(json.dumps([profile,secret]).encode()).hexdigest() != session['fingerprint']:
             del self.sessions[key]

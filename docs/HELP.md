@@ -92,13 +92,13 @@ Use **Code → Check Syntax** for Python, JavaScript or JSON. Click a reported p
 
 **Network Tools** saves private host/port targets and runs DNS, ping and TCP checks from the Pi. **Display Studio** draws layered screen designs with a round GC9A01A preset and exports PNG, RGB565 or Arduino headers. **Archive Manager** creates ZIP downloads and safely extracts selected ZIP entries into a new private folder. **Log Viewer** filters and follows private files or logs accessible through your SSH profiles.
 
-**Arduino Workshop → Tools → Serial Plotter** graphs up to eight numeric channels from the selected Pi USB serial device, with pause, scale controls and CSV export. USB access requires an administrator. See [workflows, sample firmware and limits](UTILITY-TOOLS.md).
+**Pi-Arduino → Tools → Serial Plotter** graphs up to eight numeric channels from the selected Pi USB serial device, with pause, scale controls and CSV export. USB access requires an administrator. See [workflows, sample firmware and limits](UTILITY-TOOLS.md).
 
 ## Everyday tools
 
 Notes and Tasks saves your notes and checklist automatically. Search and Favourites searches your own files, folders, apps and SSH connections. Use stars for favourites or filter to recent items. My Activities lists terminal sessions, browser controls, transfers and open windows.
 
-Calculator accepts arithmetic expressions and scientific functions. Angles use degrees; decimal points or commas are accepted. For example, `sqrt(300^2 + 400^2)` returns 500. `%` divides the entire expression by 100. Scientific Functions and History are available under View.
+Pi-Calt accepts arithmetic expressions and scientific functions. Angles use degrees; decimal points or commas are accepted. For example, `sqrt(300^2 + 400^2)` returns 500. `%` divides the entire expression by 100. Scientific Functions and History are available under View.
 
 Dimension Drawing supports common outer shapes and cutouts. Enter dimensions in millimetres, position cutouts by their centres and rotate them as needed. Select a cutout in the drawing or table to edit it. Use frame or grid patterns for circular holes. Check warnings and the displayed approximation tolerance before exporting. Save Drawing stores the drawing privately; SVG and CSV export download copies.
 
@@ -122,29 +122,29 @@ My Settings changes text size and the default text-file application, opens backg
 User Management is available to administrators and the protected installation creator. Administrators manage regular users; only the creator changes roles or manages other administrators. Disable preserves data. Delete requires the exact username and removes managed Linux accounts and homes as well as web data; existing linked Linux accounts are preserved. The creator cannot be disabled, deleted or demoted.
 
 
-## MariaDB Manager
+## Pi-DB Manager
 
-Open **Start → Programs → Development and Drawing → MariaDB Manager**. Use **File → New Connection** for a local or external MariaDB server, select the saved connection and Connect. The server address is reached from the Pi; `127.0.0.1` means the Pi itself. Verified TLS is the default, and saving an encrypted password is optional.
+Open **Start → Programs → Development and Drawing → Pi-DB Manager**. Use **File → New Connection** for a local or external MariaDB server, select the saved connection and Connect. The server address is reached from the Pi; `127.0.0.1` means the Pi itself. Verified TLS is the default, and saving an encrypted password is optional.
 
 The manager opens phpMyAdmin with the Pi-2000 appearance. Select a database or table to browse rows, edit structure, run SQL, search or import/export. Account and privilege administration requires the corresponding database permissions. Optional metadata features require configuration storage. See [phpMyAdmin integration](PHPMYADMIN.md) for setup and limits.
 
-**File → Saved SQL Workspace** opens existing native SQL drafts and tools. Table Data and SQL Queries are separate views. Close or select query tabs using the query controls; the guided SELECT/JOIN builder helps choose tables, joins, columns and filters. Row forms apply changes on OK; when using an explicit transaction, commit or roll back as appropriate. Read [MariaDB Manager](MARIADB-MANAGER.md) for detailed workflows.
+**File → Saved SQL Workspace** opens existing native SQL drafts and tools. Table Data and SQL Queries are separate views. Close or select query tabs using the query controls; the guided SELECT/JOIN builder helps choose tables, joins, columns and filters. Row forms apply changes on OK; when using an explicit transaction, commit or roll back as appropriate. Read [Pi-DB Manager](MARIADB-MANAGER.md) for detailed workflows.
 
-## Git Projects
+## Pi-Git Projects
 
-Open **Start → Programs → Development and Drawing → Git Projects**. Create a project or clone an HTTPS repository. Edit files, inspect diffs, stage changes and commit with your author details. A commit saves locally; use the Remote commands to fetch, pull or explicitly push. Projects belong to your account and are isolated from the Pi-2000 installation.
+Open **Start → Programs → Development and Drawing → Pi-Git Projects**. Create a project or clone an HTTPS repository. Edit files, inspect diffs, stage changes and commit with your author details. A commit saves locally; use the Remote commands to fetch, pull or explicitly push. Projects belong to your account and are isolated from the Pi-2000 installation.
 
-## Arduino Workshop
+## Pi-Arduino
 
-Open the **Arduino Workshop** desktop icon or **Start → Programs → Development and Drawing → Arduino Workshop**. Create a project, install ESP32 support through **Tools → Boards Manager**, then choose a board and USB port. **Tools → Library Manager** searches and installs library versions and dependencies; **Installed Libraries → Include Library** adds the headers to your code. Save Project stores every file and the board configuration. Verify compiles on the Pi; Upload compiles and flashes the Pi-connected board after confirmation. Serial Monitor receives and sends text at the selected baud rate.
+Open the **Pi-Arduino** desktop icon or **Start → Programs → Development and Drawing → Pi-Arduino**. Create a project, install ESP32 support through **Tools → Boards Manager**, then choose a board and USB port. **Tools → Library Manager** searches and installs library versions and dependencies; **Installed Libraries → Include Library** adds the headers to your code. Save Project stores every file and the board configuration. Verify compiles on the Pi; Upload compiles and flashes the Pi-connected board after confirmation. Serial Monitor receives and sends text at the selected baud rate.
 
-Projects and installed packages are private. All users can compile; USB upload and Serial Monitor require an administrator account. See [Arduino Workshop](ARDUINO-WORKSHOP.md) for first-use steps, imports/exports, job recovery, installation and limits.
+Projects and installed packages are private. All users can compile; USB upload and Serial Monitor require an administrator account. See [Pi-Arduino](ARDUINO-WORKSHOP.md) for first-use steps, imports/exports, job recovery, installation and limits.
 
-## API Tester
+## Pi-API
 
-Open **Start → Programs → Development and Drawing → API Tester**. Enter a URL, method, headers and optional body, then Send. **Request → Authentication** configures Basic or Bearer authentication. Inspect the response status, headers, body and timing; save requests to your private encrypted collection if needed. Requests originate from the Pi, so the destination must be reachable from it.
+Open **Start → Programs → Development and Drawing → Pi-API**. Enter a URL, method, headers and optional body, then Send. **Request → Authentication** configures Basic or Bearer authentication. Inspect the response status, headers, body and timing; save requests to your private encrypted collection if needed. Requests originate from the Pi, so the destination must be reachable from it.
 
-See [Development Tools](DEVELOPMENT-TOOLS.md) for Git, API Tester and syntax-check limits.
+See [Development Tools](DEVELOPMENT-TOOLS.md) for Git, Pi-API and syntax-check limits.
 
 ## Installed version and unsaved development work
 
@@ -153,7 +153,7 @@ System Tools → About Pi-2000**, to see the installed version, build ID and sou
 revision. Local modifications are indicated separately. The build identity is
 created by the server publisher; reloading the browser does not change it.
 
-API Tester warns before replacing or closing an unsaved request and before logoff.
+Pi-API warns before replacing or closing an unsaved request and before logoff.
 A failed save keeps the entered content available for retry. Save Request stores
 credentials encrypted on the server; unsaved request text is not copied to browser
 storage. Git file dialogs likewise warn before discarding edited text through
@@ -219,7 +219,7 @@ conflict means another tab changed the checkpoint: reload, or explicitly confirm
 replacing it with this tab's workspace. Do not assume a power failure can preserve
 edits made since the last successful save.
 
-Pi++, Notes, Arduino source, Display Studio, Dimension Drawing and Calculator have
+Pi++, Notes, Arduino source, Display Studio, Dimension Drawing and Pi-Calt have
 recovery support. Original files and projects still use their normal Save command.
 Terminal windows offer Reconnect after a reboot; previous commands/jobs are not
 replayed. Pi-Vault opens locked. Database transactions, phpMyAdmin forms, unsaved API

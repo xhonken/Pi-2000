@@ -16,7 +16,7 @@ URL = 'https://github.com/arduino/arduino-cli/releases/download/v' + VERSION + '
 
 def install(destination):
     if platform.machine() not in ('aarch64', 'arm64'):
-        raise SystemExit('This pinned Arduino Workshop tool bundle supports Linux ARM64.')
+        raise SystemExit('This pinned Pi-Arduino tool bundle supports Linux ARM64.')
     destination = Path(destination)
     destination.mkdir(parents=True, exist_ok=True)
     with urllib.request.urlopen(URL, timeout=120) as response: data = response.read(64*1024*1024)

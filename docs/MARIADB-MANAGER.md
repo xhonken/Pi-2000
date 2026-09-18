@@ -1,8 +1,8 @@
-# MariaDB Manager
+# Pi-DB Manager
 
 The default manager now integrates upstream phpMyAdmin with the Pi-2000 theme and existing saved connections. See [phpMyAdmin integration](PHPMYADMIN.md) for current behavior, installation and limits. The native SQL workspace described below remains available through **File → Saved SQL Workspace** to preserve existing drafts and tools.
 
-MariaDB Manager is available under **Start → Programs → Development and Drawing**. It manages databases through MariaDB TCP connections from the Pi running Pi-2000. It does not expose the Pi-2000 source tree, internal SQLite database, shell, or service configuration.
+Pi-DB Manager is available under **Start → Programs → Development and Drawing**. It manages databases through MariaDB TCP connections from the Pi running Pi-2000. It does not expose the Pi-2000 source tree, internal SQLite database, shell, or service configuration.
 
 ## Connections and saved work
 

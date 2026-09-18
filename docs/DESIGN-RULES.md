@@ -22,7 +22,7 @@ Start → Programs has Accessories, Development and Drawing, Internet and Connec
 
 ## Language and naming
 
-Product names: **Pi-2000**, **Pi-IPTV** and **Pi-Vault**. Keep these names consistent in windows, menus, help and installation messages.
+Product names: **Pi-2000**, **Pi-IPTV**, **Pi-Vault**, **Pi-Arduino**, **Pi-Calt**, **Pi-DB Manager**, **Pi-API** and **Pi-Git Projects**. Keep these names consistent in windows, menus, help and installation messages. Retain familiar Windows-style names such as My Computer, My Files and Task Manager; do not automatically add a Pi prefix to every application.
 
 All maintained product UI, accessibility labels, errors, installer output and documentation use English. Keep menu and toolbar labels consistent because the menu adapter maps commands to existing controls by label. Use English mnemonics: File F, Edit E, View V, Connection C, Account A, Help H.
 

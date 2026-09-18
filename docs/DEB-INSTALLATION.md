@@ -84,7 +84,7 @@ credentials, runtime databases and machine configuration are never package input
 ## Alpha 6 test package status
 
 The release package `0.1.0~alpha.6-1` includes Pi-IPTV, Pi-Vault, desktop/workspace recovery, security hardening,
-maintenance tools, Arduino Workshop, Pi++ and the graphical utility tools,
+maintenance tools, Pi-Arduino, Pi++ and the graphical utility tools,
 alongside PAM authentication and per-user Linux identities. It is built from the
 Alpha 6 source release and checked for content, build identity and checksums.
 **Fresh installation of this package on a reimaged Pi 4 is still pending.** The
@@ -97,7 +97,7 @@ Before an upgrade, finish Arduino jobs and disconnect Serial Monitor/Plotter as
 well as other live work. A preserved active Arduino worker must be restarted
 with `sudo systemctl restart pi2000-arduino` once idle to activate its new code.
 Board packages and libraries are downloaded separately for each web account
-through Arduino Workshop; they are not preinstalled by the `.deb`.
+through Pi-Arduino; they are not preinstalled by the `.deb`.
 
 ## Earlier package validation on physical hardware
 

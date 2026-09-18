@@ -8,8 +8,9 @@ Compatibility identifiers remain unchanged: installed `win2k` paths/services, `W
 
 ## 2026-09-18 product names
 
-The product is Pi-2000. The media application is Pi-IPTV and the encrypted
-application is Pi-Vault. Default desktop labels follow these names; personal
+The product is Pi-2000. Application names include Pi-IPTV, Pi-Vault, Pi-Arduino,
+Pi-Calt, Pi-DB Manager, Pi-API and Pi-Git Projects. Familiar Windows-style names
+such as My Computer, My Files and Task Manager remain unchanged. Default desktop labels follow these names; personal
 labels are retained. Package names, service IDs, API routes and the authenticated
 encryption format remain stable for existing installations and exports.
 

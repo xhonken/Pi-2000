@@ -1,4 +1,4 @@
-# MariaDB Manager rebuild
+# Pi-DB Manager rebuild
 
 Requested outcome: phpMyAdmin-style navigation and complete functional coverage, retaining Pi-2000 private saved local/remote connections and platform isolation. This is a new request; the existing manager is not a complete phpMyAdmin implementation.
 

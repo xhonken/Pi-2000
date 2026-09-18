@@ -33,7 +33,7 @@ def local_addresses():
 def validate_address(value,port,local):
     address=ipaddress.ip_address(value.split('%')[0]);address=getattr(address,'ipv4_mapped',None) or address
     if address.is_unspecified or address.is_multicast or address.is_link_local or (address.is_reserved and not address.is_loopback):
-        raise web.HTTPBadRequest(text='This network address is not available to API Tester.')
+        raise web.HTTPBadRequest(text='This network address is not available to Pi-API.')
     if (address.is_loopback or str(address) in local) and port not in DEV_PORTS:
         raise web.HTTPBadRequest(text='Pi-2000 platform endpoints are protected. Local development uses ports 3000, 3001, 4000, 5000, 5001, 5173, 8000, 8001, 8080, 8081 or 9000.')
 
@@ -60,7 +60,7 @@ class ApiClient:
         if not isinstance(headers,dict) or len(headers)>100:raise web.HTTPBadRequest(text='Use up to 100 request headers.')
         for key,value in headers.items():
             if not re.fullmatch(r"[!#$%&'*+.^_`|~0-9A-Za-z-]+",key) or not isinstance(value,str) or len(value)>8192 or any(c in value for c in '\r\n\0'):raise web.HTTPBadRequest(text='Invalid HTTP header.')
-            if key.lower() in ('host','connection','content-length','transfer-encoding','proxy-authorization','proxy-connection','upgrade'):raise web.HTTPBadRequest(text='This transport header is managed by API Tester.')
+            if key.lower() in ('host','connection','content-length','transfer-encoding','proxy-authorization','proxy-connection','upgrade'):raise web.HTTPBadRequest(text='This transport header is managed by Pi-API.')
         return {'name':name,'url':url,'method':method,'headers':headers,'body':body}
 
     async def read(self,request):

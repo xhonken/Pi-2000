@@ -1,6 +1,6 @@
 # phpMyAdmin in Pi-2000
 
-MariaDB Manager embeds the distribution-packaged phpMyAdmin inside a Pi-2000 window. The upstream application provides server/database/table navigation and its SQL, structure, search, insert, accounts/privileges, operations, routines, triggers, events, import/export and administration pages. A local CSS overlay supplies the Windows 2000 appearance without replacing upstream forms or query handling.
+Pi-DB Manager embeds the distribution-packaged phpMyAdmin inside a Pi-2000 window. The upstream application provides server/database/table navigation and its SQL, structure, search, insert, accounts/privileges, operations, routines, triggers, events, import/export and administration pages. A local CSS overlay supplies the Windows 2000 appearance without replacing upstream forms or query handling.
 
 Choose a saved connection and Connect. File → New Connection / Properties / Delete Connection uses the existing private connection profiles and encrypted credentials. Both local and external MariaDB servers are supported. Unencrypted transport must be selected explicitly; verified TLS and custom CA certificates retain their meaning. The legacy saved SQL drafts remain accessible through File → Saved SQL Workspace.
 

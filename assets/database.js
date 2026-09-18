@@ -1,4 +1,4 @@
-/* MariaDB Manager: private connection profiles and SQL workspaces. */
+/* Pi-DB Manager: private connection profiles and SQL workspaces. */
 (() => {
  'use strict';
  const d=window.Win2kDesktop,s=window.Win2kShell,api=d.api;
@@ -16,7 +16,7 @@
  function download(name,text,type='text/plain'){const url=URL.createObjectURL(new Blob([text],{type})),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
  function open(){
   s.closeStart();if(current){current.focus();return current;}
-  const w=d.makeWindow('MariaDB Manager','database-window');current=w;const owner=d.getUser().id,dialogs=new Set();
+  const w=d.makeWindow('Pi-DB Manager','database-window');current=w;const owner=d.getUser().id,dialogs=new Set();
   let profiles=[],session=null,connected=null,busy=false,closed=false,selectedTable=null,selectedRow=null,tableColumns=[],offset=0,results=[],draftVersion='',draftDirty=false,saving=Promise.resolve(),active=0,tabs=[{name:'Query 1',sql:''}],saveTimer=null,objectEpoch=0,commandQueue=Promise.resolve(),browseOptions={},rowSource=null,view='sql',runningTab=null,browseEpoch=0,selectedDatabase=null;
   const queryResults=new Map();
   w.body.innerHTML=`<div class="tool-toolbar db-toolbar"></div><div class="db-alert" role="alert" hidden></div><div class="db-layout"><aside class="db-sidebar"><strong>Saved Connections</strong><select class="db-connections" size="5" aria-label="Saved connections"></select><div class="db-connection-actions"></div><strong>Object Explorer</strong><label>Database<select class="db-catalog" aria-label="Database"><option value="">Connect to a server</option></select></label><div class="db-objects" aria-label="Database objects"></div></aside><section class="db-workspace"><div class="db-context">Not connected</div><div class="db-view-switch" aria-label="Workspace view"></div><div class="db-query-strip"><div class="db-tabs" role="tablist" aria-label="SQL queries"></div><select class="db-query-list" aria-label="Open queries"></select><div class="db-query-tools"></div></div><textarea class="db-sql" aria-label="SQL editor" spellcheck="false"></textarea><div class="db-query-actions tool-toolbar"></div><div class="db-data-heading"></div><div class="db-data-actions"></div><div class="db-result-tabs" role="tablist" aria-label="Query results"></div><div class="db-results" tabindex="0" aria-label="Results"></div><pre class="db-messages" role="status">Choose a saved connection or create a new one. SQL runs with the database account's permissions. Autocommit is on unless you begin a transaction.</pre></section></div><input class="db-import" type="file" accept=".sql,.csv" hidden>`;
@@ -205,7 +205,7 @@
   sql.onkeydown=e=>{if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){e.preventDefault();if(!busy&&view==='sql')run(()=>executeSQL(sql.value.substring(sql.selectionStart,sql.selectionEnd)||sql.value));}if((e.ctrlKey||e.metaKey)&&e.key==='s'){e.preventDefault();run(save);}if(e.key==='Tab'){e.preventDefault();sql.setRangeText('  ',sql.selectionStart,sql.selectionEnd,'end');draft();}};
   catalog.onchange=()=>run(async()=>{if(!catalog.value){await objects();return;}await command('query',{sql:'USE '+ident(catalog.value)});await objects();context();});
   connections.ondblclick=()=>run(()=>connectTo());
-  w.beforeclose=async()=>{if(draftDirty){try{await save();}catch(error){if(!confirm('Workspace could not be saved: '+error.message+' Close anyway?'))return false;}}if(session&&!confirm('Close MariaDB Manager and disconnect? Any open transaction will be rolled back.'))return false;return true;};
+  w.beforeclose=async()=>{if(draftDirty){try{await save();}catch(error){if(!confirm('Workspace could not be saved: '+error.message+' Close anyway?'))return false;}}if(session&&!confirm('Close Pi-DB Manager and disconnect? Any open transaction will be rolled back.'))return false;return true;};
   w.beforelogout=async()=>{if(draftDirty)try{await save();}catch(e){return confirm('SQL workspace could not be saved. Log off and lose unsaved changes?');}return !session||confirm('Log off and disconnect MariaDB? Any open transaction will be rolled back.');};
   const unload=e=>{if(draftDirty||session){e.preventDefault();e.returnValue='';}};window.addEventListener('beforeunload',unload);
   const leave=()=>{if(session){fetch('/api/databases/command',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'disconnect',session}),keepalive:true}).catch(()=>{});session=null;}};

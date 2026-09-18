@@ -6,7 +6,7 @@ const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 let current;
 function open(){
  s.closeStart();if(current){current.focus();return current;}
- const w=d.makeWindow('MariaDB Manager','phpmyadmin-window');current=w;w.element.style.left=Math.max(4,(innerWidth-Math.min(1200,innerWidth*.96))/2)+'px';let profiles=[],sid=null,busy=false,closed=false;const dialogs=new Set();
+ const w=d.makeWindow('Pi-DB Manager','phpmyadmin-window');current=w;w.element.style.left=Math.max(4,(innerWidth-Math.min(1200,innerWidth*.96))/2)+'px';let profiles=[],sid=null,busy=false,closed=false;const dialogs=new Set();
  w.body.innerHTML='<div class="tool-toolbar pma-toolbar"></div><div class="pma-error" role="alert" hidden></div><div class="pma-launcher"><label>Saved connections<select aria-label="Saved connections" size="6"></select></label><p>Choose a saved MariaDB server, or create a connection. Database permissions are determined by your MariaDB account.</p><p>phpMyAdmin opens here with database navigation, structure, SQL, search, insert, import, export and administration.</p></div><iframe class="pma-frame" title="phpMyAdmin database administration" hidden></iframe>';
  const area=w.body.querySelector('.pma-toolbar'),select=w.body.querySelector('select'),frame=w.body.querySelector('iframe'),error=w.body.querySelector('.pma-error'),launcher=w.body.querySelector('.pma-launcher');
  async function run(fn){error.hidden=true;try{await fn();}catch(e){error.textContent=e.message;error.hidden=false;w.status.textContent=e.message;}}
@@ -39,7 +39,7 @@ function open(){
  button('Disconnect',disconnect);
  button('Saved SQL Workspace',()=>{legacy();});
  select.ondblclick=()=>run(connect);
- w.beforeclose=async()=>{if(sid&&!confirm('Close MariaDB Manager and disconnect?'))return false;try{await disconnect();return true;}catch(e){error.textContent=e.message;error.hidden=false;return false;}};
+ w.beforeclose=async()=>{if(sid&&!confirm('Close Pi-DB Manager and disconnect?'))return false;try{await disconnect();return true;}catch(e){error.textContent=e.message;error.hidden=false;return false;}};
  w.beforelogout=()=>!sid||confirm('Log off and disconnect MariaDB? Finish database operations first. Active transactions are not restored.');
  const unload=e=>{if(sid){e.preventDefault();e.returnValue='';}};window.addEventListener('beforeunload',unload);
  w.onclose=()=>{window.removeEventListener('beforeunload',unload);closed=true;for(const el of dialogs)el.close();if(sid)d.api('/phpmyadmin/session/'+sid,'DELETE').catch(()=>{});frame.src='about:blank';current=null;};

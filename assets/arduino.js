@@ -1,11 +1,11 @@
-/* Arduino Workshop: private sketches, official CLI jobs, Pi-connected USB. */
+/* Pi-Arduino: private sketches, official CLI jobs, Pi-connected USB. */
 (() => {
  'use strict';
  const d=Win2kDesktop,s=Win2kShell,{esc,button}=Win2kDevelopment;let current=null;
  async function request(action,data={}){const r=await fetch('/api/development/arduino',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action,...data}),signal:AbortSignal.timeout(125000)});let v;try{v=await r.json();}catch{throw Error('Arduino service did not return a valid response (HTTP '+r.status+').');}if(!r.ok)throw Error(v.error||'Arduino operation failed.');return v;}
  function open(){
   s.closeStart();if(current){current.focus();return current;}
-  const w=d.makeWindow('Arduino Workshop','arduino-window');current=w;const owner=d.getUser().id;
+  const w=d.makeWindow('Pi-Arduino','arduino-window');current=w;const owner=d.getUser().id;
   let clearedJob='',project=null,sessions=new Map(),active='',baseline='',closed=false,working=false,polling=false,job=null,jobKey='',usbAllowed=false,monitor=null,dialogs=new Set();
   w.body.innerHTML='<div class="tool-toolbar"></div><div class="arduino-error" role="alert" hidden></div><div class="arduino-target"><span class="arduino-board">No board selected</span><span class="arduino-port">No USB port selected</span></div><div class="arduino-layout"><aside><label>My Projects<select class="arduino-projects" size="8" aria-label="Arduino projects"></select></label><p>Saved privately in your account.</p></aside><section class="arduino-workspace"><div class="arduino-tabs" role="tablist" aria-label="Sketch files"></div><div class="arduino-editor" aria-label="Arduino source editor"></div><div class="arduino-job" role="status">Create a project, then select a board.</div><pre class="arduino-output" aria-label="Build output" tabindex="0"></pre></section></div>';
   ace.config.set('basePath','/assets/vendor/ace');
@@ -17,7 +17,7 @@
   const snapshot=()=>JSON.stringify({name:project?.name,files:Object.fromEntries([...sessions].map(([n,v])=>[n,v.getValue()])),fqbn:project?.fqbn||'',board_name:project?.board_name||''});
   const dirty=()=>!!project&&snapshot()!==baseline;
   const discard=()=>!dirty()||confirm('Discard unsaved changes? Export Project can keep a copy before you reopen a saved version.');
-  function title(){d.scheduleWorkspace();w.title((project?project.name+(dirty()?' *':'')+' – ':'')+'Arduino Workshop');w.status.textContent=project?(dirty()?'Unsaved changes':'Saved')+' · Ctrl+S Save Project · Ctrl+R Verify · Ctrl+U Upload':'New Project starts a private sketch.';}
+  function title(){d.scheduleWorkspace();w.title((project?project.name+(dirty()?' *':'')+' – ':'')+'Pi-Arduino');w.status.textContent=project?(dirty()?'Unsaved changes':'Saved')+' · Ctrl+S Save Project · Ctrl+R Verify · Ctrl+U Upload':'New Project starts a private sketch.';}
   function target(){const fqbn=project?.fqbn||'';$('.arduino-board').textContent=fqbn?'Board: '+(project.board_name||fqbn.split(':')[2]):'No board selected';$('.arduino-board').title=fqbn;$('.arduino-port').textContent=w.arduinoPort||'No USB port selected';title();}
   function tabs(){const bar=$('.arduino-tabs');bar.replaceChildren();for(const [name] of sessions){const b=button(bar,name,()=>select(name));b.setAttribute('role','tab');b.setAttribute('aria-selected',String(name===active));b.tabIndex=name===active?0:-1;b.onkeydown=e=>{if(['ArrowLeft','ArrowRight','Home','End'].includes(e.key)){e.preventDefault();const keys=[...sessions.keys()],i=keys.indexOf(name);select(keys[e.key==='Home'?0:e.key==='End'?keys.length-1:(i+(e.key==='ArrowRight'?1:-1)+keys.length)%keys.length]);bar.querySelector('[aria-selected=true]').focus();}};}title();}
   function select(name){active=name;editor.setSession(sessions.get(name));editor.setReadOnly(false);tabs();editor.focus();}
