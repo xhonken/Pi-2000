@@ -1,4 +1,5 @@
 import asyncio
+import shutil
 import tempfile
 import unittest
 from pathlib import Path
@@ -10,6 +11,29 @@ from browser_runtime import BrowserRuntime, BrowserUnavailable
 from resource_limits import available_memory, BROWSER_START_RESERVE
 
 class BrowserMemoryTests(unittest.IsolatedAsyncioTestCase):
+    async def test_account_version_is_bound_while_startup_is_pending(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp);(root/'bin').mkdir();(root/'bin/python').touch()
+            runtime=BrowserRuntime(tmp,venv=tmp)
+            process=SimpleNamespace(returncode=None)
+            with patch('browser_runtime.available_memory',return_value=BROWSER_START_RESERVE), \
+                    patch('browser_runtime.asyncio.create_subprocess_exec',new_callable=AsyncMock,return_value=process):
+                task=asyncio.create_task(runtime.start(1,account_version=7))
+                try:
+                    for _ in range(100):
+                        if 1 in runtime.sessions: break
+                        await asyncio.sleep(.01)
+                    entry=runtime.sessions[1]
+                    self.assertFalse(task.done())
+                    self.assertEqual(entry['account_version'],7)
+                    entry['socket'].touch()
+                    (entry['runtime']/'url-ready').touch()
+                    self.assertIs(await asyncio.wait_for(task,2),entry)
+                finally:
+                    task.cancel()
+                    await asyncio.gather(task,return_exceptions=True)
+                    for entry in runtime.sessions.values(): shutil.rmtree(entry['runtime'])
+
     def test_available_memory_uses_reclaimable_cache(self):
         with tempfile.TemporaryDirectory() as tmp:
             p=Path(tmp)/'meminfo'

@@ -836,9 +836,7 @@ async def browser_start_impl(request):
         existing = BROWSERS.sessions.get(request[USER]['id'])
         if RUNTIME.draining and not (existing and existing['process'].returncode is None):
             RUNTIME.admit()
-        await BROWSERS.start(request[USER]['id'])
-        if hasattr(BROWSERS,'sessions') and request[USER]['id'] in BROWSERS.sessions:
-            BROWSERS.sessions[request[USER]['id']].setdefault('account_version',request[USER]['version'])
+        await BROWSERS.start(request[USER]['id'], account_version=request[USER]['version'])
         if url is not None:
             await BROWSERS.open_url(request[USER]['id'], url)
     except BrowserUnavailable as exc:

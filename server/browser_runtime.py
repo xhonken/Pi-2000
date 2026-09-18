@@ -63,7 +63,7 @@ class BrowserRuntime:
         args += ['/usr/bin/dbus-run-session', '--', '/opt/browser-venv/bin/python', '/opt/browser_session.py']
         return args
 
-    async def start(self, user_id):
+    async def start(self, user_id, account_version=None):
         async with self.lock:
             existing = self.sessions.get(user_id)
             if existing and existing['process'].returncode is None:
@@ -98,7 +98,10 @@ class BrowserRuntime:
                 raise BrowserUnavailable('The browser system components could not start.') from exc
             finally:
                 log.close()
-            entry = {'process': process, 'runtime': runtime, 'socket': runtime / 'stream.sock', 'last_seen': time.monotonic(), 'clients': 0}
+            # Housekeeping can inspect this entry while cold startup awaits
+            # readiness. Bind its identity before publishing it to that task.
+            entry = {'process': process, 'runtime': runtime, 'socket': runtime / 'stream.sock', 'last_seen': time.monotonic(), 'clients': 0,
+                     'account_version': account_version}
             entry['oom_baseline'] = self.resources.usage(user_id).get('oom_kills', 0)
             self.sessions[user_id] = entry
             # Cold imports and stream-client extraction on a Pi 4 SD card can

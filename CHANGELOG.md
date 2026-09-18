@@ -4,6 +4,9 @@ User-visible changes are recorded here for each numbered release. Development be
 
 ## Unreleased
 
+- Bind Browser sessions to their account version before waiting for startup, so
+  account housekeeping does not stop a valid session during a slow cold start.
+
 - Add account-owned desktop application icons, personal labels, restore defaults,
   Start-menu Send to Desktop, icon/background context menus, selection rectangles,
   multiple selection/dragging and keyboard commands. Double-click opens by default;

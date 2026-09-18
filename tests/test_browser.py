@@ -5,6 +5,7 @@ import sys
 import tempfile
 from types import SimpleNamespace
 import unittest
+from unittest.mock import patch
 
 from aiohttp import web, WSMsgType
 from aiohttp.test_utils import TestClient, TestServer
@@ -20,8 +21,9 @@ class FakeBrowsers:
         self.stopped = []
         self.opened = []
 
-    async def start(self, user_id):
-        entry = {'socket': self.sockets[user_id], 'process': SimpleNamespace(returncode=None)}
+    async def start(self, user_id, account_version=None):
+        entry = {'socket': self.sockets[user_id], 'process': SimpleNamespace(returncode=None),
+                 'account_version': account_version}
         self.sessions[user_id] = entry
         return entry
 
@@ -97,6 +99,26 @@ class BrowserTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual((await other.json())['state'], 'stopped')
         anonymous = await self.client.get('/api/browser/status')
         self.assertEqual(anonymous.status, 401)
+
+    async def test_cold_start_survives_housekeeping_but_account_change_stops_it(self):
+        original_start = app.BROWSERS.start
+        async def slow_start(user_id, account_version=None):
+            entry = await original_start(user_id, account_version=account_version)
+            await asyncio.sleep(5.5)  # Cross the real account-housekeeping interval.
+            return entry
+        with patch.object(app.accounts, 'enabled', return_value=True), \
+                patch.object(app.BROWSERS, 'start', side_effect=slow_start):
+            response = await self.client.post('/api/browser/start', headers=self.alice)
+            self.assertEqual(response.status, 200)
+            self.assertIn(self.alice_id, app.BROWSERS.sessions)
+            self.assertEqual(app.BROWSERS.stopped, [])
+            with app.db() as conn:
+                conn.execute('UPDATE users SET version=version+1 WHERE id=?', (self.alice_id,))
+            for _ in range(65):
+                if self.alice_id not in app.BROWSERS.sessions:
+                    break
+                await asyncio.sleep(.1)
+            self.assertNotIn(self.alice_id, app.BROWSERS.sessions)
 
     async def test_shortcut_url_validation_and_account_routing(self):
         for url in ['file:///etc/passwd', 'javascript:alert(1)', '--new-window']:
