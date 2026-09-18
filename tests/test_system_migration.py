@@ -44,6 +44,17 @@ class FakeHost(m.Host):
 
 
 class MigrationTests(unittest.TestCase):
+    def test_readiness_waits_for_http_auth_boundary(self):
+        from urllib.error import HTTPError, URLError
+        responses=[URLError('starting'),HTTPError('local',503,'starting',{},None),HTTPError('local',401,'unauthorized',{},None)]
+        with patch.object(m,'urlopen',side_effect=responses) as request, patch.object(m.time,'sleep'):
+            m.Host().wait_ready()
+        self.assertEqual(request.call_count,3)
+
+    def test_readiness_has_bounded_failure(self):
+        with patch.object(m.time,'monotonic',side_effect=[0,0,61]), patch.object(m.time,'sleep'), patch.object(m,'urlopen',side_effect=m.URLError('starting')):
+            with self.assertRaisesRegex(RuntimeError,'startup deadline'):m.Host().wait_ready()
+
     def setUp(self):
         self.temp=tempfile.TemporaryDirectory();self.addCleanup(self.temp.cleanup);self.host=FakeHost(self.temp.name);h=self.host
         for old in m.PATHS:h.path(old).mkdir(parents=True)

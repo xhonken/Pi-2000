@@ -17,6 +17,8 @@ import subprocess
 import tempfile
 import time
 from contextlib import asynccontextmanager
+from urllib.error import HTTPError, URLError
+from urllib.request import urlopen
 from deployment import stage, activate, verify
 from build_info import generate
 from session_proxy import control
@@ -60,7 +62,21 @@ class Host:
         old,new=('pi2000-admin','win2k-admin') if reverse else ('win2k-admin','pi2000-admin')
         if self.group(old) is not None: self.run('groupmod','--new-name',new,old)
         if self.account(old) is not None: self.run('usermod','--login',new,'--home','/var/lib/'+new,old)
-    def verify_live(self,source): self.run('bash',str(source/'scripts/doctor.sh'))
+    def wait_ready(self,timeout=60):
+        # Type=simple is active before aiohttp has bound its listener. Require
+        # the anonymous session boundary before running the full doctor once.
+        deadline=time.monotonic()+timeout
+        while time.monotonic()<deadline:
+            try:
+                with urlopen('http://127.0.0.1:8765/api/session',timeout=2):pass
+            except HTTPError as error:
+                if error.code==401:return
+            except (URLError,TimeoutError):pass
+            time.sleep(0.5)
+        raise RuntimeError('API did not become ready within the migration startup deadline.')
+    def verify_live(self,source):
+        self.wait_ready()
+        self.run('bash',str(source/'scripts/doctor.sh'))
 
 
 class Migration:
@@ -183,7 +199,11 @@ class Migration:
                     if unit in plan['active']:h.run('systemctl','start',renamed(unit))
                 h.verify_live(self.source)
                 record['state']='complete';self._record(record)
-            except BaseException:
+            except BaseException as error:
+                # Keep command diagnostics in the root-only recovery snapshot.
+                # Do not discard the original failure after a successful rollback.
+                details=str(error)+'\n'+str(getattr(error,'stdout','') or '')+'\n'+str(getattr(error,'stderr','') or '')
+                diagnostic=self.backup/'failure.txt';diagnostic.write_text(details);diagnostic.chmod(0o600)
                 try:self._rollback(record)
                 except BaseException:
                     record['state']='rollback needs operator attention';self._record(record)

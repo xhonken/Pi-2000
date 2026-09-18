@@ -47,7 +47,7 @@ async def main():
             if os.environ.get('PI2000_TEST_BACKUP')=='1':
                 await asyncio.to_thread(subprocess.run,['systemctl','start','pi2000-backup.service'],check=True)
                 import tarfile
-                archive=sorted(Path('/var/backups/pi2000').glob('win2k-*.tar'))[-1]
+                archive=max(Path('/var/backups/pi2000').glob('pi2000-*.tar'),key=lambda path:path.stat().st_mtime_ns)
                 with tarfile.open(archive) as tar:
                     assert 'system-accounts/accounts.sqlite3' in tar.getnames()
                     assert 'system-accounts/homes/'+profile['username']+'/.profile' in tar.getnames()
