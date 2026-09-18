@@ -113,3 +113,8 @@ hosts restrict unprivileged user namespaces through AppArmor and can reject
 nested Bubblewrap UID maps even with an unconfined container profile. A dedicated
 sandbox preflight must pass before the tests run; isolation tests are never skipped
 to hide a host policy failure. This affects the disposable CI host, not Pi settings.
+Docker system paths are also unmasked in this disposable CI container so nested
+PID namespaces can mount a fresh procfs. Tests still run as the unprivileged
+`pi2000-test` account and use the application's real Bubblewrap isolation. See
+[Docker security options](https://docs.docker.com/reference/cli/docker/container/run/#security-configuration)
+and [Ubuntu namespace restrictions](https://documentation.ubuntu.com/security/security-features/privilege-restriction/apparmor/).

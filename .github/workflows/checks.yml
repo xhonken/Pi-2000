@@ -14,8 +14,9 @@ jobs:
     timeout-minutes: 30
     container:
       image: debian:trixie-slim
-      # Bubblewrap tests require nested unprivileged user namespaces.
-      options: --security-opt seccomp=unconfined --security-opt apparmor=unconfined
+      # Bubblewrap requires nested user/PID namespaces and a fresh procfs.
+      # Only this disposable CI container unmasks Docker system paths.
+      options: --security-opt seccomp=unconfined --security-opt apparmor=unconfined --security-opt systempaths=unconfined
     steps:
       - name: Install test host dependencies
         run: |
