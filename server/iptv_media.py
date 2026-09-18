@@ -58,7 +58,7 @@ class Media:
         for sid,s in list(self.sessions.items()):
             if s['token']==token:self.sessions.pop(sid,None)
         if len(self.sessions)>=12 or sum(s['uid']==uid for s in self.sessions.values())>=3:
-            raise web.HTTPTooManyRequests(text='Close another IPTV player before starting this stream.')
+            raise web.HTTPTooManyRequests(text='Close another Pi-IPTV before starting this stream.')
         if mode not in ('original','audio','compatible'):raise web.HTTPBadRequest(text='Choose a playback mode.')
         kind=format_hint(target)
         if mode!='original' and kind=='hls':

@@ -159,7 +159,7 @@ class DatabaseTools:
         connection = BoundedConnection(host=profile['host'], port=profile['port'],
             user=profile['username'], password=password, db=profile['database'] or None,
             charset='utf8mb4', autocommit=True, local_infile=False, ssl=context,
-            connect_timeout=10, program_name='Pi-2000Web MariaDB Manager')
+            connect_timeout=10, program_name='Pi-2000 MariaDB Manager')
         await connection._connect()
         # aiomysql can otherwise silently connect without TLS to a server lacking SSL.
         if context and not connection._writer.transport.get_extra_info('ssl_object'):

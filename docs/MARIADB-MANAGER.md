@@ -2,17 +2,17 @@
 
 The default manager now integrates upstream phpMyAdmin with the Pi-2000 theme and existing saved connections. See [phpMyAdmin integration](PHPMYADMIN.md) for current behavior, installation and limits. The native SQL workspace described below remains available through **File → Saved SQL Workspace** to preserve existing drafts and tools.
 
-MariaDB Manager is available under **Start → Programs → Development and Drawing**. It manages databases through MariaDB TCP connections from the Pi running Pi-2000Web. It does not expose the Pi-2000Web source tree, internal SQLite database, shell, or service configuration.
+MariaDB Manager is available under **Start → Programs → Development and Drawing**. It manages databases through MariaDB TCP connections from the Pi running Pi-2000. It does not expose the Pi-2000 source tree, internal SQLite database, shell, or service configuration.
 
 ## Connections and saved work
 
 Select **File → New Connection**, enter a name, server, port (normally 3306), database username and optional default database. Save the connection, then select it and choose **Connect**, or double-click it. **Properties**, **Test Connection** and **Delete Connection** manage the selected profile. Deleting a profile does not delete any remote databases; it disconnects that profile's active sessions.
 
-`127.0.0.1` means the Pi running Pi-2000Web, not the computer displaying the desktop. A local MariaDB server must accept TCP authentication; Unix-socket root authentication is not used. An external server must be reachable from the Pi and allow that database account to connect from the Pi's address.
+`127.0.0.1` means the Pi running Pi-2000, not the computer displaying the desktop. A local MariaDB server must accept TCP authentication; Unix-socket root authentication is not used. An external server must be reachable from the Pi and allow that database account to connect from the Pi's address.
 
 TLS certificate and hostname verification is the default. A custom PEM CA certificate can be pasted into Properties. Unencrypted mode is an explicit option for trusted local connections. TLS failure never silently falls back to an unencrypted login.
 
-Passwords are requested at connection time unless **Save password encrypted for my account** is selected. Saved secrets are encrypted on the server, never returned by the connection-list API. Changing host, port, username or TLS trust settings clears the old saved secret unless a new password is supplied. Profiles are private even from other Pi-2000Web administrators.
+Passwords are requested at connection time unless **Save password encrypted for my account** is selected. Saved secrets are encrypted on the server, never returned by the connection-list API. Changing host, port, username or TLS trust settings clears the old saved secret unless a new password is supplied. Profiles are private even from other Pi-2000 administrators.
 
 **Save Workspace** (`Ctrl+S`) saves query tabs for the current account. Edits also save after a short pause. Save status is shown at the bottom; concurrent edits from another page produce a conflict rather than silently replacing that page's work. SQL workspaces count towards the account's file quota. SQL text can contain sensitive data, so avoid saving password-bearing administration statements unnecessarily.
 
@@ -71,11 +71,11 @@ Definitions retain definers and qualified database references. Restore to the or
 
 ## Limits and platform boundaries
 
-Each Pi-2000Web account may save 100 profiles and open up to four live sessions; the service allows 12 sessions and two connection handshakes globally. SQL commands have a 60-second client timeout. Results are streamed, with limits of 1,000 rows total, 2 MB serialized row data, 2 MB per protocol packet and 1,000 result sets. Exceeding a result limit closes the session; use LIMIT, narrower queries or smaller batches. A SQL script may have applied earlier statements before an error or limit is reached.
+Each Pi-2000 account may save 100 profiles and open up to four live sessions; the service allows 12 sessions and two connection handshakes globally. SQL commands have a 60-second client timeout. Results are streamed, with limits of 1,000 rows total, 2 MB serialized row data, 2 MB per protocol packet and 1,000 result sets. Exceeding a result limit closes the session; use LIMIT, narrower queries or smaller batches. A SQL script may have applied earlier statements before an error or limit is reached.
 
-The connector does not use Unix sockets, option files, shell commands or `LOAD DATA LOCAL INFILE`. Even a database server requesting a local file cannot use this connector to read Pi-2000Web files. There is no automatic use of the platform owner's credentials. The database server's OS account must also remain unable to modify Pi-2000Web code or private state; SQL administration grants do not replace filesystem isolation.
+The connector does not use Unix sockets, option files, shell commands or `LOAD DATA LOCAL INFILE`. Even a database server requesting a local file cannot use this connector to read Pi-2000 files. There is no automatic use of the platform owner's credentials. The database server's OS account must also remain unable to modify Pi-2000 code or private state; SQL administration grants do not replace filesystem isolation.
 
-The private `database-credentials.key` in the state directory is required to decrypt saved passwords. Pi-2000Web backups include it alongside encrypted profiles. Protect backups as credentials and restore the key and database together. The source repository must never contain that key.
+The private `database-credentials.key` in the state directory is required to decrypt saved passwords. Pi-2000 backups include it alongside encrypted profiles. Protect backups as credentials and restore the key and database together. The source repository must never contain that key.
 
 ## Feature coverage and references
 

@@ -1,5 +1,5 @@
 [Unit]
-Description=Pi-2000Web Arduino Workshop
+Description=Pi-2000 Arduino Workshop
 After=network-online.target
 Wants=network-online.target
 

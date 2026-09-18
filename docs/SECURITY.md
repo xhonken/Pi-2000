@@ -9,7 +9,7 @@ not a certification this project has obtained.
 ## Account and operator boundaries
 
 Every private object lookup uses the authenticated account ID. Web administrator
-status does not grant an API for reading another account's files, drafts, Vault,
+status does not grant an API for reading another account's files, drafts, Pi-Vault,
 SSH profiles, API collections, Git projects or database connections. The creator
 controls roles. The root account broker separately protects the creator binding
 and permits fixed operations on managed Linux identities; it does not accept shell
@@ -18,9 +18,9 @@ commands or arbitrary account paths. A web role does not grant sudo.
 Administrators who can reset another account's login password can impersonate that
 account after resetting it. OS administrators can read ordinary server data and
 replace the delivered application. Those are administrative trust boundaries,
-not protections provided by the object API. Vault passphrases remain separate
+not protections provided by the object API. Pi-Vault passphrases remain separate
 from login resets, but an actively malicious server can change the JavaScript
-used to unlock Vault. See [Vault](VAULT.md).
+used to unlock Pi-Vault. See [Pi-Vault](VAULT.md).
 
 Cookies are Secure, HttpOnly and SameSite=Strict, with a twelve-hour absolute
 expiry. Mutations and terminal WebSockets require the configured Origin. Account
@@ -34,7 +34,7 @@ idle-session reauthentication policy.
 
 The review covered the authentication/account broker, object ownership routes,
 file and archive handling, Browser/Git/Arduino isolation, SSH/SFTP, database and
-phpMyAdmin bridges, request limits, Vault cryptography, client HTML sinks,
+phpMyAdmin bridges, request limits, Pi-Vault cryptography, client HTML sinks,
 installation/recovery code and dependency inventories. Focused adversarial tests
 use disposable local state. They never attack another person's service or read
 production user data.
@@ -42,7 +42,7 @@ production user data.
 | Finding or control | Change and evidence |
 | --- | --- |
 | Browser supervisor wrote a log inside a sandbox-writable profile | Reproduced a planted symlink truncating a temporary host-side marker. Logs now use an atomically replaced file in a separate directory which is not mounted into Browser. |
-| Vault password/recovery changes reused data keys | Demonstrated old data keys decrypting later content. Both data keys, salts and Vault ID now rotate; all entries are authenticated and re-encrypted before a single conditional save. Tests cover preservation, old-key rejection and corrupt-entry failure. |
+| Pi-Vault password/recovery changes reused data keys | Demonstrated old data keys decrypting later content. Both data keys, salts and Pi-Vault ID now rotate; all entries are authenticated and re-encrypted before a single conditional save. Tests cover preservation, old-key rejection and corrupt-entry failure. |
 | Mutable backup paths could change between metadata checks and root reads | User-controlled trees now use descriptor-relative traversal with `O_NOFOLLOW`, inspect the opened inode and archive that same file descriptor. A deterministic directory-swap test cannot include an outside marker. |
 | phpMyAdmin retained a session object across a slow POST | Disconnect and connection changes are rechecked after the body and before returning results. A revoked/replaced session cannot submit that pending request to PHP. Connection admission and timeouts are bounded. |
 | Unbounded live login sessions and request admission | Twelve logins per account; sixteen active HTTP/WS handlers per account, eight unauthenticated login handlers, sixty-four total per process. Excess handlers receive 429. A slow-account test confirms another account remains usable. |
@@ -52,7 +52,7 @@ production user data.
 
 The four-account matrix includes the creator, another administrator and two regular
 users. It probes foreign file reads/writes, SSH profiles, API collections, database
-profiles, Arduino projects and Vault owner substitution. Both administrator roles
+profiles, Arduino projects and Pi-Vault owner substitution. Both administrator roles
 must obey the same object boundaries. Existing tests also exercise Git sandboxing,
 SSH host-key pinning, rejected platform/metadata URLs, safe inert file previews,
 ZIP traversal, SQL parameter handling, quotas and session revocation.
@@ -110,4 +110,4 @@ References: [OWASP ASVS](https://owasp.org/projects/asvs),
   test, certify a fresh Pi4 installation or establish regulatory compliance.
 
 Report suspected issues privately to the operator first. Do not include credentials,
-real user documents or unlocked Vault contents in issue reports or public logs.
+real user documents or unlocked Pi-Vault contents in issue reports or public logs.

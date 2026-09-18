@@ -4,13 +4,15 @@
 const shell=Win2kShell,root=document.querySelector('#desktop-icons'),desktop=document.querySelector('#desktop');
 const defaults={sort:'manual',direction:'asc',autoArrange:false,snap:false,showIcons:true,openMode:'double'};
 const catalog=new Map(),selected=new Set();
+// Resolve former default labels at display time; retain personal names and stored IDs.
+const formerNames={iptv:'IPTV Player',vault:'Vault',about:'About Pi-2000Web'};
 let menu=null,anchor=null,selectionBox=null,cancelSelection=null,suppressClick=false;
 const key=icon=>icon.dataset.fileId?'file:'+icon.dataset.fileId:icon.dataset.shortcutId?'link:'+icon.dataset.shortcutId:'app:'+icon.dataset.action;
 const options=()=>({...defaults,...shell.getView()});
 const visible=()=>[...root.querySelectorAll('.desktop-icon')].filter(el=>!el.hidden&&options().showIcons);
 const run=fn=>Promise.resolve().then(fn).catch(e=>shell.notify(e.message));
 for(const el of root.querySelectorAll(':scope > .desktop-icon'))catalog.set(el.dataset.action,{name:el.querySelector('.icon-label').textContent,initial:true,element:el});
-for(const [action,name] of Object.entries({notes:'Notes',database:'MariaDB Manager',apitester:'API Tester',git:'Git Projects',sftp:'SFTP – File Transfer',taskmanager:'Task Manager',activities:'My Activities',status:'System Status',about:'About Pi-2000Web',preferences:'My Settings',settings:'Control Panel',help:'Desktop Help',localterminal:'Local Terminal'})){
+for(const [action,name] of Object.entries({notes:'Notes',database:'MariaDB Manager',apitester:'API Tester',git:'Git Projects',sftp:'SFTP – File Transfer',taskmanager:'Task Manager',activities:'My Activities',status:'System Status',about:'About Pi-2000',preferences:'My Settings',settings:'Control Panel',help:'Desktop Help',localterminal:'Local Terminal'})){
  if(!catalog.has(action))catalog.set(action,{name,initial:action==='localterminal'});
 }
 function allowed(action){return action!=='localterminal'||shell.getUser()?.role==='admin';}
@@ -27,7 +29,7 @@ function sync(){
   }
   if(!el)continue;
   el.hidden=!allowed(action)||!(state.icons[action]?.visible??entry.initial);
-  const label=el.querySelector('.icon-label'),name=state.icons[action]?.name||entry.name;if(label.textContent!==name)label.textContent=name;
+  const label=el.querySelector('.icon-label'),stored=state.icons[action]?.name,name=stored&&stored!==formerNames[action]?stored:entry.name;if(label.textContent!==name)label.textContent=name;
   el.title=name;
  }
  root.classList.toggle('desktop-icons-hidden',!options().showIcons);

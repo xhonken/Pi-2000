@@ -101,6 +101,10 @@ class SetupTests(unittest.TestCase):
         setup.check_caddy_ownership(':80 {\n root * /usr/share/caddy\n file_server\n}', False)
         config = self.parse()
         setup.check_caddy_ownership(setup.render(config)['Caddyfile'], False)
+        legacy=setup.render(config)['Caddyfile'].replace('# Managed by Pi-2000.', '# Managed by Pi-2000Web.')
+        setup.check_caddy_ownership(legacy, False)
+        with self.assertRaises(ValueError):
+            setup.check_caddy_ownership(legacy+'\nother.example { respond "other" }', False)
         previous='\n'.join(line for line in setup.render(config)['Caddyfile'].splitlines()
             if not any(marker in line for marker in ('Strict-Transport-Security','Permissions-Policy','@desktop path','header @desktop Content-Security-Policy')))
         setup.check_caddy_ownership(previous, False)

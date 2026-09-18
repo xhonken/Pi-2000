@@ -52,7 +52,7 @@ Checking out an old tag does not roll back SQLite, user files, browser profiles 
 1. Choose the next version, update VERSION, and move the relevant Unreleased changelog entries into a dated release section. Document migration requirements and known limitations.
 2. Run checks appropriate to the changes and the release's validation requirements. Record what was actually tested, including any fresh-install gaps.
 3. Commit the complete release contents. Ensure `git status --short` is empty and push the commit to main.
-4. Create an annotated tag at that exact commit, for example `git tag -a v0.1.0-alpha.2 -m 'Pi-2000Web 0.1.0-alpha.2'`, then push that tag explicitly.
+4. Create an annotated tag at that exact commit, for example `git tag -a v0.1.0-alpha.2 -m 'Pi-2000 0.1.0-alpha.2'`, then push that tag explicitly.
 5. Create the GitHub release from the existing tag with release notes. Mark Alpha/Beta/RC releases as prereleases. With GitHub CLI, use `gh release create TAG --verify-tag --prerelease --title TITLE --notes-file NOTES.md` (replace the uppercase arguments).
 6. Verify the published release, tag and VERSION all agree. Add future changes under Unreleased; never retag a published release.
 

@@ -1,6 +1,6 @@
 # Pi++
 
-Pi++ is Pi-2000Web's text and source editor, inspired by the familiar Notepad++ layout. It replaces the Code Editor presentation while keeping your existing files, workspace tabs, SFTP profiles and recovery drafts. Open **Pi++** on the desktop or **Start → Programs → Development and Drawing → Pi++**.
+Pi++ is Pi-2000's text and source editor, inspired by the familiar Notepad++ layout. It replaces the Code Editor presentation while keeping your existing files, workspace tabs, SFTP profiles and recovery drafts. Open **Pi++** on the desktop or **Start → Programs → Development and Drawing → Pi++**.
 
 ## Working with documents
 

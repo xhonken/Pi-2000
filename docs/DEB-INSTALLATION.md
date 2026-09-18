@@ -83,7 +83,7 @@ credentials, runtime databases and machine configuration are never package input
 
 ## Alpha 6 test package status
 
-The release package `0.1.0~alpha.6-1` includes IPTV Player, Vault, desktop/workspace recovery, security hardening,
+The release package `0.1.0~alpha.6-1` includes Pi-IPTV, Pi-Vault, desktop/workspace recovery, security hardening,
 maintenance tools, Arduino Workshop, Pi++ and the graphical utility tools,
 alongside PAM authentication and per-user Linux identities. It is built from the
 Alpha 6 source release and checked for content, build identity and checksums.

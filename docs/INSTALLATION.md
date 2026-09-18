@@ -1,8 +1,8 @@
-# Install Pi-2000Web on Raspberry Pi 5
+# Install Pi-2000 on Raspberry Pi 5
 
 Ready-to-edit configurations and scripts are indexed in **[Examples](../Examples/README.md)**.
 
-Pi-2000Web has a single configuration file and a unified installer. The installer sets up system packages, Caddy HTTPS, the Python API, a private SQLite database, persistent-session services, local backups and, optionally, the Chromium browser with audio.
+Pi-2000 has a single configuration file and a unified installer. The installer sets up system packages, Caddy HTTPS, the Python API, a private SQLite database, persistent-session services, local backups and, optionally, the Chromium browser with audio.
 
 **Alpha status:** the configuration, generated Caddy configuration, backend and existing-installation upgrade path are tested. A full end-to-end run on a newly imaged physical Pi remains to be independently verified. Keep a backup and report installation failures with the command and error output, excluding passwords and private keys.
 
@@ -14,7 +14,7 @@ Allow at least **6 GiB of free installation space** with Browser, or **2 GiB wit
 
 Set up your normal Pi login and SSH access. Reserve the Pi address in your router/DHCP server, or configure a DNS name that resolves to it. The installer does not change your router, Pi hostname, Wi-Fi, firewall or SSH login.
 
-Pi-2000Web uses ports **80 and 443** for Caddy and loopback port **8765** for its API. Use a dedicated Pi or review [Caddy integration](CADDY.md) if a web server already runs there. The installer refuses to overwrite another Caddy site or take ports occupied by another service.
+Pi-2000 uses ports **80 and 443** for Caddy and loopback port **8765** for its API. Use a dedicated Pi or review [Caddy integration](CADDY.md) if a web server already runs there. The installer refuses to overwrite another Caddy site or take ports occupied by another service.
 
 ## 2. Get the source
 
@@ -182,7 +182,7 @@ File bytes are stored as private blobs alongside the database. Back up the datab
 | `/var/backups/pi2000web-update-*` | Previous code/site/configuration snapshots |
 | `/run/win2k-sessions/worker.sock` | Private persistent-worker connection |
 
-The `win2k` service/storage names are stable internal compatibility identifiers, not network-specific settings. The checkout can live anywhere and can be named `Pi-2000`, `Pi-2000Web` or another name. Avoid moving installed storage directories manually.
+The `win2k` service/storage names are stable internal compatibility identifiers, not network-specific settings. The checkout can live anywhere and can be named `Pi-2000`, `Pi-2000` or another name. Avoid moving installed storage directories manually.
 
 ## Diagnostics and restore
 

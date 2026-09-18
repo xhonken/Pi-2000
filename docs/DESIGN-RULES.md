@@ -1,6 +1,6 @@
-# Pi-2000Web Design Rules
+# Pi-2000 Design Rules
 
-Preserve the Windows 2000 visual language while making the applications usable in a modern browser. The product name is Pi-2000Web; Microsoft and Windows identify historical references, not this product.
+Preserve the Windows 2000 visual language while making the applications usable in a modern browser. The product name is Pi-2000; Microsoft and Windows identify historical references, not this product.
 
 ## Shared appearance
 
@@ -21,6 +21,8 @@ Support keyboard navigation, including F10, English menu mnemonics, arrow keys, 
 Start → Programs has Accessories, Development and Drawing, Internet and Connections, System Tools, and My Shortcuts. Limit nesting to two submenu levels. Preserve saved icon positions and user workspace state.
 
 ## Language and naming
+
+Product names: **Pi-2000**, **Pi-IPTV** and **Pi-Vault**. Keep these names consistent in windows, menus, help and installation messages.
 
 All maintained product UI, accessibility labels, errors, installer output and documentation use English. Keep menu and toolbar labels consistent because the menu adapter maps commands to existing controls by label. Use English mnemonics: File F, Edit E, View V, Connection C, Account A, Help H.
 

@@ -1,6 +1,6 @@
 # EXAMPLE ONLY: generated from Examples/configuration/lan-ip.toml.
 # Use the installer to keep Caddy and the application origin in sync.
-# Managed by Pi-2000Web. Edit /etc/pi2000web/config.toml, then run update.sh.
+# Managed by Pi-2000. Edit /etc/pi2000web/config.toml, then run update.sh.
 {
     admin unix//var/lib/caddy/win2k-admin/control.sock
 }

@@ -323,7 +323,7 @@ class IPTV:
         def owned(handler):
             async def handle(request):
                 if request.headers.get('X-IPTV-Owner')!=str(request[self.app.USER]['id']):
-                    raise web.HTTPForbidden(text='The signed-in account changed. Reopen IPTV Player.')
+                    raise web.HTTPForbidden(text='The signed-in account changed. Reopen Pi-IPTV.')
                 return await handler(request)
             handle.library=self
             return handle

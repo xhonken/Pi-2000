@@ -1,8 +1,8 @@
-# Pi-2000Web
+# Pi-2000
 
-**Alpha software.** A personal web desktop for Raspberry Pi 5, inspired by the look and interaction patterns of Windows 2000. It provides private user accounts, persistent SSH terminals, a streamed Chromium browser, file storage, phpMyAdmin-based MariaDB administration, private Git projects, an API tester, Pi++, Arduino/ESP32 development, IPTV, an encrypted Vault and everyday desktop tools.
+**Alpha software.** A personal web desktop for Raspberry Pi 5, inspired by the look and interaction patterns of Windows 2000. It provides private user accounts, persistent SSH terminals, a streamed Chromium browser, file storage, phpMyAdmin-based MariaDB administration, private Git projects, an API tester, Pi++, Arduino/ESP32 development, Pi-IPTV, an encrypted Pi-Vault and everyday desktop tools.
 
-Pi-2000Web uses **Python** (aiohttp, AsyncSSH and SQLite) on the server and **plain JavaScript, HTML and CSS** in the browser. The desktop uses SQLite and does not require React. MariaDB Manager embeds distribution-packaged phpMyAdmin through a dedicated PHP-FPM service and connects to a local or external MariaDB server using your database account. The desktop interface and project documentation are in English.
+Pi-2000 uses **Python** (aiohttp, AsyncSSH and SQLite) on the server and **plain JavaScript, HTML and CSS** in the browser. The desktop uses SQLite and does not require React. MariaDB Manager embeds distribution-packaged phpMyAdmin through a dedicated PHP-FPM service and connects to a local or external MariaDB server using your database account. The desktop interface and project documentation are in English.
 
 This is an independent project, not a Microsoft product and not a Windows emulator. The Chromium browser runs on the server; external websites retain their own appearance and language.
 
@@ -12,14 +12,14 @@ Current numbered release: **[0.1.0-alpha.6](https://github.com/xhonken/Pi-2000/r
 
 ## New in Alpha 6
 
-- **IPTV Player:** private M3U/Xtream sources, country/group filters, live TV,
+- **Pi-IPTV:** private M3U/Xtream sources, country/group filters, live TV,
   movies, series, programme guides and provider archives. Buffered playback,
   automatic quality and isolated compatibility conversion improve usability.
-- **Vault:** client-encrypted private entries, separate list/content passphrases,
+- **Pi-Vault:** client-encrypted private entries, separate list/content passphrases,
   automatic locking, recovery and encrypted import/export.
 - **Personal desktop and recovery:** choose and arrange app icons, use context
   menus and multiple selection, and recover supported windows and unsaved drafts.
-- **Security and maintenance:** stronger file/account boundaries, Vault key
+- **Security and maintenance:** stronger file/account boundaries, Pi-Vault key
   rotation, request limits, Browser version checks, guarded backup/recovery and
   visibility into installed versus running worker builds.
 - **Test installer:** a new arm64 `.deb` with these additions and the existing
@@ -29,11 +29,11 @@ Read the [Alpha 6 release notes](docs/releases/0.1.0-alpha.6.md).
 **Fresh installation on a reimaged Pi 4 and physical power-loss/recovery acceptance
 remain pending.** This is a prerelease intended for testing.
 
-## IPTV Player
+## Pi-IPTV
 
 Private M3U and Xtream sources, country/group filters, live TV, movies, series,
 favorites, XMLTV and provider archive playback are available in the new
-[IPTV Player](docs/IPTV.md). HLS/TS/native playback and isolated FFmpeg compatibility
+[Pi-IPTV](docs/IPTV.md). HLS/TS/native playback and isolated FFmpeg compatibility
 modes run through authenticated media routes. Provider access and codec limits
 are documented in the guide; no subscription or channels are included.
 
@@ -54,12 +54,12 @@ Existing web accounts migrate on their next successful login. A pre-existing Lin
 
 | Application | Features |
 | --- | --- |
-| Vault | Private encrypted passwords, API keys, text and links; separate list/content passwords, per-entry unlock, automatic locking, encrypted export/import and recovery. See [Vault](docs/VAULT.md). |
+| Pi-Vault | Private encrypted passwords, API keys, text and links; separate list/content passwords, per-entry unlock, automatic locking, encrypted export/import and recovery. See [Pi-Vault](docs/VAULT.md). |
 | My Files and Desktop | Private files and folders, upload by drag and drop, folder uploads, rename, move, copy/paste, download and ZIP export. Choose/rename/remove program icons, sort and arrange icons, use context menus and multiple selection. See [personal desktop](docs/DESKTOP.md). |
 | Recycle Bin | Restore deleted files, folders and shortcuts, or delete them permanently. |
 | Local Terminal | Private terminal on the Pi under each administrator’s individual Linux identity. Sudo is granted separately by the OS administrator. |
 | My Devices | Organise SSH connection profiles in folders; verify host keys and connect to remote devices. |
-| IPTV Player | Private M3U/Xtream library, countries/groups, live/films/series, favorites, programme guide and provider archive. See [IPTV](docs/IPTV.md). |
+| Pi-IPTV | Private M3U/Xtream library, countries/groups, live/films/series, favorites, programme guide and provider archive. See [IPTV](docs/IPTV.md). |
 | Browser | Persistent Chromium tabs, separate cookies and profiles for each account, audio, automatic resizing and an enforced uBlock Origin Lite policy. |
 | Pi++ | Notepad++-inspired editor with a compact toolbar, document panel, accessible tabs, Save All, search across open documents, bookmarks, language selection, LF/CR LF conversion, private preferences, recovery drafts, SFTP and syntax diagnostics. |
 | MariaDB Manager | Embedded phpMyAdmin, private local/external connections, SQL, table data and structure, users/privileges, search and import/export within the database account's permissions. Saved SQL Workspace preserves native drafts, direct row editing and the guided JOIN builder. |
@@ -82,9 +82,9 @@ Existing web accounts migrate on their next successful login. A pre-existing Lin
 
 Start → Programs groups applications into **Accessories**, **Development and Drawing**, **Internet and Connections**, **System Tools** and **My Shortcuts**. The common File, Edit, View, Connection and Help menus expose the commands relevant to each application.
 
-![Pi-2000Web Alpha 6 desktop with IPTV Player and Pi++](docs/screenshots/desktop.png)
+![Pi-2000 development desktop with Pi-IPTV and Pi++](docs/screenshots/desktop.png)
 
-*Alpha 6 desktop in an isolated demo session, showing IPTV playback with generated test media and a sample document in Pi++. No private accounts or subscription data are shown.*
+*Development desktop with the current application names in an isolated demo session, showing IPTV playback with generated test media and a sample document in Pi++. No private accounts or subscription data are shown.*
 
 See [the user guide](docs/HELP.md) and [the design rules](docs/DESIGN-RULES.md).
 
@@ -107,7 +107,7 @@ Use My Activities or Task Manager to end a terminal explicitly. A terminal windo
 Alpha 6 saves per-account workspace checkpoints continuously:
 window layout plus supported editor, Arduino, drawing and calculator recovery
 state returns after reboot or power loss. The taskbar shows whether the checkpoint
-was saved. Vault returns locked; terminals offer a new connection when their old
+was saved. Pi-Vault returns locked; terminals offer a new connection when their old
 process is gone. See [desktop recovery and its limits](docs/DESKTOP.md#restore-after-restart-or-power-loss).
 
 **Running processes depend on the Pi and the remote device continuing to run.** Restarting the session service, rebooting the Pi, losing power on the Pi or losing the remote SSH connection can end jobs. Workspace recovery does not checkpoint or restart running processes. Frontend updates intentionally preserve the running session worker.
@@ -151,7 +151,7 @@ Updates use `/etc/pi2000web/config.toml`. Normal updates preserve running SSH/Br
 
 Configuration, generated Caddy settings, backend tests and the existing-installation upgrade path are verified. The Debian package also has physical Pi 4 installation and post-reboot functional coverage; see its guide for the tested scope.
 
-Internal service names, environment variables, JavaScript namespaces and storage paths retain the legacy `win2k` identifier for compatibility. The product name is **Pi-2000Web**. The source checkout can be named or located differently; no local username or network address is required in source code.
+Internal service names, environment variables, JavaScript namespaces and storage paths retain the legacy `win2k` identifier for compatibility. The product name is **Pi-2000**. The source checkout can be named or located differently; no local username or network address is required in source code.
 
 ## Browser and resource limits
 
@@ -236,7 +236,7 @@ Main source areas:
 
 ## Design origins and third-party components
 
-`reference/gallery/` is an archived upstream design reference, including its original text and examples; it is not installed as part of Pi-2000Web. The maintained standalone example is under `examples/standalone/`.
+`reference/gallery/` is an archived upstream design reference, including its original text and examples; it is not installed as part of Pi-2000. The maintained standalone example is under `examples/standalone/`.
 
 The current desktop has original code-drawn SVG icons generated by `scripts/build-classic-icons.py`. Historical Windows screenshots were used as visual references, not copied into the application. See [UI reference notes](docs/design/windows-2000-ui.md).
 

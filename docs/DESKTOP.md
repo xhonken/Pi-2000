@@ -88,7 +88,7 @@ this is not protection against failed storage hardware. Keep verified backups.
 | Calculator | Expression, output, memory and recent history. |
 | Terminal | Existing processes reconnect when available. After a reboot, the window returns with Reconnect; a new authenticated connection is required. Commands and terminal passwords are never checkpointed or replayed. |
 | Browser | The window reopens using the existing private Chromium profile. Live website state, unfinished forms and media playback are not guaranteed to recover. |
-| Vault | Window only; it always opens locked. Unlocked keys, passwords and unsaved secret forms are excluded. |
+| Pi-Vault | Window only; it always opens locked. Unlocked keys, passwords and unsaved secret forms are excluded. |
 | Database tools | Windows and the SQL workspace's existing saved drafts. Connections and transactions must be reopened; phpMyAdmin forms/unsent SQL are not checkpointed. |
 | Other applications | The window returns. Content is restored only where the app already saves it; unsaved API Tester credentials/requests, Git edits and open modal dialogs are not included. Use each app's Save command. |
 

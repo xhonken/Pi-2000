@@ -1,4 +1,4 @@
-/* Personal Vault: list and content keys have separate, explicit lifetimes. */
+/* Personal Pi-Vault: list and content keys have separate, explicit lifetimes. */
 (() => {
  'use strict';
  const d=Win2kDesktop,s=Win2kShell,c=PiVaultCrypto,esc=Win2kDevelopment.esc;
@@ -13,7 +13,7 @@
  function open(){
   s.closeStart();if(current){current.focus();return current;}
   const owner=d.getUser()?.id;if(!owner)return;
-  const w=d.makeWindow('Vault','vault-window');current=w;
+  const w=d.makeWindow('Pi-Vault','vault-window');current=w;
   let closed=false,epoch=0,busy=false,operation=null,revision=0,vault=null,listKey=null,index=null,selected=null,contentKey=null,entry=null;
   let listDeadline=0,entryDeadline=0,formSensitive=false,lastPoll=0,polling=false;
   const $=q=>w.body.querySelector(q),alive=()=>!closed&&d.getUser()?.id===owner;
@@ -24,19 +24,19 @@
   function clearDOM(){w.uiLastFocus=null;for(const el of w.body.querySelectorAll('input,textarea'))el.value='';$('.vault-content').replaceChildren();}
   function abort(){epoch++;operation?.abort();operation=null;busy=false;}
   function clearEntry(){contentKey=null;entry=null;entryDeadline=0;formSensitive=false;}
-  function touch(){if(entryDeadline&&Date.now()>=entryDeadline){closeEntry('Entry locked after inactivity. Unsaved edits were discarded.');return false;}if(listKey&&listDeadline&&Date.now()>=listDeadline){lock('Vault locked after inactivity.');return false;}if(listKey)listDeadline=Date.now()+300000;if(contentKey||formSensitive)entryDeadline=Date.now()+30000;return true;}
-  function updateCommands(){for(const [name,b] of Object.entries(commands))b.disabled=busy||((['New Entry','Open Entry','Delete Entry','Export Encrypted'].includes(name))&&!listKey)||(name==='Open Entry'||name==='Delete Entry')&&!selected;commands['Lock Vault'].disabled=false;commands['Close Entry'].disabled=!contentKey&&!formSensitive;}
-  function lock(reason='Vault locked.'){
+  function touch(){if(entryDeadline&&Date.now()>=entryDeadline){closeEntry('Entry locked after inactivity. Unsaved edits were discarded.');return false;}if(listKey&&listDeadline&&Date.now()>=listDeadline){lock('Pi-Vault locked after inactivity.');return false;}if(listKey)listDeadline=Date.now()+300000;if(contentKey||formSensitive)entryDeadline=Date.now()+30000;return true;}
+  function updateCommands(){for(const [name,b] of Object.entries(commands))b.disabled=busy||((['New Entry','Open Entry','Delete Entry','Export Encrypted'].includes(name))&&!listKey)||(name==='Open Entry'||name==='Delete Entry')&&!selected;commands['Lock Pi-Vault'].disabled=false;commands['Close Entry'].disabled=!contentKey&&!formSensitive;}
+  function lock(reason='Pi-Vault locked.'){
    abort();clearEntry();listKey=null;index=null;selected=null;listDeadline=0;clearDOM();renderLocked();message(reason);
   }
   function closeEntry(reason='Entry locked. Password B is required to open any entry.'){
    abort();clearEntry();clearDOM();if(listKey)renderList();else renderLocked();message(reason);
   }
-  function check(ticket){if(!alive()||ticket!==epoch)throw Error('Vault locked or account changed.');if(listKey&&listDeadline&&Date.now()>=listDeadline){lock('Vault locked after inactivity.');throw Error('Vault locked.');}if(entryDeadline&&Date.now()>=entryDeadline){closeEntry('Entry locked after 30 seconds of inactivity. Unsaved edits were discarded.');throw Error('Entry locked.');}}
+  function check(ticket){if(!alive()||ticket!==epoch)throw Error('Pi-Vault locked or account changed.');if(listKey&&listDeadline&&Date.now()>=listDeadline){lock('Pi-Vault locked after inactivity.');throw Error('Pi-Vault locked.');}if(entryDeadline&&Date.now()>=entryDeadline){closeEntry('Entry locked after 30 seconds of inactivity. Unsaved edits were discarded.');throw Error('Entry locked.');}}
   async function request(path='',method='GET',payload,signal){
    const r=await fetch('/api/vault'+path,{method,cache:'no-store',headers:{'Content-Type':'application/json','X-Vault-Owner':String(owner),'If-Match':String(revision)},body:payload===undefined?undefined:JSON.stringify(payload),signal});
    const result=await r.json();if(!alive())throw Error('The account changed.');
-   if(!r.ok){if([401,403].includes(r.status))lock('Account changed or session ended.');const error=Error(result.error||'Vault request failed.');error.status=r.status;throw error;}
+   if(!r.ok){if([401,403].includes(r.status))lock('Account changed or session ended.');const error=Error(result.error||'Pi-Vault request failed.');error.status=r.status;throw error;}
    if(result.owner!==owner){lock('Account mismatch.');throw Error('Account mismatch.');}return result;
   }
   async function run(fn){
@@ -57,9 +57,9 @@
   async function load(ctx){const result=await request('','GET',undefined,ctx.signal);ctx.check();vault=result.vault?c.validate(result.vault):null;revision=result.revision;renderLocked();}
   function renderLocked(){
    if(!alive())return;
-   if(!crypto.subtle||!window.Worker){$('.vault-content').textContent='Vault requires HTTPS, Web Crypto and Web Workers.';return;}
-   if(!vault){form('Create your private Vault','<p>Passwords A and B are separate from your Pi-2000 login. Only A opens the list; B is required for each secret. Save the recovery key outside this server.</p>'+newPasswords(),'Create Vault',async(f,ctx)=>{const [a,b]=pair(f),result=await c.create(a,b,ctx.signal);ctx.check();await persist(result.vault,ctx);showRecovery(result.recovery);},{sensitive:true,cancel:()=>w.close()});status('No Vault created for this account.');}
-   else{form('Unlock your Vault',`<p>Signed in as <b>${esc(d.getUser().username)}</b>. Password A opens titles, categories and dates. Secrets stay encrypted.</p>`+password('a','Password A'),'Unlock List',async(f,ctx)=>{const key=await c.unlock(vault,'a',f.elements.a.value,ctx.signal);ctx.check();const data=await c.readIndex(vault,key);ctx.check();listKey=key;index=data;clearEntry();touch();renderList();},{sensitive:false,cancel:()=>w.close()});status('Locked · private to your account');}
+   if(!crypto.subtle||!window.Worker){$('.vault-content').textContent='Pi-Vault requires HTTPS, Web Crypto and Web Workers.';return;}
+   if(!vault){form('Create your private Pi-Vault','<p>Passwords A and B are separate from your Pi-2000 login. Only A opens the list; B is required for each secret. Save the recovery key outside this server.</p>'+newPasswords(),'Create Pi-Vault',async(f,ctx)=>{const [a,b]=pair(f),result=await c.create(a,b,ctx.signal);ctx.check();await persist(result.vault,ctx);showRecovery(result.recovery);},{sensitive:true,cancel:()=>w.close()});status('No Pi-Vault created for this account.');}
+   else{form('Unlock your Pi-Vault',`<p>Signed in as <b>${esc(d.getUser().username)}</b>. Password A opens titles, categories and dates. Secrets stay encrypted.</p>`+password('a','Password A'),'Unlock List',async(f,ctx)=>{const key=await c.unlock(vault,'a',f.elements.a.value,ctx.signal);ctx.check();const data=await c.readIndex(vault,key);ctx.check();listKey=key;index=data;clearEntry();touch();renderList();},{sensitive:false,cancel:()=>w.close()});status('Locked · private to your account');}
    updateCommands();
   }
   function showRecovery(code){
@@ -91,21 +91,21 @@
    status('One entry unlocked · closes after 30 seconds of inactivity');updateCommands();
   }
   function deleteEntry(){const id=selected;askB('Delete Entry',async(key,ctx)=>{await c.readEntry(vault,key,id);ctx.check();if(!confirm('Permanently delete this encrypted entry? Existing backups retain their copy.')){clearEntry();renderList();return;}ctx.check();const next=structuredClone(vault),nextIndex={items:index.items.filter(i=>i.id!==id)};delete next.entries[id];await c.writeIndex(next,listKey,nextIndex);await persist(next,ctx);index=nextIndex;selected=null;clearEntry();renderList();message('Entry deleted.');});}
-  function changePasswords(){if(!vault)return;lock('');form('Change Vault Passwords',password('a','Current password A')+password('b','Current password B')+newPasswords()+'<p>Old encrypted exports still need their old passwords. A new recovery key will replace the current one.</p>','Change Passwords',async(f,ctx)=>{const [a,b]=pair(f),result=await c.rekey(vault,f.elements.a.value,f.elements.b.value,a,b,ctx.signal);ctx.check();await persist(result.vault,ctx);showRecovery(result.recovery);});}
-  function recover(){if(!vault)return;lock('');form('Recover Your Vault',password('code','Recovery key')+newPasswords()+'<p>Only your recovery key can unlock both levels. Administrators cannot recover it for you.</p>','Recover Vault',async(f,ctx)=>{const [a,b]=pair(f),result=await c.recover(vault,f.elements.code.value.trim(),a,b,ctx.signal);ctx.check();await persist(result.vault,ctx);showRecovery(result.recovery);});}
-  function importVault(){lock('');form('Import Encrypted Vault','<p>Import replaces your current encrypted Vault. Keep an encrypted export first.</p><label>Encrypted Vault file<input name="file" type="file" accept=".json,application/json" required></label>'+password('a','Imported Vault password A')+password('b','Imported Vault password B')+'<label><input name="confirm" type="checkbox" required>Replace my current Vault</label>','Import Vault',async(f,ctx)=>{const file=f.elements.file.files[0];if(!file||file.size>4*1024*1024)throw Error('Select a Vault export no larger than 4 MB.');const next=c.validate(JSON.parse(await file.text()));ctx.check();const a=await c.unlock(next,'a',f.elements.a.value,ctx.signal),b=await c.unlock(next,'b',f.elements.b.value,ctx.signal);const data=await c.readIndex(next,a);for(const item of data.items){await c.readEntry(next,b,item.id);ctx.check();}await persist(next,ctx);clearEntry();renderLocked();message('Encrypted Vault imported. Unlock the list with password A.');});}
-  command('New Entry',()=>openEntry());command('Open Entry',()=>openEntry(selected));command('Close Entry',()=>closeEntry());command('Lock Vault',()=>lock());
-  command('Delete Entry',deleteEntry);command('Export Encrypted',()=>askB('Export Encrypted Vault',async(key,ctx)=>{ctx.check();download('pi2000-vault-encrypted.json',JSON.stringify(vault));clearEntry();renderList();message('Encrypted export downloaded. Keep its passwords or recovery key separately.');}));
-  command('Import Encrypted',importVault);command('Change Passwords',changePasswords);command('Recovery',recover);command('Reload Vault',()=>{lock('');run(load);});
+  function changePasswords(){if(!vault)return;lock('');form('Change Pi-Vault Passwords',password('a','Current password A')+password('b','Current password B')+newPasswords()+'<p>Old encrypted exports still need their old passwords. A new recovery key will replace the current one.</p>','Change Passwords',async(f,ctx)=>{const [a,b]=pair(f),result=await c.rekey(vault,f.elements.a.value,f.elements.b.value,a,b,ctx.signal);ctx.check();await persist(result.vault,ctx);showRecovery(result.recovery);});}
+  function recover(){if(!vault)return;lock('');form('Recover Your Pi-Vault',password('code','Recovery key')+newPasswords()+'<p>Only your recovery key can unlock both levels. Administrators cannot recover it for you.</p>','Recover Pi-Vault',async(f,ctx)=>{const [a,b]=pair(f),result=await c.recover(vault,f.elements.code.value.trim(),a,b,ctx.signal);ctx.check();await persist(result.vault,ctx);showRecovery(result.recovery);});}
+  function importVault(){lock('');form('Import Encrypted Pi-Vault','<p>Import replaces your current encrypted Pi-Vault. Keep an encrypted export first.</p><label>Encrypted Pi-Vault file<input name="file" type="file" accept=".json,application/json" required></label>'+password('a','Imported Pi-Vault password A')+password('b','Imported Pi-Vault password B')+'<label><input name="confirm" type="checkbox" required>Replace my current Pi-Vault</label>','Import Pi-Vault',async(f,ctx)=>{const file=f.elements.file.files[0];if(!file||file.size>4*1024*1024)throw Error('Select a Pi-Vault export no larger than 4 MB.');const next=c.validate(JSON.parse(await file.text()));ctx.check();const a=await c.unlock(next,'a',f.elements.a.value,ctx.signal),b=await c.unlock(next,'b',f.elements.b.value,ctx.signal);const data=await c.readIndex(next,a);for(const item of data.items){await c.readEntry(next,b,item.id);ctx.check();}await persist(next,ctx);clearEntry();renderLocked();message('Encrypted Pi-Vault imported. Unlock the list with password A.');});}
+  command('New Entry',()=>openEntry());command('Open Entry',()=>openEntry(selected));command('Close Entry',()=>closeEntry());command('Lock Pi-Vault',()=>lock());
+  command('Delete Entry',deleteEntry);command('Export Encrypted',()=>askB('Export Encrypted Pi-Vault',async(key,ctx)=>{ctx.check();download('pi2000-vault-encrypted.json',JSON.stringify(vault));clearEntry();renderList();message('Encrypted export downloaded. Keep its passwords or recovery key separately.');}));
+  command('Import Encrypted',importVault);command('Change Passwords',changePasswords);command('Recovery',recover);command('Reload Pi-Vault',()=>{lock('');run(load);});
   w.body.addEventListener('input',e=>{if(e.isTrusted)touch();});w.body.addEventListener('keydown',e=>{if(e.isTrusted)touch();if(e.key==='Escape'){e.preventDefault();contentKey||formSensitive?closeEntry():lock();}});w.body.addEventListener('pointerdown',e=>{if(e.isTrusted)touch();});
   const userChanged=()=>{lock('Account changed.');w.close(true);};window.addEventListener('win2k-user',userChanged);
-  const hide=()=>{if(document.hidden)lock('Vault locked because the page was hidden.');};document.addEventListener('visibilitychange',hide);
+  const hide=()=>{if(document.hidden)lock('Pi-Vault locked because the page was hidden.');};document.addEventListener('visibilitychange',hide);
   const blur=()=>{if(contentKey)closeEntry('Entry locked when the browser lost focus. Unsaved edits were discarded.');};window.addEventListener('blur',blur);
-  const observer=new MutationObserver(()=>{if(w.element.hidden)lock('Vault locked when minimised.');});observer.observe(w.element,{attributes:true,attributeFilter:['hidden']});
+  const observer=new MutationObserver(()=>{if(w.element.hidden)lock('Pi-Vault locked when minimised.');});observer.observe(w.element,{attributes:true,attributeFilter:['hidden']});
   const timer=setInterval(()=>{
-   if(!alive())return;if(entryDeadline&&Date.now()>=entryDeadline)closeEntry('Entry locked after 30 seconds of inactivity. Unsaved edits were discarded.');else if(listKey&&listDeadline&&Date.now()>=listDeadline)lock('Vault locked after five minutes of inactivity.');
+   if(!alive())return;if(entryDeadline&&Date.now()>=entryDeadline)closeEntry('Entry locked after 30 seconds of inactivity. Unsaved edits were discarded.');else if(listKey&&listDeadline&&Date.now()>=listDeadline)lock('Pi-Vault locked after five minutes of inactivity.');
    if(entryDeadline)status((contentKey?'Entry unlocked':'Private operation')+' · locks in '+Math.max(0,Math.ceil((entryDeadline-Date.now())/1000))+'s');
-   if(!busy&&!polling&&Date.now()-lastPoll>=5000){polling=true;lastPoll=Date.now();const t=epoch,expectedRevision=revision;request('/status').then(r=>{if(t===epoch&&expectedRevision===revision&&r.revision!==revision){lock('Vault changed elsewhere. Reload before opening it.');vault=null;run(load);}}).catch(()=>{if(t===epoch)lock('Session could not be verified. Reconnect and reload Vault.');}).finally(()=>{polling=false;});}
+   if(!busy&&!polling&&Date.now()-lastPoll>=5000){polling=true;lastPoll=Date.now();const t=epoch,expectedRevision=revision;request('/status').then(r=>{if(t===epoch&&expectedRevision===revision&&r.revision!==revision){lock('Pi-Vault changed elsewhere. Reload before opening it.');vault=null;run(load);}}).catch(()=>{if(t===epoch)lock('Session could not be verified. Reconnect and reload Pi-Vault.');}).finally(()=>{polling=false;});}
   },250);
   w.beforelogout=()=>{lock();return true;};w.onclose=()=>{abort();clearEntry();listKey=null;index=null;vault=null;clearDOM();closed=true;clearInterval(timer);observer.disconnect();window.removeEventListener('win2k-user',userChanged);document.removeEventListener('visibilitychange',hide);window.removeEventListener('blur',blur);current=null;};
   w.beforeclose=()=>{lock();return true;};run(load);return w;

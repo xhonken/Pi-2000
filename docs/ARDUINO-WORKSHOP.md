@@ -1,6 +1,6 @@
 # Arduino Workshop
 
-Arduino Workshop is a native Pi-2000Web application for writing sketches, installing board support and libraries, compiling on the Pi, uploading over the Pi's USB connection and using a serial monitor. Open the **Arduino Workshop** desktop icon or **Start → Programs → Development and Drawing → Arduino Workshop**.
+Arduino Workshop is a native Pi-2000 application for writing sketches, installing board support and libraries, compiling on the Pi, uploading over the Pi's USB connection and using a serial monitor. Open the **Arduino Workshop** desktop icon or **Start → Programs → Development and Drawing → Arduino Workshop**.
 
 Arduino Workshop is included in Alpha 5 source and the arm64 test package.
 
@@ -24,7 +24,7 @@ If an ESP32 does not automatically enter its bootloader, follow its manufacturer
 - **Sketch:** Verify, Upload and Stop Job. Stopping an upload may leave incomplete firmware; upload again before using the board.
 - **Tools:** Board selection with board-specific options, USB port selection, Boards Manager, Library Manager, Serial Monitor and Manage Storage.
 - **View:** Word Wrap, build log clear/download, toolbar visibility and window maximisation.
-- **Help:** Usage instructions and About Pi-2000Web.
+- **Help:** Usage instructions and About Pi-2000.
 
 The editor uses local Ace assets, C/C++ syntax highlighting and file tabs. Ctrl+S saves, Ctrl+R verifies and Ctrl+U uploads. The main `.ino` file must match the project name. Use Save Project As to rename the project and main file together. Supporting `.ino`, `.h`, `.hpp`, `.c`, `.cpp`, `.S` and `.txt` files are supported at the sketch's top level.
 

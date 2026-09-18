@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Pi-2000Web deployment: validated data-only configuration, install and diagnostics."""
+"""Pi-2000 deployment: validated data-only configuration, install and diagnostics."""
 import argparse
 import fcntl
 import hashlib
@@ -90,7 +90,7 @@ def read_config(path):
 
 def config_text(config):
     n = config['network']
-    return ('# Pi-2000Web deployment settings. No passwords belong in this file.\n[network]\n' +
+    return ('# Pi-2000 deployment settings. No passwords belong in this file.\n[network]\n' +
             ''.join(f'{k} = {json.dumps(v)}\n' for k, v in n.items()) +
             '\n[features]\nbrowser = ' + str(config['features']['browser']).lower() + '\n')
 
@@ -172,7 +172,7 @@ def check_caddy_ownership(text, adopt):
     # Accept the packaged default welcome site, but never another user's site.
     lines = '\n'.join(line.split('#', 1)[0].strip() for line in text.splitlines())
     compact = re.sub(r'\s+', ' ', lines).strip()
-    if text.startswith('# Managed by Pi-2000Web.'):
+    if text.startswith(('# Managed by Pi-2000.', '# Managed by Pi-2000Web.')):
         host = re.search(r'https://[^\s{]+', compact)
         bind = re.search(r'\bbind ([^ ]+)', compact)
         if host:
@@ -204,7 +204,7 @@ def check_caddy_ownership(text, adopt):
                         'handle { root * /srv/win2k file_server } }')
             if compact == expected:
                 return
-    raise ValueError('Existing Caddyfile is not managed by Pi-2000Web. It was not changed. '
+    raise ValueError('Existing Caddyfile is not managed by Pi-2000. It was not changed. '
                      'Use a dedicated Pi or integrate the generated site manually; see docs/CADDY.md. '
                      'For the original single-site deployment, use --adopt-existing.')
 
@@ -304,8 +304,8 @@ def verify(config, compare=True):
                 raise ValueError('Unexpected redirect to another host.')
             return response.read()
     page = fetch('')
-    if b'Pi-2000Web' not in page or b'Content-Security-Policy' not in page:
-        raise ValueError('HTTPS did not return the Pi-2000Web desktop.')
+    if b'Pi-2000' not in page or b'Content-Security-Policy' not in page:
+        raise ValueError('HTTPS did not return the Pi-2000 desktop.')
     if compare:
         sys.path.insert(0, str(ROOT / 'server'))
         from deployment import selected, verify as verify_component
@@ -424,7 +424,7 @@ def deploy(config, args):
         if backup:
             print('Previous code/configuration:', backup, '; verified data archives: /var/backups/win2k', file=sys.stderr)
         raise
-    print('\nPi-2000Web is ready at ' + config['network']['public_url'])
+    print('\nPi-2000 is ready at ' + config['network']['public_url'])
     print('Configuration: /etc/pi2000web/config.toml')
     if (STATE / 'initial-password.txt').exists():
         print('First login: admin. Read the generated password with:')
@@ -443,7 +443,7 @@ def main():
     parser.add_argument('--config', type=Path, help='TOML file (install: ./pi2000.toml; update/doctor: installed config)')
     parser.add_argument('--check', action='store_true', help='Validate configuration and print the plan without changes')
     parser.add_argument('--render-dir', type=Path, help='Write reviewable configuration templates here; do not install')
-    parser.add_argument('--adopt-existing', action='store_true', help='Adopt the original single-site Pi-2000Web Caddyfile')
+    parser.add_argument('--adopt-existing', action='store_true', help='Adopt the original single-site Pi-2000 Caddyfile')
     parser.add_argument('--restart-sessions', action='store_true', help='Explicitly allow ending worker jobs to apply its changes')
     args = parser.parse_args()
     path = args.config or (Path('pi2000.toml') if args.command == 'install' else CONFIG)

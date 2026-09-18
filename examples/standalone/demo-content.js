@@ -36,7 +36,7 @@
       const actions = {
         save: 'Snapshot saved.',
         print: 'Opening the browser print dialog…',
-        about: 'Pi-2000Web UI Example 0.1.0 — standalone mode.'
+        about: 'Pi-2000 UI Example 0.1.0 — standalone mode.'
       };
       status(actions[button.dataset.demoAction] || 'Command completed.');
       if (button.dataset.demoAction === 'print') window.print();

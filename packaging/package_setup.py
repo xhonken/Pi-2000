@@ -112,7 +112,7 @@ def configure(args):
         except (OSError,urllib.error.URLError):pass
         if time.monotonic()>=deadline:raise RuntimeError('The HTTPS/API service did not become ready. Run pi2000web doctor after checking its service log.')
         time.sleep(.5)
-    print('Pi-2000Web installed at '+url,flush=True)
+    print('Pi-2000 installed at '+url,flush=True)
     if (STATE/'initial-password.txt').exists():print('First login: admin. Read the existing generated password locally with sudo cat /var/lib/win2k-admin/initial-password.txt.',flush=True)
     else:print('Sign in with the creator username and password chosen during installation.',flush=True)
     if 'memory' not in Path('/sys/fs/cgroup/cgroup.controllers').read_text().split():print('Browser requires the memory controller: run sudo pi2000web enable-memory-controller and reboot when convenient.',flush=True)

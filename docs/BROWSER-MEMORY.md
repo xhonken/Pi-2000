@@ -2,7 +2,7 @@
 
 Each streamed Browser session includes Chromium, a virtual display, audio and video streaming processes. The configured memory ceiling is 1536 MiB for the whole group, with a 1024 MiB memory.high threshold and up to 256 MiB swap. The session service also has its own aggregate resource limits.
 
-Before starting a new session, Pi-2000Web requires at least 2048 MiB of MemAvailable (1536 MiB session budget plus 512 MiB reserve). This conservative admission check uses reclaimable memory, not MemFree. It does not prevent another application from allocating memory later. Reconnecting to an existing session bypasses the new-session check.
+Before starting a new session, Pi-2000 requires at least 2048 MiB of MemAvailable (1536 MiB session budget plus 512 MiB reserve). This conservative admission check uses reclaimable memory, not MemFree. It does not prevent another application from allocating memory later. Reconnecting to an existing session bypasses the new-session check.
 
 A five-second watchdog remains as a fallback. It records memory, disk, process-crash and idle-timeout stops separately. Browser polls its own status, warns at 1200 MiB and removes a stopped stream so the user can select Reconnect. It does not automatically restart a process repeatedly after a memory failure. Saved browser profiles are retained; unsaved web-page state is not guaranteed after a crash.
 

@@ -1,5 +1,5 @@
 [Unit]
-Description=Pi-2000Web HTTPS frontend
+Description=Pi-2000 HTTPS frontend
 After=network-online.target win2k-admin.service
 Wants=network-online.target
 [Service]

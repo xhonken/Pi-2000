@@ -4,6 +4,9 @@ User-visible changes are recorded here for each numbered release. Development be
 
 ## Unreleased
 
+- Use Pi-2000 throughout the interface and documentation, and rename IPTV Player
+  to Pi-IPTV and Vault to Pi-Vault. Existing data, encrypted exports, application
+  identifiers and custom desktop names remain compatible.
 - Fix Log Off getting blocked by workspace save conflicts or failed recovery.
   Offer an explicit choice to keep the last saved workspace and sign out,
   retain application cancellation guards, and avoid duplicate logout attempts.
@@ -21,14 +24,14 @@ User-visible changes are recorded here for each numbered release. Development be
   Avoid periodic position writes for live TV; retain on-demand resume saving.
   Add a real browser playback regression with a simulated network outage.
 
-- Add a private IPTV Player with M3U/Xtream import, live/movie/series views,
+- Add a private Pi-IPTV with M3U/Xtream import, live/movie/series views,
   country/group/search filters, favorites, viewing positions, XMLTV and provider
   catchup. Stream HLS, TS and media files through login-bound opaque URLs; add
   isolated FFmpeg AAC/H.264 compatibility modes and bounded streaming imports.
-  See [IPTV Player](docs/IPTV.md) for format, provider and security boundaries.
+  See [Pi-IPTV](docs/IPTV.md) for format, provider and security boundaries.
 
 - Harden Browser supervisor log handling and root backup traversal against planted
-  or raced filesystem links; rotate Vault data keys as well as passwords/recovery
+  or raced filesystem links; rotate Pi-Vault data keys as well as passwords/recovery
   protection. Bound active requests and login sessions, reject encoded/malformed
   request bodies, revalidate phpMyAdmin operations and add security event logging.
 - Add desktop HTTP security headers and a minimum reviewed Chromium security
@@ -39,7 +42,7 @@ User-visible changes are recorded here for each numbered release. Development be
   writes and recovery that survives failed reads, individual app errors and a
   missing terminal service. Restore window order/layout and supported Pi++,
   Arduino, drawing and calculator state; show reconnectable terminal windows
-  after reboot while keeping Vault locked and excluding credential forms.
+  after reboot while keeping Pi-Vault locked and excluding credential forms.
 
 - Bind Browser sessions to their account version before waiting for startup, so
   account housekeeping does not stop a valid session during a slow cold start.
@@ -51,10 +54,10 @@ User-visible changes are recorded here for each numbered release. Development be
   show/hide icons, file clipboard commands and ETag conflict protection between tabs.
 - Preserve file extensions when creating a renamed copy in the same folder.
 
-- Add a personal Vault application with client-encrypted titles/content, separate
+- Add a personal Pi-Vault application with client-encrypted titles/content, separate
   A/B passphrases, fresh B unlock per entry, automatic locking, password generation,
   encrypted export/import and a user-held recovery key. Account-bound APIs include
-  no administrator read override; Vault ciphertext participates in quotas/backups.
+  no administrator read override; Pi-Vault ciphertext participates in quotas/backups.
 
 - Add guarded OS-administrator recovery planning and application for managed identities,
   account data and homes; preserve UID/GID and file modes in new backups, retain
@@ -121,7 +124,7 @@ installation of this release on a reimaged Pi 4 remain pending. See the
 
 - Keep upload file inputs attached to the page and launch pickers directly from user actions; share cleanup and account guards across desktop, Files and folder uploads.
 
-- Add Help → About Pi-2000Web with the installed version, source revision and generated build identity.
+- Add Help → About Pi-2000 with the installed version, source revision and generated build identity.
 - Protect unsaved API requests and Git file dialogs on replacement, close and logoff; warn before reloading unsaved development work and save SQL drafts before logoff.
 - Apply phpMyAdmin dependency-deprecation filtering before AJAX/page rendering while preserving actionable warnings.
 - Include phpMyAdmin integration and build identity in code backups; verify private restored API requests, Git files and SQL drafts without reviving login tokens.

@@ -1,5 +1,5 @@
 [Unit]
-Description=Pi-2000Web verified local backup
+Description=Pi-2000 verified local backup
 After=win2k-sessions.service
 Requires=win2k-sessions.service
 

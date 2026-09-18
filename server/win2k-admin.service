@@ -1,5 +1,5 @@
 [Unit]
-Description=Pi-2000Web administration and SSH terminal
+Description=Pi-2000 administration and SSH terminal
 After=network-online.target win2k-sessions.service
 Wants=network-online.target win2k-sessions.service
 

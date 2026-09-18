@@ -23,6 +23,6 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict');
    return {retained,oldContentKeyRejected,oldListKeyRejected,recoveryRetained,previousKeyRejectedAfterRecovery,damagedRejected};
   });
   assert.deepEqual(result,{retained:true,oldContentKeyRejected:true,oldListKeyRejected:true,recoveryRetained:true,previousKeyRejectedAfterRecovery:true,damagedRejected:true});
-  console.log('PASS Vault password/recovery rotation replaces data keys, preserves entries and rejects compromised old keys and corrupt content');
+  console.log('PASS Pi-Vault password/recovery rotation replaces data keys, preserves entries and rejects compromised old keys and corrupt content');
  }finally{await browser.close();}
 })().catch(e=>{console.error(e);process.exit(1)});

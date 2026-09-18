@@ -1,5 +1,5 @@
 [Unit]
-Description=Nightly Pi-2000Web backup with verified restore
+Description=Nightly Pi-2000 backup with verified restore
 [Timer]
 OnCalendar=*-*-* 03:15:00
 RandomizedDelaySec=15m

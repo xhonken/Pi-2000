@@ -1,5 +1,5 @@
 [Unit]
-Description=Pi-2000Web persistent application sessions
+Description=Pi-2000 persistent application sessions
 After=network-online.target
 Wants=network-online.target
 

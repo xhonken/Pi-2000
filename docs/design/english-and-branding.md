@@ -1,12 +1,19 @@
-# English interface and Pi-2000Web branding — 2026-09-08
+# English interface and Pi-2000 branding — 2026-09-08
 
-The maintained desktop UI, application dialogs, accessible names, status/error messages, installer output and project documentation now use English. The login page, page title, Start menu and systemd descriptions use Pi-2000Web. Chromium is configured with `--lang=en-GB` for newly started browser sessions. Existing external websites and user-authored content retain their own language.
+The maintained desktop UI, application dialogs, accessible names, status/error messages, installer output and project documentation now use English. The login page, page title, Start menu and systemd descriptions use Pi-2000. Chromium is configured with `--lang=en-GB` for newly started browser sessions. Existing external websites and user-authored content retain their own language.
 
 File and Edit menu mnemonics changed to Alt+F and Alt+E. Menu definitions and their underlying toolbar commands were updated together. Generated ZIP, SVG and CSV download names and CSV headings use English. Locale formatting uses en-GB.
 
 Compatibility identifiers remain unchanged: installed `win2k` paths/services, `WIN2K_*` configuration, browser profiles, cookies, stored account/document keys and JavaScript namespaces. No data migration or user-content translation is performed. The original upstream gallery is retained separately under `reference/gallery/` as an unmodified historical reference and is not installed.
 
-## Verification
+## 2026-09-18 product names
+
+The product is Pi-2000. The media application is Pi-IPTV and the encrypted
+application is Pi-Vault. Default desktop labels follow these names; personal
+labels are retained. Package names, service IDs, API routes and the authenticated
+encryption format remain stable for existing installations and exports.
+
+## Original language-change verification (2026-09-08)
 
 - 45 backend integration tests passed.
 - Geometry and arithmetic checks passed.

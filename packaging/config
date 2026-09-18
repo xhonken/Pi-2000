@@ -36,7 +36,7 @@ while :; do
  db_set pi2000web/admin-password ''
  db_set pi2000web/admin-password-confirm ''
  if [ "${DEBIAN_FRONTEND:-}" = noninteractive ]; then
-  echo 'Pi-2000Web needs a confirmed administrator password for a new installation.' >&2
+  echo 'Pi-2000 needs a confirmed administrator password for a new installation.' >&2
   exit 1
  fi
  db_input critical pi2000web/password-error || true

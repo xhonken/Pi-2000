@@ -1,12 +1,12 @@
-# Pi-2000Web User Guide
+# Pi-2000 User Guide
 
-Alpha 6 adds IPTV Player, Vault, personal desktop controls, workspace recovery,
+Alpha 6 adds Pi-IPTV, Pi-Vault, personal desktop controls, workspace recovery,
 security hardening and maintenance tools. See the [release notes](releases/0.1.0-alpha.6.md)
 for the test installer and remaining acceptance checks.
 
 ## Getting started
 
-Log in with your Pi-2000Web account. The desktop, files, connections and browser profile belong to that account. Start → Programs groups your applications by purpose. Start → Settings contains personal settings and, if permitted, User Management.
+Log in with your Pi-2000 account. The desktop, files, connections and browser profile belong to that account. Start → Programs groups your applications by purpose. Start → Settings contains personal settings and, if permitted, User Management.
 
 Up to twelve web logins can remain active for your account. A further login expires the oldest excess login; detached SSH jobs continue. If too many requests are active, let an operation finish and retry.
 
@@ -57,9 +57,9 @@ If server memory is low, starting a new Browser may be refused. Status messages 
 
 Browser also pauses when the installed Chromium engine is older than the reviewed security minimum. The Pi operator must install a security update before Browser can reconnect. Your saved profile is retained. See [Security](SECURITY.md) for the current minimum and its limitations.
 
-## IPTV Player
+## Pi-IPTV
 
-Open IPTV Player from the desktop or Start → Programs → Internet and Connections.
+Open Pi-IPTV from the desktop or Start → Programs → Internet and Connections.
 Use **Add Playlist** for a complete M3U URL, an Xtream server/login or an M3U file.
 The source is private to your account. Filter Live TV, Movies and Series by group,
 country and search; double-click to play or open series episodes. Favorite toggles
@@ -148,8 +148,8 @@ See [Development Tools](DEVELOPMENT-TOOLS.md) for Git, API Tester and syntax-che
 
 ## Installed version and unsaved development work
 
-Open **Help → About Pi-2000Web** in an application, or **Start → Programs →
-System Tools → About Pi-2000Web**, to see the installed version, build ID and source
+Open **Help → About Pi-2000** in an application, or **Start → Programs →
+System Tools → About Pi-2000**, to see the installed version, build ID and source
 revision. Local modifications are indicated separately. The build identity is
 created by the server publisher; reloading the browser does not change it.
 
@@ -183,18 +183,18 @@ cannot report its loaded version. Finish work before asking the OS administrator
 to activate the update; web administrator access does not grant service restart
 permission. See [maintenance](MAINTENANCE.md) and [recovery](RECOVERY.md).
 
-## Personal Vault
+## Personal Pi-Vault
 
-Open the Vault desktop icon or Start → Programs → System Tools → Vault. Create two
+Open the Pi-Vault desktop icon or Start → Programs → System Tools → Pi-Vault. Create two
 different passphrases: A opens titles/categories/dates; B opens one entry and must
 be entered again after closing or switching entries. Secrets lock after 30 seconds
 of inactivity and the list after five minutes. Save edits before leaving.
 Keep the recovery key outside the Pi. File and Security menus provide encrypted
 export/import, password changes and recovery. Other web users and administrators
-have no access to your Vault contents. Read the [Vault guide](VAULT.md) for clipboard,
+have no access to your Pi-Vault contents. Read the [Pi-Vault guide](VAULT.md) for clipboard,
 backup, plaintext export and trusted-browser boundaries. Available in Alpha 6.
 
-Changing Vault passphrases or using recovery also rotates the encryption keys and
+Changing Pi-Vault passphrases or using recovery also rotates the encryption keys and
 re-encrypts the saved entries. Keep the new recovery key; previous exports remain
 separate copies protected by their previous passphrases and recovery key.
 
@@ -222,7 +222,7 @@ edits made since the last successful save.
 Pi++, Notes, Arduino source, Display Studio, Dimension Drawing and Calculator have
 recovery support. Original files and projects still use their normal Save command.
 Terminal windows offer Reconnect after a reboot; previous commands/jobs are not
-replayed. Vault opens locked. Database transactions, phpMyAdmin forms, unsaved API
+replayed. Pi-Vault opens locked. Database transactions, phpMyAdmin forms, unsaved API
 Tester/Git edits, modal dialogs and arbitrary website state are not recovered.
 See [Desktop recovery](DESKTOP.md#restore-after-restart-or-power-loss) for exact
 coverage and the 4 MB per-account checkpoint limit.

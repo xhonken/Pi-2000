@@ -169,7 +169,7 @@ class Transfers:
         # A transaction gives one InnoDB data snapshot, without global locks.
         await query('SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ')
         await query('START TRANSACTION WITH CONSISTENT SNAPSHOT')
-        write('-- Pi-2000Web MariaDB export\n-- InnoDB snapshot; avoid concurrent DDL. Non-transactional tables are not snapshot-consistent.\n-- Restore to the original database name: definitions may contain qualified references. Account grants are not included.\nSET @PI2000_OLD_SQL_MODE=@@SQL_MODE;\nSET SQL_MODE=\'NO_AUTO_VALUE_ON_ZERO\';\nSET @PI2000_OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS;\nSET FOREIGN_KEY_CHECKS=0;\nSET NAMES utf8mb4;\n')
+        write('-- Pi-2000 MariaDB export\n-- InnoDB snapshot; avoid concurrent DDL. Non-transactional tables are not snapshot-consistent.\n-- Restore to the original database name: definitions may contain qualified references. Account grants are not included.\nSET @PI2000_OLD_SQL_MODE=@@SQL_MODE;\nSET SQL_MODE=\'NO_AUTO_VALUE_ON_ZERO\';\nSET @PI2000_OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS;\nSET FOREIGN_KEY_CHECKS=0;\nSET NAMES utf8mb4;\n')
         views=[]
         for table,kind,engine in tables['rows']:
             job['object']=table

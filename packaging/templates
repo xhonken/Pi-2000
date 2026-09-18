@@ -1,6 +1,6 @@
 Template: pi2000web/title
 Type: title
-Description: Pi-2000Web installation
+Description: Pi-2000 installation
 
 Template: pi2000web/setup-requested
 Type: boolean
@@ -10,7 +10,7 @@ Description: Run explicit account setup
 
 Template: pi2000web/admin-password
 Type: password
-Description: Password for the Pi-2000Web administrator:
+Description: Password for the Pi-2000 administrator:
  For a new installation, choose a password containing at least 12 characters, within 512 UTF-8 bytes.
  When running setup on an existing installation, enter its current admin password.
  The same initial password will be used for its MariaDB account.

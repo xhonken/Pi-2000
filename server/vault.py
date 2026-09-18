@@ -70,9 +70,9 @@ class Vault:
         uid = self.app.require_current(request)['id']
         # This header is a stale-client guard, never authority to select an owner.
         if request.headers.get('X-Vault-Owner') != str(uid):
-            raise web.HTTPForbidden(text='The signed-in account changed. Close Vault and sign in again.')
+            raise web.HTTPForbidden(text='The signed-in account changed. Close Pi-Vault and sign in again.')
         if request.query:
-            raise web.HTTPBadRequest(text='Vault does not accept account selectors.')
+            raise web.HTTPBadRequest(text='Pi-Vault does not accept account selectors.')
         return uid
 
     async def handle(self, request):
@@ -102,10 +102,10 @@ class Vault:
             row = db.execute('SELECT revision,size FROM vaults WHERE user_id=?', (uid,)).fetchone()
             revision = row['revision'] if row else 0
             if request.headers.get('If-Match') != str(revision):
-                raise web.HTTPConflict(text='Vault changed in another window. Lock and reload before saving.')
+                raise web.HTTPConflict(text='Pi-Vault changed in another window. Lock and reload before saving.')
             usage = self.app.FILES.usage(db, uid)
             if usage['used'] + usage['reserved'] - (row['size'] if row else 0) + size > usage['quota']:
-                raise web.HTTPConflict(text='Vault exceeds your private storage quota.')
+                raise web.HTTPConflict(text='Pi-Vault exceeds your private storage quota.')
             db.execute('''INSERT INTO vaults VALUES(?,?,?,?) ON CONFLICT(user_id)
                 DO UPDATE SET revision=excluded.revision,data=excluded.data,size=excluded.size''',
                 (uid, revision + 1, data, size))

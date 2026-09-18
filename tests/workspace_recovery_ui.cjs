@@ -71,6 +71,6 @@ const {spawn}=require('node:child_process'),{once}=require('node:events');
   await restored[3].locator('.calculator-form input').fill('before slow save');const initial=restored[3].evaluate(()=>Win2kDesktop.saveWorkspace());await until(()=>intercepted);
   await restored[3].locator('.calculator-form input').fill('after slow save');const final=restored[3].evaluate(()=>Win2kDesktop.saveWorkspace());release();await initial;await final;assert.equal((await state(restored[3])).windows.find(w=>w.type==='calculator-window').state.expression,'after slow save');await restored[3].unroute('**/api/workspace');
   await p.screenshot({path:path.join(process.env.WIN2K_TEST_ARTIFACTS||temp,'workspace-restored.png')});
-  assert.deepEqual(errors,[]);console.log('PASS: four accounts survive SIGKILL/server restart and fresh login; drafts, drawings, Arduino, geometry, terminal reconnect, locked Vault, failed reads/writes and tab conflicts');
+  assert.deepEqual(errors,[]);console.log('PASS: four accounts survive SIGKILL/server restart and fresh login; drafts, drawings, Arduino, geometry, terminal reconnect, locked Pi-Vault, failed reads/writes and tab conflicts');
  }finally{for(const ctx of contexts)await ctx.close();await browser?.close();await stop();await fs.rm(temp,{recursive:true,force:true});}
 })().catch(e=>{console.error(e);process.exit(1)});
