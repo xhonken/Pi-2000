@@ -4,7 +4,10 @@ User-visible changes are recorded here for each numbered release. Development be
 
 ## Unreleased
 
-No changes yet.
+- Make the isolated FFmpeg, Git and Arduino launchers usable on x86 test hosts by including their
+  optional `/lib64` loader directory. The released Debian package remains arm64-only.
+- Correct nested sandbox support in the disposable GitHub CI container and check
+  it before running the application tests.
 
 ## 0.1.0-alpha.6 — 2026-09-18
 

@@ -51,7 +51,7 @@ class GitTools:
     async def git(self,root,args,auth=None,remote=None):
         # The sandbox sees only system binaries/certificates and this project.
         # No /home, /opt, /srv, /var/lib, runtime socket or host /proc is mounted.
-        sandbox=['/usr/bin/bwrap','--unshare-all','--share-net','--die-with-parent','--new-session','--ro-bind','/usr','/usr','--symlink','usr/bin','/bin','--symlink','usr/lib','/lib','--proc','/proc','--dev','/dev','--tmpfs','/tmp','--dir','/etc','--ro-bind','/etc/ssl/certs','/etc/ssl/certs','--ro-bind','/etc/resolv.conf','/etc/resolv.conf','--ro-bind','/etc/hosts','/etc/hosts','--bind',str(root),'/project','--chdir','/project']
+        sandbox=['/usr/bin/bwrap','--unshare-all','--share-net','--die-with-parent','--new-session','--ro-bind','/usr','/usr','--symlink','usr/bin','/bin','--symlink','usr/lib','/lib','--ro-bind-try','/lib64','/lib64','--proc','/proc','--dev','/dev','--tmpfs','/tmp','--dir','/etc','--ro-bind','/etc/ssl/certs','/etc/ssl/certs','--ro-bind','/etc/resolv.conf','/etc/resolv.conf','--ro-bind','/etc/hosts','/etc/hosts','--bind',str(root),'/project','--chdir','/project']
         env={'PATH':'/usr/bin:/bin','HOME':'/tmp','LANG':'C.UTF-8','GIT_CONFIG_NOSYSTEM':'1','GIT_CONFIG_GLOBAL':'/dev/null','GIT_TERMINAL_PROMPT':'0','GIT_LFS_SKIP_SMUDGE':'1'}
         if auth and remote:
             username,password=auth.get('username',''),auth.get('password','')

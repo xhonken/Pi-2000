@@ -160,7 +160,7 @@ class ArduinoWorkshop:
         cmd = ['/usr/bin/prlimit', '--cpu=900', '--as=4294967296', '--fsize=2147483648', '--nofile=256', '--',
                '/usr/bin/bwrap', '--unshare-all', '--die-with-parent', '--new-session']
         if network: cmd += ['--share-net']
-        cmd += ['--ro-bind', '/usr', '/usr', '--symlink', 'usr/bin', '/bin', '--symlink', 'usr/lib', '/lib',
+        cmd += ['--ro-bind', '/usr', '/usr', '--symlink', 'usr/bin', '/bin', '--symlink', 'usr/lib', '/lib', '--ro-bind-try', '/lib64', '/lib64',
                 '--proc', '/proc', '--dev', '/dev', '--tmpfs', '/tmp', '--dir', '/etc',
                 '--ro-bind', '/etc/ssl/certs', '/etc/ssl/certs', '--ro-bind', '/etc/resolv.conf', '/etc/resolv.conf',
                 '--ro-bind', '/etc/hosts', '/etc/hosts', '--ro-bind', str(CLI), '/arduino-cli',
