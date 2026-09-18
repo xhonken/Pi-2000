@@ -28,7 +28,7 @@ for test in tests:
         env={**os.environ,'NODE_PATH':str(root/'node_modules'),
              'WIN2K_TEST_URL':origin,'WIN2K_TEST_LISTEN_FD':str(listener.fileno()),
              'WIN2K_TEST_ARTIFACTS':str(artifacts)}
-        if test in ('iptv_ui.cjs','iptv_stability_ui.cjs'):
+        if test in ('iptv_ui.cjs','iptv_stability_ui.cjs','release_screenshot.cjs'):
             from iptv_fixture import make_media
             make_media(Path(work)/'media')
             if test=='iptv_stability_ui.cjs':

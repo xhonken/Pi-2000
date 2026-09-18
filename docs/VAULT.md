@@ -2,7 +2,7 @@
 
 Vault is a separate Pi-2000 application, available on the desktop and under
 Start → Programs → System Tools → Vault. It is private to the signed-in account.
-This feature is development work after the published Alpha 5 package.
+Vault is included in Alpha 6.
 
 ## Two independent unlock levels
 

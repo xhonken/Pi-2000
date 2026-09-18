@@ -1,6 +1,6 @@
 # Backup recovery and encrypted export
 
-This runbook applies to the development changes after Alpha 5. It is an OS
+This runbook applies to Alpha 6 and later. It is an OS
 administrator operation; a web administrator cannot restore host accounts.
 Rehearse on a disposable installation before relying on it for disaster recovery.
 

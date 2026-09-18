@@ -6,13 +6,13 @@ installs native dependencies; no pip download or compilation occurs on the Pi.
 32-bit Raspberry Pi OS and Debian 12 are not supported by this build.
 
 Download the `.deb` and `SHA256SUMS` from the
-[Alpha 5 test release](https://github.com/xhonken/Pi-2000/releases/tag/v0.1.0-alpha.5)
+[Alpha 6 test release](https://github.com/xhonken/Pi-2000/releases/tag/v0.1.0-alpha.6)
 into the same directory. GitHub changes `~` to `.` in the asset filename; the
-internal Debian version remains `0.1.0~alpha.5-1`.
+internal Debian version remains `0.1.0~alpha.6-1`.
 
 ```sh
 sha256sum --check SHA256SUMS
-sudo apt install ./pi2000web_0.1.0.alpha.5-1_arm64.deb
+sudo apt install ./pi2000web_0.1.0.alpha.6-1_arm64.deb
 sudo pi2000web doctor
 ```
 
@@ -81,12 +81,12 @@ python3 scripts/build-deb.py
 The output `.deb` and SHA-256 file are under `build/packages/`. Local project notes,
 credentials, runtime databases and machine configuration are never package inputs.
 
-## Alpha 5 test package status
+## Alpha 6 test package status
 
-The release package `0.1.0~alpha.5-1` includes Arduino Workshop and its isolated
-CLI worker, Pi++, the graphical utility tools and the latest desktop fixes,
+The release package `0.1.0~alpha.6-1` includes IPTV Player, Vault, desktop/workspace recovery, security hardening,
+maintenance tools, Arduino Workshop, Pi++ and the graphical utility tools,
 alongside PAM authentication and per-user Linux identities. It is built from the
-Alpha 5 source release and checked for content, build identity and checksums.
+Alpha 6 source release and checked for content, build identity and checksums.
 **Fresh installation of this package on a reimaged Pi 4 is still pending.** The
 applications were tested on the existing Pi 5 installation; the earlier physical
 Pi 4 results below predate the final PAM account migration and these additions.
@@ -156,10 +156,10 @@ This avoids rendering a large empty desktop before a client connects. Cold SD-ca
 startup with MariaDB can exceed 90 seconds, so initialization allows up to three
 minutes without increasing the hard memory limit.
 
-## Development maintenance tools
+## Maintenance tools
 
-Packages built after Alpha 5 include `pi2000web workers` for status and idle-only
+Alpha 6 packages include `pi2000web workers` for status and idle-only
 activation, and `pi2000web recovery` for planned restoration and encrypted export.
 See [maintenance](MAINTENANCE.md) and [recovery](RECOVERY.md). These are OS-root
-commands; they are not web administrator privileges. The published Alpha 5-1
-package does not contain these later changes.
+commands; they are not web administrator privileges. Older Alpha 5-1 packages
+do not contain these commands.

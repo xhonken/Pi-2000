@@ -4,6 +4,10 @@ User-visible changes are recorded here for each numbered release. Development be
 
 ## Unreleased
 
+No changes yet.
+
+## 0.1.0-alpha.6 — 2026-09-18
+
 - Stabilize IPTV live playback with a startup buffer and less aggressive live
   catch-up, buffered HLS quality changes and window-aware automatic quality.
   Avoid periodic position writes for live TV; retain on-demand resume saving.
@@ -54,9 +58,9 @@ User-visible changes are recorded here for each numbered release. Development be
 - Pin the development test dependencies, isolate UI test sockets/artifacts, include
   all ordinary applications in one test entrypoint and add a GitHub CI workflow.
 
-These changes are local development work, not part of the published Alpha 5
-package. Fresh-machine recovery and installed worker activation remain acceptance
-checks; see [maintenance](docs/MAINTENANCE.md) and [recovery](docs/RECOVERY.md).
+These changes are included in Alpha 6. Fresh-machine recovery and clean Pi 4
+installation remain acceptance checks. See the [release notes](docs/releases/0.1.0-alpha.6.md),
+[maintenance](docs/MAINTENANCE.md) and [recovery](docs/RECOVERY.md).
 
 ## 0.1.0-alpha.5 — 2026-09-16
 

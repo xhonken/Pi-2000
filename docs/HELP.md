@@ -1,8 +1,8 @@
 # Pi-2000Web User Guide
 
-Alpha 5 includes Pi++, Arduino Workshop and the network, display, archive, log
-and serial plotting tools below. See the [release notes](releases/0.1.0-alpha.5.md)
-for the test installer and remaining hardware checks.
+Alpha 6 adds IPTV Player, Vault, personal desktop controls, workspace recovery,
+security hardening and maintenance tools. See the [release notes](releases/0.1.0-alpha.6.md)
+for the test installer and remaining acceptance checks.
 
 ## Getting started
 
@@ -175,7 +175,7 @@ See [system account operations](SYSTEM-ACCOUNTS.md) and the [Debian installation
 
 ### Pending service updates
 
-In development builds after Alpha 5, About and System Status also show the build
+In Alpha 6, About and System Status also show the build
 actually loaded by each service. **Update pending** means the installed files are
 newer than the running worker. **Waiting for existing jobs** means maintenance is
 blocking new work while existing jobs finish. **Unknown** means an older worker
@@ -192,13 +192,13 @@ of inactivity and the list after five minutes. Save edits before leaving.
 Keep the recovery key outside the Pi. File and Security menus provide encrypted
 export/import, password changes and recovery. Other web users and administrators
 have no access to your Vault contents. Read the [Vault guide](VAULT.md) for clipboard,
-backup, plaintext export and trusted-browser boundaries. Development after Alpha 5.
+backup, plaintext export and trusted-browser boundaries. Available in Alpha 6.
 
 Changing Vault passphrases or using recovery also rotates the encryption keys and
 re-encrypts the saved entries. Keep the new recovery key; previous exports remain
 separate copies protected by their previous passphrases and recovery key.
 
-## Personal desktop controls (development after Alpha 5)
+## Personal desktop controls (Alpha 6)
 
 Double-click icons to open; single-click selects. Right-click the desktop for
 Desktop Icons, sorting, grid alignment, new items and Desktop Options. Right-click

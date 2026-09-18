@@ -1,6 +1,6 @@
 # IPTV Player
 
-Development after Alpha 5. Open the desktop icon or **Start → Programs →
+Available in Alpha 6. Open the desktop icon or **Start → Programs →
 Internet and Connections → IPTV Player**. The player uses your own sources;
 Pi-2000 does not supply a subscription or bypass provider authentication/DRM.
 

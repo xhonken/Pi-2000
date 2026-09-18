@@ -1,6 +1,6 @@
 # Build activation and deployment
 
-This describes development changes after Alpha 5. About Pi-2000Web and System
+These maintenance tools are included in Alpha 6. About Pi-2000Web and System
 Status show the installed build separately from the builds captured at startup by
 the API, session worker and Arduino worker. A pending update means files have
 changed while the process still runs its previous build. An older worker that

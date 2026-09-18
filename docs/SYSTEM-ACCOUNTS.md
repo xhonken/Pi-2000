@@ -55,7 +55,7 @@ Automated unit tests cover creator identity across restart, SQL protections, UTF
 
 Implementation references: [Linux-PAM application interface](https://github.com/linux-pam/linux-pam/blob/master/libpam/include/security/pam_appl.h) and [OpenSSH server configuration](https://man.openbsd.org/sshd_config).
 
-Development after Alpha 5 adds guarded recovery plans, UID/GID and home-mode
+Alpha 6 adds guarded recovery plans, UID/GID and home-mode
 restoration, private rollback journals and encrypted export. Follow the
 [recovery runbook](RECOVERY.md); linked OS accounts remain outside automated
 account restoration.

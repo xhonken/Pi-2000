@@ -1,6 +1,6 @@
 # Personal desktop
 
-Development after Alpha 5 adds account-owned desktop controls. Existing icon
+Alpha 6 adds account-owned desktop controls. Existing icon
 positions, shortcuts, files and backgrounds are retained. No new desktop server
 or Linux graphical session is required.
 
