@@ -5,20 +5,20 @@ The package includes pinned Python runtimes for the desktop and Browser. APT
 installs native dependencies; no pip download or compilation occurs on the Pi.
 32-bit Raspberry Pi OS and Debian 12 are not supported by this build.
 
-**Alpha 7 uses new `pi2000-*` system names. This package is for fresh installations.
-Direct upgrades from Alpha 6 or older packages using `win2k-*` paths are blocked
-before unpacking; a package-managed namespace migration has not been validated.
-Do not remove the guard or package-management marker. Source installations use the
-separate [system-name migration](SYSTEM-NAMES.md), not this package.**
+**Alpha 8 starts the independent 0.2 data line. Install on a fresh system.
+Upgrades from Alpha 5, 6 and 7 are rejected before unpacking, including previously
+removed packages with retained data. Source installations cannot be overwritten
+by the package. Do not remove compatibility guards or forge installation markers.
+Keep the earlier system and its backups separately; see [SYSTEM-NAMES.md](SYSTEM-NAMES.md).**
 
 Download the `.deb` and `SHA256SUMS` from the
-[Alpha 7 test release](https://github.com/xhonken/Pi-2000/releases/tag/v0.1.0-alpha.7)
+[Alpha 8 test release](https://github.com/xhonken/Pi-2000/releases/tag/v0.2.0-alpha.8)
 into the same directory. GitHub changes `~` to `.` in the asset filename; the
-internal Debian version remains `0.1.0~alpha.7-1`.
+internal Debian version remains `0.2.0~alpha.8-1`.
 
 ```sh
 sha256sum --check SHA256SUMS
-sudo apt install ./pi2000web_0.1.0.alpha.7-1_arm64.deb
+sudo apt install ./pi2000web_0.2.0.alpha.8-1_arm64.deb
 sudo pi2000web doctor
 ```
 
@@ -43,7 +43,7 @@ pinned local host keys. Managed users cannot log in through the host SSH listene
 An existing Linux identity is linked only by an explicit OS administrator command;
 its password and permissions are preserved. See [system accounts](SYSTEM-ACCOUNTS.md).
 
-Supported upgrades within the new namespace preserve users and the creator.
+Supported upgrades within the 0.2 data line preserve users and the creator.
 The older-package restriction above takes precedence.
 Fresh setup requires local MariaDB OS-root socket authentication; it never changes
 MariaDB's root authentication. Unattended fresh installs preseed both admin-password
@@ -67,7 +67,7 @@ sample service is disabled, while its configuration file is retained. A custom
 existing Caddy service is not overwritten. phpMyAdmin sees the gateway config
 through a read-only service mount; the distribution's configuration is retained.
 
-For supported upgrades within the new namespace, use
+For supported upgrades within the 0.2 data line, use
 `sudo apt install ./NEW-PACKAGE.deb`. A verified local backup is
 required by the upgrade script before files are replaced. Finish database operations
 first: the API and PHP runtime restart. SSH/Browser worker sessions are preserved;
@@ -75,8 +75,8 @@ use `sudo pi2000web restart-sessions` after finishing jobs to activate new worke
 code. A legacy script-managed installation is rejected rather than overwritten.
 
 Remove with `sudo apt remove pi2000web`. Account data and backups remain; purge
-removes generated platform configuration but deliberately retains user data and
-credential keys. Managed Linux accounts, their access restrictions and MariaDB databases/accounts also remain after purge; remove them explicitly only when no longer needed. Reinstallation preserves accounts and saved files. Do not use the source updater
+removes generated platform configuration but deliberately retains the installation-format
+marker, user data and credential keys. Managed Linux accounts, their access restrictions and MariaDB databases/accounts also remain after purge; remove them explicitly only when no longer needed. Reinstallation of compatible 0.2 packages preserves accounts and saved files. Do not use the source updater
 on a package-managed host: install the next `.deb` through APT instead.
 
 Build on the matching arm64 Python 3.13 host:
@@ -89,18 +89,17 @@ python3 scripts/build-deb.py
 The output `.deb` and SHA-256 file are under `build/packages/`. Local project notes,
 credentials, runtime databases and machine configuration are never package inputs.
 
-## Alpha 7 test package status
+## Alpha 8 test package status
 
-The release package `0.1.0~alpha.7-1` adds consistent application/system naming,
-logout fixes and code cleanup. It retains Pi-IPTV, Pi-Vault, desktop/workspace recovery, security hardening,
-maintenance tools, Pi-Arduino, Pi++ and the graphical utility tools,
-alongside PAM authentication and per-user Linux identities. It is built from the
-Alpha 7 source release and checked for content, build identity and checksums.
-**Fresh installation of this package on a reimaged Pi 4 is still pending.** The
-applications were tested on the existing Pi 5 installation; the earlier physical
-Pi 4 results below predate the final PAM account migration and these additions.
-Use a dedicated test system for fresh-install acceptance. This package does not
-convert or overwrite an existing source-managed installation.
+The release package `0.2.0~alpha.8-1` uses Pi-2000 names throughout the application,
+with new cookies, environment variables, UI identifiers and private data identity.
+The application rejects earlier databases; recovery accepts only format 3 archives
+from this data line. IPTV, Vault, personal desktop recovery, PAM authentication,
+per-user Linux identities and development tools are retained.
+**Fresh installation of this exact package on a reimaged Pi 4 is still pending.**
+Isolated application and package checks do not establish physical installation,
+reboot or power-loss acceptance. Earlier Pi 5 deployment results apply to the
+previous data line, not to an installed Alpha 8 system.
 
 Before an upgrade, finish Arduino jobs and disconnect Serial Monitor/Plotter as
 well as other live work. A preserved active Arduino worker must be restarted

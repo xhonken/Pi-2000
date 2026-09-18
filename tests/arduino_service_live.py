@@ -16,7 +16,7 @@ from session_store import SessionStore
 
 async def main():
     runtime=Path(os.environ['PI2000_TEST_ARDUINO_RUNTIME']).resolve()
-    cli=Path(os.environ['WIN2K_ARDUINO_CLI']).resolve()
+    cli=Path(os.environ['PI2000_ARDUINO_CLI']).resolve()
     with tempfile.TemporaryDirectory(prefix='arduino-service-test-',dir=Path.home()/'.cache') as temp:
         state=Path(temp);sock=state/'worker.sock';unit='pi2000-arduino-validation-'+secrets.token_hex(4)
         app.STATE=state;app.SESSIONS={};app.WORKER_SOCKET='';app.WORKER_MODE=False;app.ORIGIN='http://127.0.0.1:18766';ar.SOCKET=str(sock)
@@ -24,7 +24,7 @@ async def main():
         (state/'arduino-runtime').mkdir();(state/'arduino-runtime'/'1').symlink_to(runtime,target_is_directory=True)
         token=secrets.token_urlsafe(32);app.SESSIONS[token]={'user_id':1,'version':1,'expires':time.time()+1800}
         command=['systemd-run','--user','--quiet','--unit='+unit,'--property=MemoryHigh=1536M','--property=MemoryMax=2048M','--property=MemorySwapMax=128M','--property=CPUQuota=150%','--property=TasksMax=128','--property=NoNewPrivileges=true',
-                 '--setenv=WIN2K_STATE='+str(state),'--setenv=WIN2K_ORIGIN='+app.ORIGIN,'--setenv=WIN2K_ARDUINO_CLI='+str(cli),'--setenv=WIN2K_ARDUINO_LISTEN='+str(sock),str(ROOT/'.venv/bin/python'),str(ROOT/'server/arduino_service.py')]
+                 '--setenv=PI2000_STATE='+str(state),'--setenv=PI2000_ORIGIN='+app.ORIGIN,'--setenv=PI2000_ARDUINO_CLI='+str(cli),'--setenv=PI2000_ARDUINO_LISTEN='+str(sock),str(ROOT/'.venv/bin/python'),str(ROOT/'server/arduino_service.py')]
         subprocess.run(command,check=True)
         client=TestClient(TestServer(application));await client.start_server()
         async def call(action,status=200,**data):

@@ -4,7 +4,8 @@ Ready-to-edit configurations and scripts are indexed in **[Examples](../Examples
 
 Pi-2000 has a single configuration file and a unified installer. The installer sets up system packages, Caddy HTTPS, the Python API, a private SQLite database, persistent-session services, local backups and, optionally, the Chromium browser with audio.
 
-**Alpha status:** the configuration, generated Caddy configuration, backend and existing-installation upgrade path are tested. A full end-to-end run on a newly imaged physical Pi remains to be independently verified. Keep a backup and report installation failures with the command and error output, excluding passwords and private keys.
+**Alpha 8 requires a fresh installation; Alpha 5, 6 and 7 cannot be upgraded.**
+Configuration rendering, backend behavior and isolated installation guards are tested. A full end-to-end run on a newly imaged physical Pi remains to be independently verified. Keep a backup and report installation failures with the command and error output, excluding passwords and private keys.
 
 ## 1. Prepare the Pi
 
@@ -116,12 +117,12 @@ Open your configured `public_url` and log in as **`admin`**. Change the password
 
 ## Updates and network changes
 
-**Alpha 7 namespace migration:** if the existing installation still uses
-`win2k-admin` / `win2k-sessions`, follow [SYSTEM-NAMES.md](SYSTEM-NAMES.md)
-first. The updater refuses an unmigrated installation. This source migration
-requires a planned service interruption and does not support dpkg-managed hosts.
+**The 0.2 line requires a fresh system. Alpha 5, 6 and 7 cannot be upgraded.**
+The installer and publishers reject older installations even when their service
+names already match. See [SYSTEM-NAMES.md](SYSTEM-NAMES.md). Keep older systems and
+backups separately; never bypass the installation-format guard.
 
-From an already migrated source checkout:
+For subsequent updates within the 0.2 data line:
 
 ```sh
 git pull --ff-only
@@ -145,17 +146,7 @@ Source updates check installed system packages and install missing declared depe
 
 If the update fails, retain the printed previous-code snapshot and verified data archives. The installer does not silently revert a migrated database. Correct the reported problem, rerun the update and then doctor. Apt/package and Python-environment changes are not transactionally rolled back. Backups do not replace a full system image when testing system changes.
 
-### Original installation migration
-
-The older installation used direct settings in service files and one dedicated Caddyfile. Create a TOML file with **the same existing HTTPS origin** and run:
-
-```sh
-sudo ./scripts/update.sh --config pi2000.toml --adopt-existing
-```
-
-Adoption accepts only the original known single-site configuration; it does not authorise overwriting arbitrary Caddy sites. The service/database identifiers remain compatible and existing user data is preserved. Later updates use the installed configuration normally.
-
-The former `install-files.sh`, `install-security.sh` and `install-foundation.sh` now forward to `update.sh`. Use the clear `install.sh`, `update.sh` and `doctor.sh` entrypoints for new instructions. Low-level `publish-*.sh` scripts are implementation helpers, not fresh installers.
+#The former `install-files.sh`, `install-security.sh` and `install-foundation.sh` now forward to `update.sh`. Use the clear `install.sh`, `update.sh` and `doctor.sh` entrypoints for new instructions. Low-level `publish-*.sh` scripts are implementation helpers, not fresh installers.
 
 ## Database and installed layout
 
@@ -187,7 +178,10 @@ File bytes are stored as private blobs alongside the database. Back up the datab
 | `/var/backups/pi2000web-update-*` | Previous code/site/configuration snapshots |
 | `/run/pi2000-sessions/worker.sock` | Private persistent-worker connection |
 
-The `win2k` service/storage names are stable internal compatibility identifiers, not network-specific settings. The checkout can live anywhere and can be named `Pi-2000`, `Pi-2000` or another name. Avoid moving installed storage directories manually.
+The `pi2000` service/storage names and `PI2000_*` environment variables belong to
+the 0.2 data line. The checkout can live anywhere, for example `Pi-2000`. Avoid
+moving installed storage directories manually. `/etc/pi2000web/installation-format`
+records the compatible data line; do not edit or remove it.
 
 ## Diagnostics and restore
 

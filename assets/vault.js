@@ -1,10 +1,10 @@
 /* Personal Pi-Vault: list and content keys have separate, explicit lifetimes. */
 (() => {
  'use strict';
- const d=Win2kDesktop,s=Win2kShell,c=PiVaultCrypto,esc=Win2kDevelopment.esc;
+ const d=Pi2000Desktop,s=Pi2000Shell,c=PiVaultCrypto,esc=Pi2000Development.esc;
  const categories=['Password','API key','Text','Link'];let current=null;
  const channel=typeof BroadcastChannel==='function'?new BroadcastChannel('pi2000-vault-session'):null;
- window.addEventListener('win2k-user',()=>channel?.postMessage('session-changed'));
+ window.addEventListener('pi2000-user',()=>channel?.postMessage('session-changed'));
  if(channel)channel.onmessage=()=>current?.close(true);
  const password=(name,label)=>`<label>${label}<input name="${name}" type="password" autocomplete="off" required maxlength="512" spellcheck="false"></label>`;
  const newPasswords=()=>password('newA','New password A (at least 14 characters)')+password('repeatA','Repeat password A')+password('newB','New password B (different, at least 14 characters)')+password('repeatB','Repeat password B');
@@ -46,10 +46,10 @@
    finally{controls.forEach(el=>el.disabled=false);if(ticket===epoch){busy=false;operation=null;updateCommands();}}
   }
   async function persist(next,ctx){ctx.check();const result=await request('','PUT',next,ctx.signal);ctx.check();vault=next;revision=result.revision;}
-  function command(name,fn){const b=document.createElement('button');b.className='win2k-button';b.type='button';b.textContent=name;b.onclick=fn;$('.vault-toolbar').append(b);commands[name]=b;}
+  function command(name,fn){const b=document.createElement('button');b.className='pi2000-button';b.type='button';b.textContent=name;b.onclick=fn;$('.vault-toolbar').append(b);commands[name]=b;}
   function form(title,html,submitLabel,onSubmit,{sensitive=true,cancel=()=>closeEntry()}={}){
    clearDOM();formSensitive=sensitive;entryDeadline=sensitive?Date.now()+30000:0;
-   $('.vault-content').innerHTML=`<form class="vault-form" autocomplete="off"><h2>${esc(title)}</h2>${html}<div class="vault-form-actions"><button type="button" class="win2k-button" data-cancel>Cancel</button><button class="win2k-button" type="submit">${esc(submitLabel)}</button></div></form>`;
+   $('.vault-content').innerHTML=`<form class="vault-form" autocomplete="off"><h2>${esc(title)}</h2>${html}<div class="vault-form-actions"><button type="button" class="pi2000-button" data-cancel>Cancel</button><button class="pi2000-button" type="submit">${esc(submitLabel)}</button></div></form>`;
    const f=$('.vault-form');f.querySelector('[data-cancel]').onclick=cancel;
    f.onsubmit=e=>{e.preventDefault();run(async ctx=>{try{await onSubmit(f,ctx);}finally{for(const el of f.querySelectorAll('input[type=password]'))el.value='';}});};
    f.querySelector('input,textarea,select')?.focus();updateCommands();return f;
@@ -64,7 +64,7 @@
   }
   function showRecovery(code){
    clearEntry();listKey=null;index=null;selected=null;clearDOM();formSensitive=true;entryDeadline=Date.now()+30000;
-   $('.vault-content').innerHTML='<section class="vault-recovery"><h2>Save your recovery key</h2><p>This key unlocks both levels. Keep it outside the Pi and never share it. It is not sent to the server. Locking this window hides it.</p><textarea aria-label="Recovery key" readonly spellcheck="false"></textarea><p><button class="win2k-button" data-download>Download Recovery Key</button> <button class="win2k-button" data-done>I Have Saved My Key</button></p></section>';
+   $('.vault-content').innerHTML='<section class="vault-recovery"><h2>Save your recovery key</h2><p>This key unlocks both levels. Keep it outside the Pi and never share it. It is not sent to the server. Locking this window hides it.</p><textarea aria-label="Recovery key" readonly spellcheck="false"></textarea><p><button class="pi2000-button" data-download>Download Recovery Key</button> <button class="pi2000-button" data-done>I Have Saved My Key</button></p></section>';
    $('textarea').value=code;code='';$('[data-download]').onclick=()=>{check(epoch);download('pi2000-vault-recovery.txt',$('textarea').value+'\n','text/plain');touch();};$('[data-done]').onclick=()=>lock('Recovery key hidden. Unlock with password A.');updateCommands();
   }
   function renderList(){
@@ -79,7 +79,7 @@
   }
   function renderEntry(value){
    const item=index.items.find(i=>i.id===entry.id)||{title:'',category:'Password'},id=entry.id;
-   const f=form(entry.isNew?'New Entry':'Private Entry',`<p>Content locks after 30 seconds without activity. Closing locks it immediately. Save edits before leaving.</p><label>Title<input name="title" required maxlength="200"></label><label>Category<select name="category">${categories.map(x=>`<option>${x}</option>`).join('')}</select></label><label>Username<input name="username" maxlength="32768" autocomplete="off"></label><label>URL<input name="url" maxlength="32768" autocomplete="off" spellcheck="false"></label><label>Secret<textarea name="secret" rows="4" maxlength="32768" spellcheck="false" hidden autocomplete="off"></textarea><input type="password" value="********" readonly aria-label="Hidden secret" data-mask></label><div class="vault-entry-actions"><button type="button" class="win2k-button" data-reveal>Show Secret</button><button type="button" class="win2k-button" data-copy>Copy Secret</button><button type="button" class="win2k-button" data-generate>Generate Password</button><button type="button" class="win2k-button" data-export>Export This Entry</button></div><label>Notes<textarea name="notes" rows="3" maxlength="32768" spellcheck="false"></textarea></label>`,'Save and Close',async(f,ctx)=>{
+   const f=form(entry.isNew?'New Entry':'Private Entry',`<p>Content locks after 30 seconds without activity. Closing locks it immediately. Save edits before leaving.</p><label>Title<input name="title" required maxlength="200"></label><label>Category<select name="category">${categories.map(x=>`<option>${x}</option>`).join('')}</select></label><label>Username<input name="username" maxlength="32768" autocomplete="off"></label><label>URL<input name="url" maxlength="32768" autocomplete="off" spellcheck="false"></label><label>Secret<textarea name="secret" rows="4" maxlength="32768" spellcheck="false" hidden autocomplete="off"></textarea><input type="password" value="********" readonly aria-label="Hidden secret" data-mask></label><div class="vault-entry-actions"><button type="button" class="pi2000-button" data-reveal>Show Secret</button><button type="button" class="pi2000-button" data-copy>Copy Secret</button><button type="button" class="pi2000-button" data-generate>Generate Password</button><button type="button" class="pi2000-button" data-export>Export This Entry</button></div><label>Notes<textarea name="notes" rows="3" maxlength="32768" spellcheck="false"></textarea></label>`,'Save and Close',async(f,ctx)=>{
     if(!contentKey||entry?.id!==id)throw Error('Entry locked.');const next=structuredClone(vault),nextIndex=structuredClone(index),now=Date.now(),title=f.elements.title.value.trim();if(!title)throw Error('Enter a title.');
     const data={username:f.elements.username.value,url:f.elements.url.value,secret:f.elements.secret.value,notes:f.elements.notes.value};await c.writeEntry(next,contentKey,id,data);ctx.check();const previous=nextIndex.items.find(i=>i.id===id),metadata={id,title,category:f.elements.category.value,created:previous?.created||now,updated:now};if(previous)Object.assign(previous,metadata);else nextIndex.items.push(metadata);await c.writeIndex(next,listKey,nextIndex);ctx.check();await persist(next,ctx);index=nextIndex;selected=id;clearEntry();renderList();message('Entry saved and locked.');
    });
@@ -98,7 +98,7 @@
   command('Delete Entry',deleteEntry);command('Export Encrypted',()=>askB('Export Encrypted Pi-Vault',async(key,ctx)=>{ctx.check();download('pi2000-vault-encrypted.json',JSON.stringify(vault));clearEntry();renderList();message('Encrypted export downloaded. Keep its passwords or recovery key separately.');}));
   command('Import Encrypted',importVault);command('Change Passwords',changePasswords);command('Recovery',recover);command('Reload Pi-Vault',()=>{lock('');run(load);});
   w.body.addEventListener('input',e=>{if(e.isTrusted)touch();});w.body.addEventListener('keydown',e=>{if(e.isTrusted)touch();if(e.key==='Escape'){e.preventDefault();contentKey||formSensitive?closeEntry():lock();}});w.body.addEventListener('pointerdown',e=>{if(e.isTrusted)touch();});
-  const userChanged=()=>{lock('Account changed.');w.close(true);};window.addEventListener('win2k-user',userChanged);
+  const userChanged=()=>{lock('Account changed.');w.close(true);};window.addEventListener('pi2000-user',userChanged);
   const hide=()=>{if(document.hidden)lock('Pi-Vault locked because the page was hidden.');};document.addEventListener('visibilitychange',hide);
   const blur=()=>{if(contentKey)closeEntry('Entry locked when the browser lost focus. Unsaved edits were discarded.');};window.addEventListener('blur',blur);
   const observer=new MutationObserver(()=>{if(w.element.hidden)lock('Pi-Vault locked when minimised.');});observer.observe(w.element,{attributes:true,attributeFilter:['hidden']});
@@ -107,8 +107,8 @@
    if(entryDeadline)status((contentKey?'Entry unlocked':'Private operation')+' · locks in '+Math.max(0,Math.ceil((entryDeadline-Date.now())/1000))+'s');
    if(!busy&&!polling&&Date.now()-lastPoll>=5000){polling=true;lastPoll=Date.now();const t=epoch,expectedRevision=revision;request('/status').then(r=>{if(t===epoch&&expectedRevision===revision&&r.revision!==revision){lock('Pi-Vault changed elsewhere. Reload before opening it.');vault=null;run(load);}}).catch(()=>{if(t===epoch)lock('Session could not be verified. Reconnect and reload Pi-Vault.');}).finally(()=>{polling=false;});}
   },250);
-  w.beforelogout=()=>{lock();return true;};w.onclose=()=>{abort();clearEntry();listKey=null;index=null;vault=null;clearDOM();closed=true;clearInterval(timer);observer.disconnect();window.removeEventListener('win2k-user',userChanged);document.removeEventListener('visibilitychange',hide);window.removeEventListener('blur',blur);current=null;};
+  w.beforelogout=()=>{lock();return true;};w.onclose=()=>{abort();clearEntry();listKey=null;index=null;vault=null;clearDOM();closed=true;clearInterval(timer);observer.disconnect();window.removeEventListener('pi2000-user',userChanged);document.removeEventListener('visibilitychange',hide);window.removeEventListener('blur',blur);current=null;};
   w.beforeclose=()=>{lock();return true;};run(load);return w;
  }
- s.actions.vault=open;Win2kApps.register({type:'vault-window',singleton:true,restore:open});
+ s.actions.vault=open;Pi2000Apps.register({type:'vault-window',singleton:true,restore:open});
 })();

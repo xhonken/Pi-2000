@@ -70,5 +70,5 @@ class DevelopmentTests(unittest.IsolatedAsyncioTestCase):
         manager=GitTools(app)
         output=await manager.git(root,['-c','alias.probe=!test ! -e '+str(app.STATE/'admin.sqlite3')+' && test ! -e /opt/pi2000-admin/app.py && echo isolated','probe']);self.assertIn('isolated',output)
         self.token='other';self.assertEqual((await git('list'))['projects'],[]);await git('status',project=project,status=404);self.token='owner'
-        await git('remote',project=project,url='file:///home/honken/Documents/win2k',status=400)
+        await git('remote',project=project,url='file:///home/honken/Documents/pi2000',status=400)
         await git('delete',project=project);self.assertFalse(root.exists())

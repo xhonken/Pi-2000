@@ -33,8 +33,8 @@ css=['/* Original classic icons, authored for this project. */',':root {']
 for key,value in icons.items():
  svg='<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">'+value+'</svg>'
  css.append('--icon-'+key+':url("data:image/svg+xml,'+quote(svg,safe='')+'");')
-css+=['}', '.win2k-pixel-icon { position:relative;display:block!important;border:0!important;color:#000!important;box-shadow:none!important;font-size:0!important;width:32px!important;height:32px!important;min-width:32px!important;flex-shrink:0;filter:none!important;background:var(--icon-file) center/contain no-repeat!important; }','.win2k-pixel-icon::before,.win2k-pixel-icon::after,.win2k-pixel-icon i { display:none!important; }']
-for key in list(icons)+list(alias):css.append('.win2k-icon-'+key+' { background-image:var(--icon-'+alias.get(key,key)+')!important; }')
+css+=['}', '.pi2000-pixel-icon { position:relative;display:block!important;border:0!important;color:#000!important;box-shadow:none!important;font-size:0!important;width:32px!important;height:32px!important;min-width:32px!important;flex-shrink:0;filter:none!important;background:var(--icon-file) center/contain no-repeat!important; }','.pi2000-pixel-icon::before,.pi2000-pixel-icon::after,.pi2000-pixel-icon i { display:none!important; }']
+for key in list(icons)+list(alias):css.append('.pi2000-icon-'+key+' { background-image:var(--icon-'+alias.get(key,key)+')!important; }')
 
-css.append('\n:root{--icon-vault:url("vault.svg")}\n.win2k-icon-vault{background-image:var(--icon-vault)!important}')
+css.append('\n:root{--icon-vault:url("vault.svg")}\n.pi2000-icon-vault{background-image:var(--icon-vault)!important}')
 Path('assets/classic-icons.css').write_text('\n'.join(css)+'\n')

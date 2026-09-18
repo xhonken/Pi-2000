@@ -1,11 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
-if [ -d /var/lib/win2k-admin ] && [ ! -L /var/lib/win2k-admin ]; then
-  echo "Migrate legacy system names with scripts/migrate-system.sh before publishing." >&2
-  exit 1
-fi
 project_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 [ -f /etc/pi2000web/runtime.env ] || { echo "Run scripts/install.sh with your configuration first." >&2; exit 1; }
+python3 "$project_dir/server/installation.py" --require
 stage_dir="$(mktemp -d)"
 trap 'rm -rf -- "$stage_dir"' EXIT
 python3 "$project_dir/server/deployment.py" stage server "$project_dir" "$stage_dir/server"

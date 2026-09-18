@@ -1,7 +1,7 @@
 /* Pi-2000 connection launcher around the upstream phpMyAdmin application. */
 (()=>{
 'use strict';
-const d=Win2kDesktop,s=Win2kShell,legacy=s.actions.database;
+const d=Pi2000Desktop,s=Pi2000Shell,legacy=s.actions.database;
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let current;
 function open(){
@@ -10,12 +10,12 @@ function open(){
  w.body.innerHTML='<div class="tool-toolbar pma-toolbar"></div><div class="pma-error" role="alert" hidden></div><div class="pma-launcher"><label>Saved connections<select aria-label="Saved connections" size="6"></select></label><p>Choose a saved MariaDB server, or create a connection. Database permissions are determined by your MariaDB account.</p><p>phpMyAdmin opens here with database navigation, structure, SQL, search, insert, import, export and administration.</p></div><iframe class="pma-frame" title="phpMyAdmin database administration" hidden></iframe>';
  const area=w.body.querySelector('.pma-toolbar'),select=w.body.querySelector('select'),frame=w.body.querySelector('iframe'),error=w.body.querySelector('.pma-error'),launcher=w.body.querySelector('.pma-launcher');
  async function run(fn){error.hidden=true;try{await fn();}catch(e){error.textContent=e.message;error.hidden=false;w.status.textContent=e.message;}}
- function button(label,fn){const b=document.createElement('button');b.type='button';b.className='win2k-button';b.textContent=label;b.onclick=()=>run(fn);area.append(b);return b;}
+ function button(label,fn){const b=document.createElement('button');b.type='button';b.className='pi2000-button';b.textContent=label;b.onclick=()=>run(fn);area.append(b);return b;}
  frame.onload=w.onresize=()=>{try{frame.contentDocument.documentElement.style.setProperty('--pi2000-font-size',getComputedStyle(w.body).fontSize);}catch{}};
  const chosen=()=>{const p=profiles.find(p=>p.id===select.value);if(!p)throw Error('Select a saved connection.');return p;};
  async function refresh(id=select.value){profiles=(await d.api('/databases/connections')).connections;select.innerHTML=profiles.map(p=>'<option value="'+esc(p.id)+'">'+esc(p.name+' — '+p.username+' @ '+p.host+':'+p.port)+'</option>').join('');select.value=profiles.some(p=>p.id===id)?id:(profiles[0]?.id||'');}
  function dialog(title,html){
-  const el=document.createElement('dialog');el.className='frame db-dialog';el.innerHTML='<div class="titlebar"><strong>'+esc(title)+'</strong></div><form class="db-dialog-fields">'+html+'<p class="db-dialog-error" role="alert"></p><div class="db-dialog-buttons"><button type="submit" class="win2k-button">OK</button><button type="button" class="win2k-button">Cancel</button></div></form>';
+  const el=document.createElement('dialog');el.className='frame db-dialog';el.innerHTML='<div class="titlebar"><strong>'+esc(title)+'</strong></div><form class="db-dialog-fields">'+html+'<p class="db-dialog-error" role="alert"></p><div class="db-dialog-buttons"><button type="submit" class="pi2000-button">OK</button><button type="button" class="pi2000-button">Cancel</button></div></form>';
   document.body.append(el);dialogs.add(el);el.querySelector('[type=button]').onclick=()=>el.close();el.addEventListener('close',()=>{dialogs.delete(el);el.remove();});el.showModal();return el;
  }
  function edit(existing){
@@ -48,5 +48,5 @@ function open(){
 }
 s.actions.databaseLegacy=legacy;
 s.actions.database=open;
-Win2kApps.register({type:'phpmyadmin-window',singleton:true,restore:open});
+Pi2000Apps.register({type:'phpmyadmin-window',singleton:true,restore:open});
 })();

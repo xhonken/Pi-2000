@@ -2,10 +2,10 @@ const {chromium}=require('playwright');
 const {command}=require('./classic_helpers.cjs');
 const assert=require('node:assert/strict');
 (async()=>{
- const browser=await chromium.launch({executablePath:process.env.WIN2K_TEST_CHROMIUM||'/usr/bin/chromium',headless:true});
+ const browser=await chromium.launch({executablePath:process.env.PI2000_TEST_CHROMIUM||'/usr/bin/chromium',headless:true});
  try{
   const page=await browser.newPage({viewport:{width:1400,height:950}}),errors=[];page.on('pageerror',e=>errors.push(e.message));
-  await page.goto((process.env.WIN2K_TEST_URL||'http://127.0.0.1:18765'));await page.locator('#login-form [name=password]').fill('browser-test-password');await page.locator('#login-form button[type=submit]').click();await page.locator('#session').waitFor({state:'visible'});
+  await page.goto((process.env.PI2000_TEST_URL||'http://127.0.0.1:18765'));await page.locator('#login-form [name=password]').fill('browser-test-password');await page.locator('#login-form button[type=submit]').click();await page.locator('#session').waitFor({state:'visible'});
   const icon=page.locator('#desktop [data-action=files]');const before=await icon.boundingBox();
   await page.mouse.move(before.x+40,before.y+20);await page.mouse.down();await page.mouse.move(640,320,{steps:20});await page.mouse.up();
   await page.waitForFunction(async()=>{const data=await (await fetch('/api/desktop')).json();return data?.positions?.['app:files']?.[0]>400;});
@@ -29,6 +29,6 @@ const assert=require('node:assert/strict');
   // A second writer must not be silently overwritten by an older editor tab.
   await page.evaluate(async id=>{const data=await (await fetch('/api/files/'+id+'/content')).json();await fetch('/api/files/'+id+'/content',{method:'PUT',headers:{'If-Match':data.version},body:'external'});},file.id);
   await page.evaluate(()=>ace.edit(document.querySelector('.editor-code')).setValue('local changes',-1));await page.locator('.editor-window').getByRole('button',{name:'Save',exact:true}).click();await page.locator('#notice').filter({hasText:'The file changed'}).waitFor();
-  assert.deepEqual(errors,[]);await page.screenshot({path:require('node:path').join(process.env.WIN2K_TEST_ARTIFACTS||'/tmp','win2k-editor-ui.png')});console.log('PASS: real icon drag and persistence, project folder, create/save/edit, syntax mode, Ctrl+S, search, resize, export, restored file tabs, conflict protection, no JS errors');
+  assert.deepEqual(errors,[]);await page.screenshot({path:require('node:path').join(process.env.PI2000_TEST_ARTIFACTS||'/tmp','pi2000-editor-ui.png')});console.log('PASS: real icon drag and persistence, project folder, create/save/edit, syntax mode, Ctrl+S, search, resize, export, restored file tabs, conflict protection, no JS errors');
  }finally{await browser.close();}
 })().catch(e=>{console.error(e);process.exit(1)});

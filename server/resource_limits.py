@@ -3,12 +3,12 @@ import os
 import time
 from pathlib import Path
 
-BROWSER_MEMORY_MAX = max(512, min(1536, int(os.environ.get('WIN2K_BROWSER_MEMORY_MIB', '1536')))) * 1024**2
+BROWSER_MEMORY_MAX = max(512, min(1536, int(os.environ.get('PI2000_BROWSER_MEMORY_MIB', '1536')))) * 1024**2
 # Small hosts need headroom for cold Chromium/Selkies imports and extraction.
 BROWSER_MEMORY_HIGH = BROWSER_MEMORY_MAX - 128*1024**2 if BROWSER_MEMORY_MAX <= 1024**3 else BROWSER_MEMORY_MAX * 2 // 3
 BROWSER_SWAP_MAX = 128*1024**2 if BROWSER_MEMORY_MAX <= 1024**3 else 256*1024**2
 BROWSER_WARNING = min(1200 * 1024**2, BROWSER_MEMORY_MAX * 4 // 5)
-BROWSER_START_RESERVE = BROWSER_MEMORY_MAX + max(128, int(os.environ.get('WIN2K_BROWSER_RESERVE_MIB', '512'))) * 1024**2
+BROWSER_START_RESERVE = BROWSER_MEMORY_MAX + max(128, int(os.environ.get('PI2000_BROWSER_RESERVE_MIB', '512'))) * 1024**2
 
 
 def available_memory(path=Path('/proc/meminfo')):
@@ -25,7 +25,7 @@ def available_memory(path=Path('/proc/meminfo')):
 class BrowserLimits:
     def __init__(self):
         self.root = None
-        if os.environ.get('WIN2K_CGROUP_LIMITS') != '1':
+        if os.environ.get('PI2000_CGROUP_LIMITS') != '1':
             return
         path = next(line.split('::',1)[1] for line in Path('/proc/self/cgroup').read_text().splitlines() if line.startswith('0::'))
         self.root = Path('/sys/fs/cgroup') / path.lstrip('/')

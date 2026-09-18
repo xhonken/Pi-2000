@@ -6,6 +6,17 @@ User-visible changes are recorded here for each numbered release. Development be
 
 No changes yet.
 
+## 0.2.0-alpha.8 — 2026-09-18
+
+- Start an independent, fresh-install data line. Alpha 5, 6 and 7 installations
+  and databases are rejected; format 3 system backups cannot adopt earlier data.
+- Use Pi-2000 names throughout JavaScript globals, CSS, DOM events, drag types,
+  browser storage, environment variables, cookies, tests and packaging.
+- Remove the old system-name migrator, browser-wide settings import and initial
+  database conversion paths. Preserve earlier releases and provenance in Git tags.
+- Keep application features and classic appearance, and include hidden disposable
+  UI artifacts in GitHub CI uploads.
+
 ## 0.1.0-alpha.7 — 2026-09-18
 
 - Rebuild cached Debian runtimes when installation paths or Python change, so

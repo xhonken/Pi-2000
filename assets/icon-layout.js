@@ -1,7 +1,7 @@
 /* Placement, sorting and drag operations are separate from desktop object commands. */
 (() => {
 'use strict';
-const shell=Win2kShell,manager=Win2kDesktopManager,root=document.querySelector('#desktop-icons'),desktop=document.querySelector('#desktop');
+const shell=Pi2000Shell,manager=Pi2000DesktopManager,root=document.querySelector('#desktop-icons'),desktop=document.querySelector('#desktop');
 const {key}=manager,stepX=114,stepY=104;
 let moving=null,scheduled=false;
 function ordered(sort=manager.options().sort,direction=manager.options().direction){
@@ -35,18 +35,18 @@ root.addEventListener('dragstart',event=>{
  const icon=event.target.closest('.desktop-icon');if(!icon)return;if(manager.options().autoArrange){event.preventDefault();shell.notify('Turn off Auto Arrange to move icons.');return;}
  if(!manager.selected.has(key(icon)))manager.select(icon);
  const rect=icon.getBoundingClientRect();moving={key:key(icon),dx:event.clientX-rect.left,dy:event.clientY-rect.top,origin:[parseInt(icon.style.left),parseInt(icon.style.top)],nodes:manager.visible().filter(el=>manager.selected.has(key(el))).map(el=>({el,key:key(el),x:parseInt(el.style.left),y:parseInt(el.style.top)}))};
- event.dataTransfer.setData('application/x-win2k-icon',moving.key);event.dataTransfer.effectAllowed='move';
+ event.dataTransfer.setData('application/x-pi2000-icon',moving.key);event.dataTransfer.effectAllowed='move';
 });
 desktop.addEventListener('drop',event=>{
- if(!moving||!event.dataTransfer.types.includes('application/x-win2k-icon'))return;
+ if(!moving||!event.dataTransfer.types.includes('application/x-pi2000-icon'))return;
  if(event.target.closest('.app-window'))return;
  const target=event.target.closest('.desktop-icon');
  if(target?.dataset.action==='trash'){
   if(moving.nodes.length===1&&!moving.nodes[0].key.startsWith('app:')){moving=null;return;}
   event.preventDefault();event.stopImmediatePropagation();const nodes=moving.nodes.map(x=>x.el);moving=null;manager.afterDrag();manager.remove(nodes).catch(e=>shell.notify(e.message));return;
  }
- if(event.dataTransfer.types.includes('application/x-win2k-file')&&target&&(target.dataset.fileId||target.dataset.action==='files')){
-  if(moving.nodes.length>1){event.preventDefault();event.stopImmediatePropagation();const ids=moving.nodes.map(n=>n.el.dataset.fileId),parent=target.dataset.fileId||'files';moving=null;if(ids.every(Boolean))Win2kFiles.moveDesktopItems(ids,parent).catch(e=>shell.notify(e.message));else shell.notify('Select only files and folders to move into a folder.');return;}
+ if(event.dataTransfer.types.includes('application/x-pi2000-file')&&target&&(target.dataset.fileId||target.dataset.action==='files')){
+  if(moving.nodes.length>1){event.preventDefault();event.stopImmediatePropagation();const ids=moving.nodes.map(n=>n.el.dataset.fileId),parent=target.dataset.fileId||'files';moving=null;if(ids.every(Boolean))Pi2000Files.moveDesktopItems(ids,parent).catch(e=>shell.notify(e.message));else shell.notify('Select only files and folders to move into a folder.');return;}
   moving=null;return;
  }
  event.preventDefault();event.stopImmediatePropagation();
@@ -60,6 +60,6 @@ desktop.addEventListener('drop',event=>{
 desktop.addEventListener('dragover',event=>{if(moving){event.preventDefault();event.dataTransfer.dropEffect='move';}});
 root.addEventListener('dragend',()=>{moving=null;manager.afterDrag();});
 new MutationObserver(schedule).observe(root,{childList:true,subtree:true});
-window.addEventListener('resize',schedule);window.addEventListener('win2k-user',schedule);window.addEventListener('win2k-icons-changed',schedule);
-shell.actions['arrange-icons']=()=>arrange('name');window.Win2kIconLayout={arrange,align,layout};layout();
+window.addEventListener('resize',schedule);window.addEventListener('pi2000-user',schedule);window.addEventListener('pi2000-icons-changed',schedule);
+shell.actions['arrange-icons']=()=>arrange('name');window.Pi2000IconLayout={arrange,align,layout};layout();
 })();

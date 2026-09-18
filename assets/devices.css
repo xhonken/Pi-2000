@@ -4,15 +4,15 @@
 .task-entry { min-width: 90px; max-width: 180px; flex: 0 1 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 2px 8px; text-align: left; }
 .task-entry.active { border-color: #000 #fff #fff #000; background: #e4e0d8; box-shadow: inset 1px 1px #808080; font-weight: bold; }
 .app-window { position: fixed; width: min(760px, calc(100vw - 12px)); height: min(510px, calc(100dvh - 100px)); min-width: 280px; min-height: 200px; max-width: calc(100vw - 8px); max-height: calc(100dvh - var(--shell-height) - 4px); display: flex; flex-direction: column; resize: both; overflow: hidden; }
-.app-window > .win2k-titlebar { flex: none; touch-action: none; user-select: none; }
-.app-window.inactive > .win2k-titlebar { background: linear-gradient(90deg,#808080,#b5b5b5); }
+.app-window > .pi2000-titlebar { flex: none; touch-action: none; user-select: none; }
+.app-window.inactive > .pi2000-titlebar { background: linear-gradient(90deg,#808080,#b5b5b5); }
 .app-window.maximized { inset: 0 0 var(--shell-height) !important; width: 100%; height: auto; max-width: 100%; max-height: none; resize: none; }
 .window-controls { display: flex; gap: 2px; margin-left: auto; flex: none; }
-.window-controls .win2k-button { min-width: 23px; min-height: 20px; padding: 0 4px; font: bold 13px/18px Tahoma,sans-serif; }
+.window-controls .pi2000-button { min-width: 23px; min-height: 20px; padding: 0 4px; font: bold 13px/18px Tahoma,sans-serif; }
 .app-body { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: auto; }
 .app-status { flex: none; border: 1px solid; border-color: #808080 #fff #fff #808080; padding: 3px 6px; margin: 2px; font-size: 12px; overflow-wrap: anywhere; }
 .explorer-toolbar { display: flex; flex-wrap: wrap; gap: 4px; padding: 6px; border-bottom: 1px solid #808080; }
-.explorer-toolbar .win2k-button { min-width: 0; padding: 3px 7px; }
+.explorer-toolbar .pi2000-button { min-width: 0; padding: 3px 7px; }
 .explorer-address { padding: 5px 8px; display: flex; gap: 10px; }
 .explorer-address span { background: #fff; border: 1px solid #808080; flex: 1; padding: 1px 4px; overflow-wrap: anywhere; }
 .device-grid { flex: 1; min-height: 80px; overflow: auto; background: #fff; margin: 0 4px 4px; border: 2px solid; border-color: #808080 #fff #fff #808080; padding: 12px; display: grid; grid-template-columns: repeat(auto-fill,minmax(120px,1fr)); align-content: start; gap: 12px; }
@@ -35,14 +35,14 @@
 #desktop-menu { z-index: 10001; }
 #notice { z-index: 10002; }
 #window .form-row { grid-template-columns: minmax(0,150px) minmax(0,1fr); }
-@media (max-width: 600px) { .app-window { left: 4px !important; top: 4px !important; width: calc(100vw - 8px); height: calc(100dvh - var(--shell-height) - 8px); } .window-controls .win2k-button { min-width: 30px; min-height: 30px; } #window .form-row { grid-template-columns: 1fr; } .device-grid { grid-template-columns: repeat(auto-fill,minmax(105px,1fr)); } }
+@media (max-width: 600px) { .app-window { left: 4px !important; top: 4px !important; width: calc(100vw - 8px); height: calc(100dvh - var(--shell-height) - 8px); } .window-controls .pi2000-button { min-width: 30px; min-height: 30px; } #window .form-row { grid-template-columns: 1fr; } .device-grid { grid-template-columns: repeat(auto-fill,minmax(105px,1fr)); } }
 
 .users-help { margin: 10px; }
 .users-list { overflow: auto; margin: 4px; background: white; border: 2px inset #d4d0c8; flex: 1; }
 .users-list table { width: 100%; border-collapse: collapse; text-align: left; }
 .users-list th { background: #d4d0c8; }
 .users-list th, .users-list td { padding: 8px; border-bottom: 1px solid #ccc; }
-.user-actions .win2k-button { margin: 2px; }
+.user-actions .pi2000-button { margin: 2px; }
 .user-actions small { display: block; margin: 4px; color: #555; }
 
 .browser-window { width: min(1200px,calc(100vw - 12px)); height: min(800px,calc(100dvh - 80px)); }
@@ -63,7 +63,7 @@
 .file-list td, .file-list th { text-align: left; padding: 7px; border-bottom: 1px solid #ddd; }
 .file-list td:first-child { overflow-wrap: anywhere; min-width: 100px; }
 .file-list tr:hover { background: #edf2fa; }
-.file-list .win2k-button { margin: 2px; font-size: 11px; }
+.file-list .pi2000-button { margin: 2px; font-size: 11px; }
 .file-quota { padding: 6px; display: flex; align-items: center; flex-wrap: wrap; gap: 8px; font-size: 12px; }
 .file-quota progress { width: 130px; height: 14px; }
 .file-upload-progress { padding: 8px; display: flex; align-items: center; gap: 8px; background: #ffffd5; }
@@ -78,7 +78,7 @@
 #custom-icons:empty, #file-icons:empty { display: none; }
 
 .file-row-name { display: flex; align-items: center; gap: 6px; }
-.file-row-name .win2k-pixel-icon { transform: scale(.75); flex: none; }
+.file-row-name .pi2000-pixel-icon { transform: scale(.75); flex: none; }
 /* User-positioned desktop icons; file drops still use the file manager. */
 #desktop-icons { position:relative; display:block; width:100%; height:100%; }
 #desktop-icons .desktop-icon { position:absolute; touch-action:none; user-select:none; }
@@ -97,7 +97,7 @@
 .editor-tab.active { background:white; border-top:2px solid #0a246a; }
 .editor-code { flex:1; min-height:0; }
 /* Personal tools share the desktop window lifecycle. */
-.app-body, .desktop-icon, .win2k-button { font-size:var(--personal-font-size,13px); }
+.app-body, .desktop-icon, .pi2000-button { font-size:var(--personal-font-size,13px); }
 .tool-toolbar,.tool-row { display:flex; gap:6px; align-items:center; padding:6px; flex-wrap:wrap; }
 .tool-row { border-bottom:1px solid #ddd; }
 .tool-toolbar input[type=search] { flex:1; min-width:220px; }

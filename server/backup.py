@@ -16,6 +16,7 @@ from datetime import datetime, timezone
 from session_proxy import control
 from deployment import backup_files
 from safe_archive import add_private_tree
+from installation import BACKUP_FORMAT, check_backup, check_database as check_data_line
 
 EXCLUDED = {'Cache','Code Cache','GPUCache','ShaderCache','GrShaderCache','DawnCache','session.log', 'SingletonLock','SingletonSocket','SingletonCookie'}
 
@@ -42,14 +43,17 @@ def restore(archive, destination):
             seen.add(member.name)
             if not (member.isfile() or member.isdir()) or member.name.startswith('/') or '..' in Path(member.name).parts:
                 raise RuntimeError('Disallowed path in the backup')
+        with tar.extractfile('manifest.json') as handle:
+            manifest = json.load(handle)
+        check_backup(manifest)
         tar.extractall(destination, filter='data')
     check_database(destination/'state/admin.sqlite3')
     if (destination/'system-accounts/accounts.sqlite3').exists(): check_database(destination/'system-accounts/accounts.sqlite3')
-    manifest=json.loads((destination/'manifest.json').read_text())
-    if manifest['format'] not in (1, 2): raise RuntimeError('Unknown backup format')
+    check_data_line(destination/'state/admin.sqlite3')
     return manifest
 
 async def snapshot(state, target, socket, code, site=None):
+    check_data_line(state/'admin.sqlite3')
     target.mkdir(parents=True, exist_ok=True, mode=0o700)
     stamp=datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S%fZ')
     archive=target/f'pi2000-{stamp}.tar'
@@ -93,7 +97,7 @@ async def snapshot(state, target, socket, code, site=None):
                 shadow=[line for line in Path('/etc/shadow').read_text().splitlines() if line.split(':',1)[0] in managed]
                 (staging/'system-accounts/shadow').write_text('\n'.join(shadow)+'\n')
                 (staging/'system-accounts/bindings.json').write_text(json.dumps(account_rows))
-            manifest={'format':2,'metadata':{},'created':datetime.now(timezone.utc).isoformat(),
+            manifest={'format':BACKUP_FORMAT,'metadata':{},'created':datetime.now(timezone.utc).isoformat(),
                       'profiles':'quiesced filesystem snapshot; Chromium recovers its journals on restore',
                       'sessions':'running processes are not included'}
             identities = []
@@ -147,7 +151,7 @@ async def snapshot(state, target, socket, code, site=None):
             restore(archive,Path(restored))
         status({'state':'ok','created':manifest['created'],'verified_restore':True,'bytes':archive.stat().st_size,'location':'local'})
         # Only prune after a complete snapshot has been restored and verified.
-        for old in sorted([*target.glob('win2k-*.tar'), *target.glob('pi2000-*.tar')], key=lambda p:p.name.split('-',1)[1])[:-7]:
+        for old in sorted(target.glob('pi2000-*.tar'), key=lambda p:p.name.split('-',1)[1])[:-7]:
             old.unlink();old.with_suffix('.tar.sha256').unlink(missing_ok=True)
         return archive
     except Exception:

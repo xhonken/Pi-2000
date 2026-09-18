@@ -65,7 +65,6 @@ caddy adapt --config .install-plan/Caddyfile --adapter caddyfile --pretty
 
 Manual integration must preserve all existing sites, the private administration boundary, same-origin embedding and the exact application origin. The unified updater manages a complete dedicated Caddyfile; it is not a shared-site merger. A separate Pi is the supported automatic path. A shared reverse-proxy installation requires a separately maintained deployment process rather than bypassing the ownership check.
 
-For an original Pi-2000 installation with its known single-site Caddyfile, `--adopt-existing` enables a narrow compatibility migration. It checks the whole expected configuration, not just the occurrence of the application directory name.
 
 ## Troubleshooting
 

@@ -26,18 +26,18 @@ for test in tests:
         listener.bind(('127.0.0.1',0));listener.listen(128)
         origin='http://127.0.0.1:'+str(listener.getsockname()[1])
         env={**os.environ,'NODE_PATH':str(root/'node_modules'),
-             'WIN2K_TEST_URL':origin,'WIN2K_TEST_LISTEN_FD':str(listener.fileno()),
-             'WIN2K_TEST_ARTIFACTS':str(artifacts)}
+             'PI2000_TEST_URL':origin,'PI2000_TEST_LISTEN_FD':str(listener.fileno()),
+             'PI2000_TEST_ARTIFACTS':str(artifacts)}
         if test in ('iptv_ui.cjs','iptv_stability_ui.cjs','release_screenshot.cjs'):
             from iptv_fixture import make_media
             make_media(Path(work)/'media')
             if test=='iptv_stability_ui.cjs':
                 from iptv_fixture import make_jitter_media
                 make_jitter_media(Path(work)/'media')
-            env['WIN2K_TEST_IPTV_MEDIA']=str(Path(work)/'media')
+            env['PI2000_TEST_IPTV_MEDIA']=str(Path(work)/'media')
         if test in ('editor_sftp_ui.cjs','utilities_ui.cjs'):
-            env['WIN2K_TEST_SFTP_DIR']=str(Path(work)/'sftp')
-        if test=='utilities_ui.cjs':env['WIN2K_TEST_SERIAL_PTY']='1'
+            env['PI2000_TEST_SFTP_DIR']=str(Path(work)/'sftp')
+        if test=='utilities_ui.cjs':env['PI2000_TEST_SERIAL_PTY']='1'
         with (artifacts/'server.log').open('w') as log:
             server=subprocess.Popen([sys.executable,'tests/ui_server.py'],cwd=root,env=env,
                                     pass_fds=(listener.fileno(),),stdout=log,stderr=log)

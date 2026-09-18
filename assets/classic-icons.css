@@ -25,46 +25,46 @@
 --icon-save:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2232%22%20height%3D%2232%22%20viewBox%3D%220%200%2032%2032%22%3E%3Cpath%20d%3D%22M3%202h24l3%203v25H3z%22%20fill%3D%22%23294f83%22%20stroke%3D%22%2325313d%22%2F%3E%3Cpath%20d%3D%22M7%203h16v10H7z%22%20fill%3D%22%23c2c7c9%22%2F%3E%3Cpath%20d%3D%22M18%204h3v7h-3z%22%20fill%3D%22%23596775%22%2F%3E%3Cpath%20d%3D%22M7%2018h19v11H7z%22%20fill%3D%22%23fff%22%2F%3E%3Cpath%20d%3D%22M10%2021h13M10%2024h13%22%20stroke%3D%22%23999%22%2F%3E%3C%2Fsvg%3E");
 --icon-piplus:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2232%22%20height%3D%2232%22%20viewBox%3D%220%200%2032%2032%22%3E%3Cpath%20d%3D%22M6%202h15l6%206v22H6z%22%20fill%3D%22%23fff%22%20stroke%3D%22%23303030%22%2F%3E%3Cpath%20d%3D%22M21%202v7h6%22%20fill%3D%22%23c7ddc5%22%20stroke%3D%22%23303030%22%2F%3E%3Cpath%20d%3D%22M9%2012h15M9%2015h10M9%2026h15%22%20stroke%3D%22%23a4a4a4%22%2F%3E%3Cpath%20d%3D%22M3%2017h27v8H3z%22%20fill%3D%22%23326f32%22%20stroke%3D%22%23224c22%22%2F%3E%3Ctext%20x%3D%225%22%20y%3D%2223%22%20fill%3D%22white%22%20font-family%3D%22monospace%22%20font-weight%3D%22bold%22%20font-size%3D%228%22%3EPi%2B%2B%3C%2Ftext%3E%3C%2Fsvg%3E");
 }
-.win2k-pixel-icon { position:relative;display:block!important;border:0!important;color:#000!important;box-shadow:none!important;font-size:0!important;width:32px!important;height:32px!important;min-width:32px!important;flex-shrink:0;filter:none!important;background:var(--icon-file) center/contain no-repeat!important; }
-.win2k-pixel-icon::before,.win2k-pixel-icon::after,.win2k-pixel-icon i { display:none!important; }
-.win2k-icon-folder { background-image:var(--icon-folder)!important; }
-.win2k-icon-files { background-image:var(--icon-files)!important; }
-.win2k-icon-computer { background-image:var(--icon-computer)!important; }
-.win2k-icon-devices { background-image:var(--icon-devices)!important; }
-.win2k-icon-browser { background-image:var(--icon-browser)!important; }
-.win2k-icon-search { background-image:var(--icon-search)!important; }
-.win2k-icon-editor { background-image:var(--icon-editor)!important; }
-.win2k-icon-notes { background-image:var(--icon-notes)!important; }
-.win2k-icon-calculator { background-image:var(--icon-calculator)!important; }
-.win2k-icon-cad { background-image:var(--icon-cad)!important; }
-.win2k-icon-sftp { background-image:var(--icon-sftp)!important; }
-.win2k-icon-activities { background-image:var(--icon-activities)!important; }
-.win2k-icon-settings { background-image:var(--icon-settings)!important; }
-.win2k-icon-users { background-image:var(--icon-users)!important; }
-.win2k-icon-help { background-image:var(--icon-help)!important; }
-.win2k-icon-recycle { background-image:var(--icon-recycle)!important; }
-.win2k-icon-logout { background-image:var(--icon-logout)!important; }
-.win2k-icon-run { background-image:var(--icon-run)!important; }
-.win2k-icon-link { background-image:var(--icon-link)!important; }
-.win2k-icon-status { background-image:var(--icon-status)!important; }
-.win2k-icon-file { background-image:var(--icon-file)!important; }
-.win2k-icon-programs { background-image:var(--icon-programs)!important; }
-.win2k-icon-save { background-image:var(--icon-save)!important; }
-.win2k-icon-piplus { background-image:var(--icon-piplus)!important; }
-.win2k-icon-forms { background-image:var(--icon-file)!important; }
-.win2k-icon-content { background-image:var(--icon-file)!important; }
-.win2k-icon-home { background-image:var(--icon-computer)!important; }
-.win2k-icon-network { background-image:var(--icon-devices)!important; }
-.win2k-icon-controls { background-image:var(--icon-settings)!important; }
-.win2k-icon-preferences { background-image:var(--icon-settings)!important; }
-.win2k-icon-analysis { background-image:var(--icon-status)!important; }
-.win2k-icon-details { background-image:var(--icon-file)!important; }
-.win2k-icon-profile { background-image:var(--icon-users)!important; }
-.win2k-icon-messages { background-image:var(--icon-notes)!important; }
-.win2k-icon-lock { background-image:var(--icon-users)!important; }
-.win2k-icon-shutdown { background-image:var(--icon-computer)!important; }
-.win2k-icon-add { background-image:var(--icon-link)!important; }
-.win2k-icon-password { background-image:var(--icon-users)!important; }
+.pi2000-pixel-icon { position:relative;display:block!important;border:0!important;color:#000!important;box-shadow:none!important;font-size:0!important;width:32px!important;height:32px!important;min-width:32px!important;flex-shrink:0;filter:none!important;background:var(--icon-file) center/contain no-repeat!important; }
+.pi2000-pixel-icon::before,.pi2000-pixel-icon::after,.pi2000-pixel-icon i { display:none!important; }
+.pi2000-icon-folder { background-image:var(--icon-folder)!important; }
+.pi2000-icon-files { background-image:var(--icon-files)!important; }
+.pi2000-icon-computer { background-image:var(--icon-computer)!important; }
+.pi2000-icon-devices { background-image:var(--icon-devices)!important; }
+.pi2000-icon-browser { background-image:var(--icon-browser)!important; }
+.pi2000-icon-search { background-image:var(--icon-search)!important; }
+.pi2000-icon-editor { background-image:var(--icon-editor)!important; }
+.pi2000-icon-notes { background-image:var(--icon-notes)!important; }
+.pi2000-icon-calculator { background-image:var(--icon-calculator)!important; }
+.pi2000-icon-cad { background-image:var(--icon-cad)!important; }
+.pi2000-icon-sftp { background-image:var(--icon-sftp)!important; }
+.pi2000-icon-activities { background-image:var(--icon-activities)!important; }
+.pi2000-icon-settings { background-image:var(--icon-settings)!important; }
+.pi2000-icon-users { background-image:var(--icon-users)!important; }
+.pi2000-icon-help { background-image:var(--icon-help)!important; }
+.pi2000-icon-recycle { background-image:var(--icon-recycle)!important; }
+.pi2000-icon-logout { background-image:var(--icon-logout)!important; }
+.pi2000-icon-run { background-image:var(--icon-run)!important; }
+.pi2000-icon-link { background-image:var(--icon-link)!important; }
+.pi2000-icon-status { background-image:var(--icon-status)!important; }
+.pi2000-icon-file { background-image:var(--icon-file)!important; }
+.pi2000-icon-programs { background-image:var(--icon-programs)!important; }
+.pi2000-icon-save { background-image:var(--icon-save)!important; }
+.pi2000-icon-piplus { background-image:var(--icon-piplus)!important; }
+.pi2000-icon-forms { background-image:var(--icon-file)!important; }
+.pi2000-icon-content { background-image:var(--icon-file)!important; }
+.pi2000-icon-home { background-image:var(--icon-computer)!important; }
+.pi2000-icon-network { background-image:var(--icon-devices)!important; }
+.pi2000-icon-controls { background-image:var(--icon-settings)!important; }
+.pi2000-icon-preferences { background-image:var(--icon-settings)!important; }
+.pi2000-icon-analysis { background-image:var(--icon-status)!important; }
+.pi2000-icon-details { background-image:var(--icon-file)!important; }
+.pi2000-icon-profile { background-image:var(--icon-users)!important; }
+.pi2000-icon-messages { background-image:var(--icon-notes)!important; }
+.pi2000-icon-lock { background-image:var(--icon-users)!important; }
+.pi2000-icon-shutdown { background-image:var(--icon-computer)!important; }
+.pi2000-icon-add { background-image:var(--icon-link)!important; }
+.pi2000-icon-password { background-image:var(--icon-users)!important; }
 
 :root{--icon-vault:url("vault.svg")}
-.win2k-icon-vault{background-image:var(--icon-vault)!important}
+.pi2000-icon-vault{background-image:var(--icon-vault)!important}

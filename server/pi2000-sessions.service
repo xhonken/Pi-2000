@@ -4,15 +4,15 @@ After=network-online.target
 Wants=network-online.target
 
 [Service]
-Environment=WIN2K_ACCOUNTS_SOCKET=/run/pi2000-accounts/control.sock
+Environment=PI2000_ACCOUNTS_SOCKET=/run/pi2000-accounts/control.sock
 User=pi2000-admin
 Group=pi2000-admin
 WorkingDirectory=/opt/pi2000-admin
 ExecStart=/opt/pi2000-admin/venv/bin/python /opt/pi2000-admin/app.py
 EnvironmentFile=/etc/pi2000web/runtime.env
-Environment=WIN2K_STATE=/var/lib/pi2000-admin
-Environment=WIN2K_SESSION_WORKER=1
-Environment=WIN2K_CGROUP_LIMITS=1
+Environment=PI2000_STATE=/var/lib/pi2000-admin
+Environment=PI2000_SESSION_WORKER=1
+Environment=PI2000_CGROUP_LIMITS=1
 RuntimeDirectory=pi2000-sessions
 RuntimeDirectoryMode=0700
 Restart=on-failure

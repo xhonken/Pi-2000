@@ -33,5 +33,5 @@ function analyze(input){const model=migrate(input),outer=shape(model.outer),cuts
  for(let i=0;i<shapes.length;i++)for(let j=0;j<i;j++)if(overlaps(shapes[i],shapes[j])){checks[i].problems.push('Overlaps cutout '+(j+1));checks[j].problems.push('Overlaps cutout '+(i+1));}
  const gross=outer.area-(opening?.area||0);return {model,outer,opening,checks,gross,net:checks.some(c=>c.problems.length)?null:gross-shapes.reduce((sum,s)=>sum+s.area,0),tolerance:Math.max(outer.error,...checks.map(c=>c.tolerance))};
 }
-window.Win2kGeometry={shape,placed,analyze,migrate,dist};
+window.Pi2000Geometry={shape,placed,analyze,migrate,dist};
 })();

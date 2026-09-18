@@ -1,14 +1,29 @@
 #!/bin/sh
 set -eu
-if [ -d /var/lib/win2k-admin ] && [ ! -L /var/lib/win2k-admin ]; then
- echo "Legacy system names require a planned migration before this package can be installed. See docs/SYSTEM-NAMES.md." >&2
+refuse() {
+ echo 'Pi-2000 0.2 requires a fresh installation. Alpha 5, 6 and 7 cannot be upgraded. Keep the previous system and its backups separately.' >&2
  exit 1
-fi
-if [ "$1" = install ] && [ -d /opt/pi2000-admin ] && [ ! -f /var/lib/pi2000web/package-managed ]; then
- echo 'An unmanaged Pi-2000 installation exists. Back up and migrate it before installing this package.' >&2
- exit 1
-fi
-
-if [ "$1" = upgrade ] && [ -f /var/lib/pi2000-admin/admin.sqlite3 ] && [ -d /run/systemd/system ]; then
- systemctl start pi2000-backup.service
-fi
+}
+case "${1:-}" in
+ install|upgrade)
+  # dpkg supplies the previous package version even after remove (without purge).
+  if [ -n "${2:-}" ] && dpkg --compare-versions "$2" lt '0.2.0~alpha.8-1'; then
+   refuse
+  fi
+  marker=/etc/pi2000web/installation-format
+  if [ -e "$marker" ]; then
+   [ ! -L "$marker" ] && [ "$(cat "$marker")" = 'Pi-2000 0.2' ] || refuse
+  else
+   for path in /etc/pi2000web /var/lib/pi2000-admin /var/lib/pi2000-accounts /var/lib/pi2000web /opt/pi2000-admin /opt/pi2000-browser /srv/pi2000; do
+    [ ! -e "$path" ] || refuse
+   done
+  fi
+  # A package must not overwrite an unmanaged source installation.
+  if [ -d /opt/pi2000-admin ] && [ ! -f /var/lib/pi2000web/package-managed ]; then
+   refuse
+  fi
+  if [ "${1:-}" = upgrade ] && [ -f /var/lib/pi2000-admin/admin.sqlite3 ] && [ -d /run/systemd/system ]; then
+   systemctl start pi2000-backup.service
+  fi
+  ;;
+esac

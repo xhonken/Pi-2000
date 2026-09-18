@@ -1,9 +1,9 @@
 /* Exercise the real Start menu, including a stale workspace in a second tab. */
 const {chromium}=require('playwright'),assert=require('node:assert/strict');
 (async()=>{
- let cfg={origin:process.env.WIN2K_TEST_URL,username:'admin',password:'browser-test-password'};
+ let cfg={origin:process.env.PI2000_TEST_URL,username:'admin',password:'browser-test-password'};
  if(process.argv.includes('--installed')){let raw='';for await(const chunk of process.stdin)raw+=chunk;cfg=JSON.parse(raw);}
- const browser=await chromium.launch({executablePath:process.env.WIN2K_TEST_CHROMIUM||'/usr/bin/chromium',headless:true});
+ const browser=await chromium.launch({executablePath:process.env.PI2000_TEST_CHROMIUM||'/usr/bin/chromium',headless:true});
  try{
   const context=await browser.newContext({ignoreHTTPSErrors:process.argv.includes('--installed')}),page=await context.newPage(),errors=[];
   page.on('pageerror',e=>errors.push(e.message));
@@ -12,12 +12,12 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict');
   async function logout(p=page){await p.locator('#start-button').click();await p.locator('#start-menu [data-action=logout]').click();}
   const sessionStatus=p=>p.evaluate(async()=>(await fetch('/api/session')).status);
   async function loggedOut(p=page){await p.locator('#logon').waitFor({state:'visible',timeout:5000});assert.equal(await sessionStatus(p),401);}
-  const checkpoint=()=>page.evaluate(()=>Win2kDesktop.api('/workspace'));
+  const checkpoint=()=>page.evaluate(()=>Pi2000Desktop.api('/workspace'));
   async function confirmLogout(p,accept){let message;const dialog=new Promise(resolve=>p.once('dialog',async d=>{message=d.message();await (accept?d.accept():d.dismiss());resolve();}));await logout(p);await dialog;assert.match(message,/Log off anyway\?/);}
   await login();await logout();await loggedOut();console.log('PASS: Start menu Log Off revokes server authentication');
-  await login();await page.evaluate(async()=>{Win2kShell.actions.calculator();await Win2kDesktop.saveWorkspace();});
+  await login();await page.evaluate(async()=>{Pi2000Shell.actions.calculator();await Pi2000Desktop.saveWorkspace();});
   const second=await context.newPage();await second.goto(origin);await second.waitForFunction(()=>document.querySelector('#workspace-status').dataset.state==='saved');
-  await page.locator('.calculator-form input').fill('first tab wins');await page.evaluate(()=>Win2kDesktop.saveWorkspace());
+  await page.locator('.calculator-form input').fill('first tab wins');await page.evaluate(()=>Pi2000Desktop.saveWorkspace());
   await second.locator('.calculator-form input').fill('stale tab');await second.waitForFunction(()=>document.querySelector('#workspace-status').textContent==='Save conflict');
   await confirmLogout(second,false);assert.equal(await second.locator('#session').isVisible(),true);
   assert.equal((await checkpoint()).windows[0].state.expression,'first tab wins');
@@ -34,13 +34,13 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict');
   await confirmLogout(page,true);await loggedOut();await page.unroute('**/api/workspace');
   await login();assert.equal((await checkpoint()).windows[0].state.expression,'first tab wins');console.log('PASS: stalled workspace save permits logout after the request timeout');
   // Notes and editor drafts still flush and recover when logout succeeds.
-  await page.evaluate(()=>{Win2kShell.actions.notes();Win2kShell.actions.editor();});
+  await page.evaluate(()=>{Pi2000Shell.actions.notes();Pi2000Shell.actions.editor();});
   await page.locator('.notes-text:not([disabled])').fill('logout notes');
   await page.waitForFunction(()=>document.querySelector('.editor-code')?.env?.editor);
   await page.evaluate(()=>ace.edit(document.querySelector('.editor-code')).setValue('logout draft',-1));
   await logout();await loggedOut();await login();
   await page.waitForFunction(()=>document.querySelector('.notes-text')?.value==='logout notes'&&document.querySelector('.editor-code')?.env?.editor.getValue()==='logout draft');
-  await page.screenshot({path:require('node:path').join(cfg.artifacts||process.env.WIN2K_TEST_ARTIFACTS,'logout-recovered.png')});
+  await page.screenshot({path:require('node:path').join(cfg.artifacts||process.env.PI2000_TEST_ARTIFACTS,'logout-recovered.png')});
   console.log('PASS: editor drafts and notes survive logout and fresh login');
   // A rejected server logout is not presented as success. Repeated clicks use one request.
   let calls=0,release;const held=new Promise(resolve=>release=resolve);

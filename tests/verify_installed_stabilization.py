@@ -29,7 +29,7 @@ def main():
         subprocess.run(['node','tests/upload_picker_ui.cjs'],cwd=ROOT,env={**os.environ,'NODE_PATH':'/tmp/pi2000-browser-check/node_modules'},check=True)
         from mariadb_fixture import MariaDBFixture
         with MariaDBFixture() as database:
-            subprocess.run(['node','tests/phpmyadmin_ui.cjs'],cwd=ROOT,env={**os.environ,'WIN2K_TEST_DB_PORT':str(database.port),'NODE_PATH':'/tmp/pi2000-browser-check/node_modules'},check=True)
+            subprocess.run(['node','tests/phpmyadmin_ui.cjs'],cwd=ROOT,env={**os.environ,'PI2000_TEST_DB_PORT':str(database.port),'NODE_PATH':'/tmp/pi2000-browser-check/node_modules'},check=True)
         return
     if os.geteuid()!=0:parser.error('Run with sudo for the installed CA, disposable account and cgroup verification.')
     if args.update:subprocess.run([str(ROOT/'scripts/update.sh')],cwd=ROOT,check=True)

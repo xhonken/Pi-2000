@@ -10,6 +10,8 @@ from unittest.mock import patch
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'server'))
 from recovery import Host, make_plan, apply_plan, replace_shadow
 
+from installation import APPLICATION_ID, BACKUP_FORMAT
+
 class FakeHost(Host):
     def __init__(self,root):
         self.root=root;self.users={'pi2000-admin':{'name':'pi2000-admin','uid':os.getuid(),'gid':os.getgid(),'home':'/var/lib/pi2000-admin','shell':'/usr/sbin/nologin','groups':[]}}
@@ -45,6 +47,7 @@ class RecoveryTests(unittest.TestCase):
         self.root=Path(self.temp.name);self.stage=self.root/'stage';self.stage.mkdir();self.host=FakeHost(self.root/'host')
         state=self.stage/'state';state.mkdir()
         with closing(sqlite3.connect(state/'admin.sqlite3')) as db:
+            db.execute(f'PRAGMA application_id={APPLICATION_ID}')
             db.executescript("CREATE TABLE users(id INTEGER PRIMARY KEY, role TEXT, active INTEGER); INSERT INTO users VALUES(1,'admin',1);")
         account=self.stage/'system-accounts';account.mkdir()
         with closing(sqlite3.connect(account/'accounts.sqlite3')) as db:
@@ -53,7 +56,7 @@ class RecoveryTests(unittest.TestCase):
         (account/'shadow').write_text('pi2k_1:!:123:0:99999:7:::\n')
         (account/'identities.json').write_text(json.dumps([{'name':'pi2k_1','uid':21001,'gid':21001,'group':'pi2k_1'}]))
         home=account/'homes/pi2k_1';home.mkdir(parents=True);(home/'run.sh').write_text('#!/bin/sh\necho fixture\n')
-        self.manifest={'format':2,'created':'fixture','metadata':{'system-accounts/homes/pi2k_1':{'uid':21001,'gid':21001,'mode':0o700},'system-accounts/homes/pi2k_1/run.sh':{'uid':21001,'gid':21001,'mode':0o750}}}
+        self.manifest={'format':BACKUP_FORMAT,'created':'fixture','metadata':{'system-accounts/homes/pi2k_1':{'uid':21001,'gid':21001,'mode':0o700},'system-accounts/homes/pi2k_1/run.sh':{'uid':21001,'gid':21001,'mode':0o750}}}
         live=self.host.path('/var/lib/pi2000-admin');live.mkdir(parents=True);(live/'old.txt').write_text('keep on rollback')
         self.chown=patch('recovery.os.chown');self.chown.start();self.addCleanup(self.chown.stop)
     def plan(self):return make_plan(self.stage,self.manifest,self.host,'fixture-digest')

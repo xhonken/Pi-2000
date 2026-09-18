@@ -1,12 +1,13 @@
 # Backup recovery and encrypted export
 
-This runbook applies to Alpha 6 and later. It is an OS
+This runbook applies to the independent 0.2 data line (Alpha 8 onwards).
+Earlier system backups are rejected; recover those with their matching older release. It is an OS
 administrator operation; a web administrator cannot restore host accounts.
 Rehearse on a disposable installation before relying on it for disaster recovery.
 
 ## What a backup contains
 
-Format 2 archives retain application SQLite data (with login tokens removed),
+Format 3 archives retain application SQLite data (with login tokens removed),
 private uploaded files, Browser profiles, Git workspaces and credential encryption
 material. They also include the managed-account registry, generation key, managed
 password records and managed homes, with original UID/GID and ordinary permission

@@ -1,8 +1,8 @@
 const {chromium}=require('playwright'),assert=require('node:assert/strict');
 (async()=>{
- const browser=await chromium.launch({executablePath:process.env.WIN2K_TEST_CHROMIUM||'/usr/bin/chromium',headless:true});
+ const browser=await chromium.launch({executablePath:process.env.PI2000_TEST_CHROMIUM||'/usr/bin/chromium',headless:true});
  try{
-  const page=await browser.newPage();await page.goto(process.env.WIN2K_TEST_URL);
+  const page=await browser.newPage();await page.goto(process.env.PI2000_TEST_URL);
   const result=await page.evaluate(async()=>{
    const c=PiVaultCrypto,A='original list fixture passphrase',B='original secret fixture passphrase',N='rotated list fixture passphrase',M='rotated secret fixture passphrase';
    const original=await c.create(A,B),v=original.vault,a=await c.unlock(v,'a',A),b=await c.unlock(v,'b',B),entry=c.id();

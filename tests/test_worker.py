@@ -33,9 +33,9 @@ class WorkerTests(unittest.IsolatedAsyncioTestCase):
         with socket.socket() as sock:
             sock.bind(('127.0.0.1',0));self.port=sock.getsockname()[1]
         self.origin=f'http://127.0.0.1:{self.port}'
-        self.env={**os.environ,'WIN2K_STATE':str(self.state),'WIN2K_ORIGIN':self.origin,'WIN2K_CGROUP_LIMITS':'0'}
+        self.env={**os.environ,'PI2000_STATE':str(self.state),'PI2000_ORIGIN':self.origin,'PI2000_CGROUP_LIMITS':'0'}
         self.log=(self.state/'process.log').open('wb')
-        self.worker=await asyncio.create_subprocess_exec(sys.executable,str(self.code/'app.py'),env={**self.env,'WIN2K_SESSION_WORKER':'1','WIN2K_LISTEN_SOCKET':self.socket},stdout=self.log,stderr=self.log)
+        self.worker=await asyncio.create_subprocess_exec(sys.executable,str(self.code/'app.py'),env={**self.env,'PI2000_SESSION_WORKER':'1','PI2000_LISTEN_SOCKET':self.socket},stdout=self.log,stderr=self.log)
         for _ in range(100):
             if Path(self.socket).exists():break
             await asyncio.sleep(.05)
@@ -45,13 +45,13 @@ class WorkerTests(unittest.IsolatedAsyncioTestCase):
         self.http=ClientSession(timeout=ClientTimeout(total=10))
         response=await self.http.post(self.origin+'/api/login',headers={'Origin':self.origin},json={'username':'admin','password':(self.state/'initial-password.txt').read_text().strip()})
         self.assertEqual(response.status,200)
-        self.token=response.cookies['__Host-win2k'].value
-        self.headers={'Origin':self.origin,'Cookie':'__Host-win2k='+self.token}
+        self.token=response.cookies['__Host-pi2000'].value
+        self.headers={'Origin':self.origin,'Cookie':'__Host-pi2000='+self.token}
         key=asyncssh.generate_private_key('ssh-ed25519')
         self.ssh=await asyncssh.create_server(SSHServer,'127.0.0.1',0,server_host_keys=[key],process_factory=echo,line_editor=False)
 
     async def start_front(self):
-        self.front=await asyncio.create_subprocess_exec(sys.executable,str(self.code/'app.py'),env={**self.env,'WIN2K_WORKER_SOCKET':self.socket,'WIN2K_PORT':str(self.port),'WIN2K_SESSION_WORKER':'0'},stdout=self.log,stderr=self.log)
+        self.front=await asyncio.create_subprocess_exec(sys.executable,str(self.code/'app.py'),env={**self.env,'PI2000_WORKER_SOCKET':self.socket,'PI2000_PORT':str(self.port),'PI2000_SESSION_WORKER':'0'},stdout=self.log,stderr=self.log)
         for _ in range(100):
             try:
                 reader,writer=await asyncio.open_connection('127.0.0.1',self.port);writer.close();await writer.wait_closed();return
@@ -122,7 +122,7 @@ class WorkerTests(unittest.IsolatedAsyncioTestCase):
     async def test_digest_cookie_and_internal_routes_rejected(self):
         import hashlib
         digest='sha256:'+hashlib.sha256(self.token.encode()).hexdigest()
-        response=await self.http.get(self.origin+'/api/session',headers={'Cookie':'__Host-win2k='+digest})
+        response=await self.http.get(self.origin+'/api/session',headers={'Cookie':'__Host-pi2000='+digest})
         self.assertEqual(response.status,401)
         response=await self.http.post(self.origin+'/internal/control',headers=self.headers,json={'action':'status'})
         self.assertEqual(response.status,404)

@@ -26,10 +26,10 @@ Product names: **Pi-2000**, **Pi-IPTV**, **Pi-Vault**, **Pi-Arduino**, **Pi-Calt
 
 All maintained product UI, accessibility labels, errors, installer output and documentation use English. Keep menu and toolbar labels consistent because the menu adapter maps commands to existing controls by label. Use English mnemonics: File F, Edit E, View V, Connection C, Account A, Help H.
 
-Do not translate user-authored file names, notes, shortcut names, connection names or document contents. Do not rename database keys, service units, stored paths or JavaScript namespaces solely for branding. The legacy `win2k` identifiers are a compatibility interface.
+Do not translate user-authored file names, notes, shortcut names, connection names or document contents. Use `Pi2000*` JavaScript namespaces, `pi2000-*` CSS/events and `PI2000_*` environment variables. Compatibility within the 0.2 data line must be maintained; earlier releases require a separate installation.
 
 ## Verification
 
 Check actual menu actions, keyboard access, file operations, editor saves, SFTP operations, drawing, ordinary-user permissions, large fonts and small viewports. Inspect screenshots, then compare deployed assets over HTTPS. A successful file copy alone is not deployment verification.
 
-See [the visual reference record](design/windows-2000-ui.md). The superseded upstream gallery is available in Git history; its provenance remains in `docs/source-manifest.json`.
+See [the visual reference record](design/windows-2000-ui.md). The superseded upstream gallery is available in Git history; its provenance remains in the [Alpha 7 source tree](https://github.com/xhonken/Pi-2000/tree/v0.1.0-alpha.7/docs).

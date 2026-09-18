@@ -26,7 +26,7 @@ def validate_linux(mode, username, password, port, owned=None):
     if mode=='Disabled':return
     if mode not in ('Existing account','Create account with sudo') or not re.fullmatch(r'[a-z_][a-z0-9_-]{0,31}',username):
         raise ValueError('Choose a valid Linux username and terminal mode.')
-    if username in ('root','win2k-admin','pi2000-admin','pi2000-phpmyadmin') or not 1<=port<=65535:
+    if username in ('root','pi2000-admin','pi2000-phpmyadmin') or not 1<=port<=65535:
         raise ValueError('Use a regular Linux login and a valid SSH port.')
     try:account=pwd.getpwnam(username)
     except KeyError:account=None

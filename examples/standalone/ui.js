@@ -1,4 +1,4 @@
-(function bootstrapWin2kUI(global) {
+(function bootstrapPi2000UI(global) {
   'use strict';
 
   const defaults = Object.freeze({
@@ -16,14 +16,14 @@
   };
 
   const getConfig = (root, overrides = {}) => {
-    const host = root.matches?.('[data-win2k-app],.win2k-app') ? root : root.querySelector?.('[data-win2k-app],.win2k-app');
+    const host = root.matches?.('[data-pi2000-app],.pi2000-app') ? root : root.querySelector?.('[data-pi2000-app],.pi2000-app');
     const dataset = host?.dataset || {};
     return {
       ...defaults,
       help: readBoolean(dataset.helpEnabled, defaults.help),
       locale: dataset.locale || defaults.locale,
       helpUrl: dataset.helpUrl || defaults.helpUrl,
-      ...(global.WIN2K_UI_CONFIG || {}),
+      ...(global.PI2000_UI_CONFIG || {}),
       ...overrides
     };
   };
@@ -34,7 +34,7 @@
   };
 
   const init = (root = document, overrides = {}) => {
-    const app = root.matches?.('[data-win2k-app],.win2k-app') ? root : root.querySelector?.('[data-win2k-app],.win2k-app');
+    const app = root.matches?.('[data-pi2000-app],.pi2000-app') ? root : root.querySelector?.('[data-pi2000-app],.pi2000-app');
     if (!app) return null;
     if (instances.has(app)) return instances.get(app);
 
@@ -45,12 +45,12 @@
       cleanup.push(() => target?.removeEventListener(eventName, listener, options));
     };
 
-    const startButton = app.querySelector('[data-win2k-start-button]');
-    const startMenu = app.querySelector('[data-win2k-start-menu]');
-    const statusFields = [...app.querySelectorAll('[data-win2k-status]')];
+    const startButton = app.querySelector('[data-pi2000-start-button]');
+    const startMenu = app.querySelector('[data-pi2000-start-menu]');
+    const statusFields = [...app.querySelectorAll('[data-pi2000-status]')];
 
     const closeCascades = (except) => {
-      app.querySelectorAll('[data-win2k-cascade]').forEach((trigger) => {
+      app.querySelectorAll('[data-pi2000-cascade]').forEach((trigger) => {
         if (trigger === except) return;
         const panel = document.getElementById(trigger.getAttribute('aria-controls'));
         setExpanded(trigger, panel, false);
@@ -73,7 +73,7 @@
       toggleStart();
     });
 
-    app.querySelectorAll('[data-win2k-cascade]').forEach((trigger) => {
+    app.querySelectorAll('[data-pi2000-cascade]').forEach((trigger) => {
       const panel = document.getElementById(trigger.getAttribute('aria-controls'));
       on(trigger, 'click', (event) => {
         event.stopPropagation();
@@ -84,7 +84,7 @@
       });
     });
 
-    const menuDetails = [...app.querySelectorAll('details[data-win2k-menu]')];
+    const menuDetails = [...app.querySelectorAll('details[data-pi2000-menu]')];
     menuDetails.forEach((menu) => on(menu, 'toggle', () => {
       if (!menu.open) return;
       menuDetails.forEach((other) => { if (other !== menu) other.open = false; });
@@ -92,8 +92,8 @@
 
     on(document, 'click', (event) => {
       if (!app.contains(event.target)) return;
-      if (!event.target.closest('[data-win2k-start-menu],[data-win2k-start-button]')) closeStart();
-      if (!event.target.closest('details[data-win2k-menu]')) menuDetails.forEach((menu) => { menu.open = false; });
+      if (!event.target.closest('[data-pi2000-start-menu],[data-pi2000-start-button]')) closeStart();
+      if (!event.target.closest('details[data-pi2000-menu]')) menuDetails.forEach((menu) => { menu.open = false; });
     });
 
     on(document, 'keydown', (event) => {
@@ -108,21 +108,21 @@
       }
       if (event.key === 'F1' && config.help) {
         event.preventDefault();
-        const helpLink = app.querySelector('[data-win2k-help-link]');
+        const helpLink = app.querySelector('[data-pi2000-help-link]');
         global.location.assign(helpLink?.href || config.helpUrl);
       }
     });
 
-    app.querySelectorAll('[data-win2k-help]').forEach((element) => {
+    app.querySelectorAll('[data-pi2000-help]').forEach((element) => {
       element.hidden = !config.help;
     });
 
     const updateClock = () => {
       const now = new Date();
-      app.querySelectorAll('[data-win2k-clock]').forEach((element) => {
+      app.querySelectorAll('[data-pi2000-clock]').forEach((element) => {
         element.textContent = new Intl.DateTimeFormat(config.locale, { hour: '2-digit', minute: '2-digit' }).format(now);
       });
-      app.querySelectorAll('[data-win2k-date]').forEach((element) => {
+      app.querySelectorAll('[data-pi2000-date]').forEach((element) => {
         element.textContent = new Intl.DateTimeFormat(config.locale, { day: '2-digit', month: '2-digit', year: 'numeric' }).format(now);
       });
     };
@@ -133,13 +133,13 @@
 
     const notify = (message, timeout = 2400) => {
       statusFields.forEach((field) => { field.textContent = message; });
-      global.clearTimeout(app.__win2kStatusTimer);
-      app.__win2kStatusTimer = global.setTimeout(() => {
+      global.clearTimeout(app.__pi2000StatusTimer);
+      app.__pi2000StatusTimer = global.setTimeout(() => {
         statusFields.forEach((field) => { field.textContent = config.readyText; });
       }, timeout);
     };
 
-    on(app, 'win2k:status', (event) => notify(event.detail?.message || config.readyText, event.detail?.timeout));
+    on(app, 'pi2000:status', (event) => notify(event.detail?.message || config.readyText, event.detail?.timeout));
 
     const api = {
       app,
@@ -153,12 +153,12 @@
     };
 
     instances.set(app, api);
-    app.dataset.win2kReady = 'true';
-    app.dispatchEvent(new CustomEvent('win2k:ready', { detail: api }));
+    app.dataset.pi2000Ready = 'true';
+    app.dispatchEvent(new CustomEvent('pi2000:ready', { detail: api }));
     return api;
   };
 
-  global.Win2kUI = Object.freeze({ init, defaults });
+  global.Pi2000UI = Object.freeze({ init, defaults });
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => init(), { once: true });

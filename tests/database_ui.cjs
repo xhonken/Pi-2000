@@ -1,21 +1,21 @@
 const {chromium}=require('playwright');
 const assert=require('node:assert/strict');
 (async()=>{
- const browser=await chromium.launch({executablePath:process.env.WIN2K_TEST_CHROMIUM||'/usr/bin/chromium',headless:true});
+ const browser=await chromium.launch({executablePath:process.env.PI2000_TEST_CHROMIUM||'/usr/bin/chromium',headless:true});
  try{
   const page=await browser.newPage({viewport:{width:1280,height:900}}),errors=[];
   page.on('pageerror',e=>errors.push(e.message));
-  await page.goto((process.env.WIN2K_TEST_URL||'http://127.0.0.1:18765'));
+  await page.goto((process.env.PI2000_TEST_URL||'http://127.0.0.1:18765'));
   await page.locator('#login-form [name=password]').fill('browser-test-password');
   await page.locator('#login-form [type=submit]').click();await page.locator('#session').waitFor({state:'visible'});
-  await page.evaluate(()=>Win2kShell.actions.databaseLegacy());
+  await page.evaluate(()=>Pi2000Shell.actions.databaseLegacy());
   const w=page.locator('.database-window');
   async function enterSQL(value){if(!await w.locator('.db-sql').isVisible())await w.getByRole('button',{name:'SQL Queries',exact:true}).click();await w.locator('.db-sql').fill(value);}
   async function menu(group,label){await w.getByRole('menuitem',{name:group,exact:true}).click();await page.getByRole('menuitem',{name:label,exact:true}).click();}
   await menu('File','New Connection');
   const dialog=page.locator('dialog.db-dialog');
   await dialog.locator('[name=name]').fill('Test database');await dialog.locator('[name=username]').fill('root');
-  await dialog.locator('[name=port]').fill(process.env.WIN2K_TEST_DB_PORT||'3306');
+  await dialog.locator('[name=port]').fill(process.env.PI2000_TEST_DB_PORT||'3306');
   await dialog.locator('[name=tls]').selectOption('disabled');await dialog.locator('[name=save_password]').check();
   await dialog.getByRole('button',{name:'OK',exact:true}).click();await dialog.waitFor({state:'detached'});
   assert.equal(await w.locator('.db-connections option').textContent(),'Test database — 127.0.0.1');
@@ -23,13 +23,13 @@ const assert=require('node:assert/strict');
   await w.getByRole('button',{name:'Connect',exact:true}).click();
   await w.locator('.db-alert').filter({hasText:'does not support TLS'}).waitFor();
   assert.equal(await w.getByRole('button',{name:'Connect',exact:true}).isEnabled(),true);
-  await page.screenshot({path:require('node:path').join(process.env.WIN2K_TEST_ARTIFACTS||'/tmp','pi2000-db-connection-error.png')});
+  await page.screenshot({path:require('node:path').join(process.env.PI2000_TEST_ARTIFACTS||'/tmp','pi2000-db-connection-error.png')});
   await page.unroute('**/api/databases/command');
   await page.route('**/api/databases/command',route=>route.fulfill({status:502,contentType:'text/html',body:'Bad gateway'}));
   await w.getByRole('button',{name:'Test Connection',exact:true}).click();
   await w.locator('.db-alert').filter({hasText:'HTTP 502'}).waitFor();
   await page.unroute('**/api/databases/command');
-  if(process.env.WIN2K_TEST_DB_PORT){
+  if(process.env.PI2000_TEST_DB_PORT){
    await w.getByRole('button',{name:'Connect',exact:true}).click();
    await w.locator('.db-context').filter({hasText:'Test database'}).waitFor();
    assert.equal(await w.locator('.db-alert').isVisible(),false);
@@ -55,7 +55,7 @@ const assert=require('node:assert/strict');
    await w.locator('[data-object=items]').click();
    await w.locator('.db-results').filter({hasText:'CSV, quoted'}).waitFor();
   }
-  if(process.env.WIN2K_TEST_DB_PORT){
+  if(process.env.PI2000_TEST_DB_PORT){
    await enterSQL('CREATE TABLE authors (id INT PRIMARY KEY, name VARCHAR(80)); INSERT INTO authors VALUES (1, \'Ada\'); CREATE TABLE z_notes (id INT AUTO_INCREMENT PRIMARY KEY, author_id INT, title VARCHAR(80), created_at TIMESTAMP NOT NULL, updated_at DATETIME DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY (author_id) REFERENCES authors(id));');
    await w.getByRole('button',{name:'Execute',exact:true}).click();
    await w.locator('.db-messages').filter({hasText:'Completed in'}).waitFor();
@@ -80,7 +80,7 @@ const assert=require('node:assert/strict');
    await page.waitForFunction(()=>document.querySelector('.qb-dialog .db-admin-preview').textContent.includes('RIGHT JOIN'));
    await form.locator('[data-kind]').selectOption('LEFT');
    await form.getByRole('tab',{name:'SQL Preview'}).click();
-   await page.screenshot({path:require('node:path').join(process.env.WIN2K_TEST_ARTIFACTS||'/tmp','pi2000-query-builder.png')});
+   await page.screenshot({path:require('node:path').join(process.env.PI2000_TEST_ARTIFACTS||'/tmp','pi2000-query-builder.png')});
    await form.getByRole('button',{name:'Open SQL Query',exact:true}).click();
    await w.getByRole('button',{name:'Execute',exact:true}).click();
    await w.locator('.db-results').filter({hasText:'Ada'}).waitFor();
@@ -92,7 +92,7 @@ const assert=require('node:assert/strict');
    await w.locator('.db-messages').filter({hasText:'Row deleted'}).waitFor();
    assert.equal(await w.locator('.db-results tbody tr').count(),0);
   }
-  if(process.env.WIN2K_TEST_DB_PORT){
+  if(process.env.PI2000_TEST_DB_PORT){
    await menu('Administration','Users and Privileges');
    let inspector=page.locator('dialog.db-admin-wide');
    await inspector.locator('.db-admin-grid').filter({hasText:'root'}).waitFor();
@@ -105,13 +105,13 @@ const assert=require('node:assert/strict');
    let preview=page.locator('dialog.db-dialog').last();
    await preview.getByRole('button',{name:'Apply Changes',exact:true}).waitFor();
    assert(!(await preview.textContent()).includes('ui-private-password'));
-   await page.screenshot({path:require('node:path').join(process.env.WIN2K_TEST_ARTIFACTS||'/tmp','pi2000-mariadb-user-review.png')});
+   await page.screenshot({path:require('node:path').join(process.env.PI2000_TEST_ARTIFACTS||'/tmp','pi2000-mariadb-user-review.png')});
    await preview.getByRole('button',{name:'Apply Changes',exact:true}).click();
    await inspector.locator('.db-admin-grid').filter({hasText:'ui_managed'}).waitFor();
    await page.setViewportSize({width:600,height:700});
    await page.evaluate(()=>document.documentElement.style.setProperty('--personal-font-size','18px'));
    const bounds=await inspector.boundingBox();assert(bounds.x>=0&&bounds.x+bounds.width<=601);
-   await page.screenshot({path:require('node:path').join(process.env.WIN2K_TEST_ARTIFACTS||'/tmp','pi2000-mariadb-admin-small.png')});
+   await page.screenshot({path:require('node:path').join(process.env.PI2000_TEST_ARTIFACTS||'/tmp','pi2000-mariadb-admin-small.png')});
    await page.setViewportSize({width:1280,height:900});
    await page.evaluate(()=>document.documentElement.style.setProperty('--personal-font-size','13px'));
    await inspector.getByRole('button',{name:'Close',exact:true}).click();
@@ -127,7 +127,7 @@ const assert=require('node:assert/strict');
   }
   await enterSQL('SELECT 42 AS answer;');await menu('File','Save Workspace');
   await w.locator('.app-status').filter({hasText:'SQL workspace saved'}).waitFor();
-  await page.screenshot({path:require('node:path').join(process.env.WIN2K_TEST_ARTIFACTS||'/tmp','pi2000-mariadb-manager.png')});
+  await page.screenshot({path:require('node:path').join(process.env.PI2000_TEST_ARTIFACTS||'/tmp','pi2000-mariadb-manager.png')});
   await page.reload();await page.locator('.database-window').waitFor();
   await page.waitForFunction(()=>document.querySelector('.db-sql')?.value==='SELECT 42 AS answer;');
   await page.locator('.database-window').getByRole('button',{name:'Properties',exact:true}).click();
@@ -139,8 +139,8 @@ const assert=require('node:assert/strict');
   await page.setViewportSize({width:600,height:700});
   await page.evaluate(()=>document.documentElement.style.setProperty('--personal-font-size','18px'));
   await page.locator('.database-window [data-control=max]').click();
-  await page.screenshot({path:require('node:path').join(process.env.WIN2K_TEST_ARTIFACTS||'/tmp','pi2000-mariadb-manager-small.png')});
+  await page.screenshot({path:require('node:path').join(process.env.PI2000_TEST_ARTIFACTS||'/tmp','pi2000-mariadb-manager-small.png')});
   assert.deepEqual(errors,[]);
-  console.log('PASS: private connection CRUD, SQL workspace save/restore, UI lifecycle'+(process.env.WIN2K_TEST_DB_PORT?', real MariaDB query and table browsing':''));
+  console.log('PASS: private connection CRUD, SQL workspace save/restore, UI lifecycle'+(process.env.PI2000_TEST_DB_PORT?', real MariaDB query and table browsing':''));
  }finally{await browser.close();}
 })().catch(e=>{console.error(e);process.exit(1)});

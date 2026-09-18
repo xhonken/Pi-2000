@@ -2,7 +2,7 @@
 (() => {
  'use strict';
  const apps=new Map();
- window.Win2kApps=Object.freeze({
+ window.Pi2000Apps=Object.freeze({
   register(descriptor){
    if(!descriptor.type || apps.has(descriptor.type))throw new Error('The application is already registered or has no type.');
    apps.set(descriptor.type,Object.freeze({allowed:()=>true,singleton:false,...descriptor}));

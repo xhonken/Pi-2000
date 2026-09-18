@@ -18,7 +18,7 @@ The one-command default runs all backend tests, both geometry suites and the
 ordinary UI suite listed in `tests/suites.json`, including desktop management, Pi-Vault, Pi++, Arduino and all
 five utility tools. Playwright is an exact development dependency in package.json
 and package-lock.json; no production Node dependencies or runtime framework are
-introduced. Chromium comes from the test host; `WIN2K_TEST_CHROMIUM` can select an
+introduced. Chromium comes from the test host; `PI2000_TEST_CHROMIUM` can select an
 explicit binary. The distribution browser version is part of the host setup,
 not pinned by the npm lockfile.
 
@@ -33,8 +33,8 @@ Explicit integration checks:
 - `scripts/check.py database`: disposable MariaDB plus graphical database tests.
 - `scripts/check.py network`: first-use Arduino catalog/library downloads; needs
   the pinned Arduino CLI and internet access. Never run this by default in CI.
-- ESP32 compiler checks can supply `WIN2K_ARDUINO_CLI` and a disposable
-  `WIN2K_TEST_ARDUINO_RUNTIME` to `tests/run_classic_suite.py arduino_ui.cjs`.
+- ESP32 compiler checks can supply `PI2000_ARDUINO_CLI` and a disposable
+  `PI2000_TEST_ARDUINO_RUNTIME` to `tests/run_classic_suite.py arduino_ui.cjs`.
   Never share a mutable runtime between simultaneous tests.
 - Installed PAM, service resource limits and real USB/sensor/display checks remain
   explicit host/hardware acceptance. They are not replaced by mock or PTY tests.
@@ -105,7 +105,7 @@ seeks and cancellation of buffered startup after Stop. Run both player suites:
 python tests/run_classic_suite.py iptv_stability_ui.cjs iptv_ui.cjs
 ```
 
-`WIN2K_TEST_BASELINE=1` records stall/seek metrics without their zero assertions
+`PI2000_TEST_BASELINE=1` records stall/seek metrics without their zero assertions
 when comparing older playback settings. This switch affects only the test.
 
 The GitHub job uses an Ubuntu 22.04 host with a Debian 13 container. Newer Ubuntu

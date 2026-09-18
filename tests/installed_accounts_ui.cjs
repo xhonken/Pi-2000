@@ -3,7 +3,7 @@ const assert=require('node:assert/strict');
 (async()=>{
  let input='';for await(const chunk of process.stdin)input+=chunk;
  const cfg=JSON.parse(input);
- const browser=await chromium.launch({executablePath:process.env.WIN2K_TEST_CHROMIUM||'/usr/bin/chromium',headless:true});
+ const browser=await chromium.launch({executablePath:process.env.PI2000_TEST_CHROMIUM||'/usr/bin/chromium',headless:true});
  try{
   const page=await browser.newPage({viewport:{width:1280,height:900},ignoreHTTPSErrors:true});
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
@@ -22,7 +22,7 @@ const assert=require('node:assert/strict');
   await page.locator('.terminal-window .xterm-helper-textarea').pressSequentially('id -un');
   await page.locator('.terminal-window .xterm-helper-textarea').press('Enter');
   await page.waitForTimeout(500);
-  await page.screenshot({path:require('node:path').join(process.env.WIN2K_TEST_ARTIFACTS||'/tmp','pi2000-system-accounts-installed.png')});
+  await page.screenshot({path:require('node:path').join(process.env.PI2000_TEST_ARTIFACTS||'/tmp','pi2000-system-accounts-installed.png')});
   assert.deepEqual(errors,[]);
   console.log('PASS: installed desktop icon, individual Linux identity in dialog and connected Local Terminal UI.');
  }finally{await browser.close();}

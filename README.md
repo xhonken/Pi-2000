@@ -8,25 +8,23 @@ This is an independent project, not a Microsoft product and not a Windows emulat
 
 ## Versions
 
-Current numbered release: **[0.1.0-alpha.7](https://github.com/xhonken/Pi-2000/releases/tag/v0.1.0-alpha.7)**. See [all releases](https://github.com/xhonken/Pi-2000/releases), the [changelog](CHANGELOG.md), and [versioning instructions](docs/VERSIONING.md) for previous versions, release downloads and installing a specific version. Run `./scripts/version.sh` to identify your source checkout.
+Current numbered release: **[0.2.0-alpha.8](https://github.com/xhonken/Pi-2000/releases/tag/v0.2.0-alpha.8)**. See [all releases](https://github.com/xhonken/Pi-2000/releases), the [changelog](CHANGELOG.md), and [versioning instructions](docs/VERSIONING.md) for previous versions, release downloads and installing a specific version. Run `./scripts/version.sh` to identify your source checkout.
 
-## New in Alpha 7
+## New in Alpha 8
 
-- **Consistent names:** Pi-2000, Pi-IPTV, Pi-Vault, Pi-Arduino, Pi-Calt,
-  Pi-DB Manager, Pi-API and Pi-Git Projects throughout the interface.
-- **System naming:** `pi2000-*` services, process names and installation paths,
-  with a guarded source-install migration that preserves numeric ownership.
-- **Reliable logout:** workspace conflicts and failed recovery no longer trap
-  users in a session; saved checkpoints and application cancellation remain safe.
-- **Code cleanup:** removed the obsolete gallery, replaced icon code, unused
-  imports/state and redundant ZIP/health work. Classic SVG appearance is preserved.
-- **Test installer:** a new arm64 `.deb` for fresh installations, with the existing
-  IPTV, Vault, personal desktop, recovery and development applications.
+- **Independent 0.2 line:** a fresh Pi-2000 installation with one namespace in
+  services, environment variables, cookies, UI code, CSS and browser storage.
+- **No compatibility aliases:** the old namespace migrator and browser-wide
+  settings import have been removed. Private account data stays server-scoped.
+- **Installation guards:** older packages, source installations, application
+  databases and system backups are rejected before they can be adopted.
+- **Existing applications retained:** Pi-IPTV, Pi-Vault, Pi-Arduino, Pi++, desktop
+  recovery, private files, SSH and the graphical development tools.
 
-Read the [Alpha 7 release notes](docs/releases/0.1.0-alpha.7.md).
-**Existing source installations with `win2k-*` names must use the
-[system-name migration](docs/SYSTEM-NAMES.md) before updating. Direct upgrades from
-Alpha 6 or older Debian packages are blocked pending a validated package migration.**
+Read the [Alpha 8 release notes](docs/releases/0.2.0-alpha.8.md).
+**Alpha 5, 6 and 7 cannot be upgraded to this version. Use a fresh system and keep
+older installations and their backups separately.** There is no automatic user,
+settings or system-backup migration. See [installation boundaries](docs/SYSTEM-NAMES.md).
 Fresh installation of this exact package on a reimaged Pi 4 and physical
 power-loss/recovery acceptance remain pending. This is a testing prerelease.
 
@@ -115,7 +113,7 @@ process is gone. See [desktop recovery and its limits](docs/DESKTOP.md#restore-a
 
 ## Install on Raspberry Pi
 
-The Alpha 7 test release includes an arm64 `.deb` and SHA-256 checksum. It contains
+The Alpha 8 test release includes an arm64 `.deb` and SHA-256 checksum. It contains
 prebuilt Python runtimes and uses APT for system dependencies. See the
 **[Debian package guide](docs/DEB-INSTALLATION.md)** for Raspberry Pi OS 64-bit
 (Debian 13), first login and upgrades. Earlier package candidates passed physical
@@ -142,7 +140,7 @@ Read the complete **[Raspberry Pi installation guide](docs/INSTALLATION.md)**, i
 See **[Examples](Examples/README.md)** for named network configurations, complete Caddy examples, certificate export, installation/update scripts and backup maintenance examples.
 
 ```sh
-# After system-name migration, from your source checkout:
+# For compatible 0.2 source updates only:
 git pull --ff-only
 sudo ./scripts/update.sh
 sudo ./scripts/doctor.sh
@@ -150,9 +148,13 @@ sudo ./scripts/doctor.sh
 
 Updates use `/etc/pi2000web/config.toml`. Normal updates preserve running SSH/Browser sessions. Finish active database work first: the updater restarts the API, and database sessions and transactions are not resumed. Reload the desktop after updating. Changing the HTTPS origin requires `--restart-sessions`, which ends live jobs.
 
-Configuration, generated Caddy settings, backend tests and the source-installation migration/update path are verified. Earlier Debian package candidates have physical Pi 4 coverage; this exact Alpha 7 package still needs a fresh physical installation test.
+Configuration rendering, backend tests and isolated installation boundaries are verified. Earlier Debian package candidates have physical Pi 4 coverage; this exact Alpha 8 package still needs a fresh physical installation test.
 
-Services and installation paths use `pi2000-*`. Environment variables, JavaScript namespaces and stored protocol identifiers retain legacy names for compatibility; migrated source installations also retain required directory links. The product name is **Pi-2000**. The source checkout can be named or located differently; no local username or network address is required in source code.
+Services, paths and client identifiers use Pi-2000 names throughout. Environment
+variables use `PI2000_*`, JavaScript globals use `Pi2000*`, and the cookie is
+`__Host-pi2000`. Earlier namespace aliases are not imported. The source checkout
+can be named or located differently; no local username or network address is
+required in source code.
 
 ## Browser and resource limits
 
@@ -237,12 +239,11 @@ Main source areas:
 
 ## Design origins and third-party components
 
-The maintained standalone example is under `examples/standalone/`; its JavaScript stays outside the installed desktop. The superseded upstream gallery was removed during cleanup; its original source manifest remains in `docs/source-manifest.json`, and its files remain available in Git history.
+The maintained standalone example is under `examples/standalone/`; its JavaScript stays outside the installed desktop. The superseded upstream gallery was removed during cleanup; its original source manifest and files remain available in the [Alpha 7 source tree](https://github.com/xhonken/Pi-2000/tree/v0.1.0-alpha.7/docs).
 
 The current desktop has original code-drawn SVG icons generated by `scripts/build-classic-icons.py`. Historical Windows screenshots were used as visual references, not copied into the application. See [UI reference notes](docs/design/windows-2000-ui.md).
 
 Vendored Ace, xterm.js and PDF.js retain their upstream licence files. Browser dependency revisions are recorded under `server/`. A project-wide distribution licence remains to be settled before a public package release.
 
-Existing installations with `win2k-*` system services need the planned
-[system-name migration](docs/SYSTEM-NAMES.md) before updating this checkout.
-Save work first: the session service must restart during that migration.
+The 0.2 data line requires a fresh installation, including for hosts already using
+Pi-2000 service names. See [the compatibility boundary](docs/SYSTEM-NAMES.md).

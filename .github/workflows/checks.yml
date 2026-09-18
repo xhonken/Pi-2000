@@ -39,4 +39,5 @@ jobs:
         with:
           name: disposable-ui-artifacts
           path: .test-results/
+          include-hidden-files: true
           retention-days: 7

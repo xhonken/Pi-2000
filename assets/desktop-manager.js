@@ -1,11 +1,9 @@
 /* Account-owned desktop objects and Windows-style interaction. */
 (() => {
 'use strict';
-const shell=Win2kShell,root=document.querySelector('#desktop-icons'),desktop=document.querySelector('#desktop');
+const shell=Pi2000Shell,root=document.querySelector('#desktop-icons'),desktop=document.querySelector('#desktop');
 const defaults={sort:'manual',direction:'asc',autoArrange:false,snap:false,showIcons:true,openMode:'double'};
 const catalog=new Map(),selected=new Set();
-// Resolve former default labels at display time; retain personal names and stored IDs.
-const formerNames={iptv:'IPTV Player',vault:'Vault',about:'About Pi-2000Web',arduino:'Arduino Workshop',calculator:'Calculator',database:'MariaDB Manager',apitester:'API Tester',git:'Git Projects'};
 let menu=null,anchor=null,cancelSelection=null,suppressClick=false;
 const key=icon=>icon.dataset.fileId?'file:'+icon.dataset.fileId:icon.dataset.shortcutId?'link:'+icon.dataset.shortcutId:'app:'+icon.dataset.action;
 const options=()=>({...defaults,...shell.getView()});
@@ -25,30 +23,30 @@ function sync(){
   let el=root.querySelector(':scope > [data-action="'+action+'"]');
   if(!el&&allowed(action)&&(entry.initial||state.icons[action]?.visible)){
    el=document.createElement('button');el.type='button';el.className='desktop-icon';el.dataset.action=action;
-   const image=document.createElement('span');image.className='win2k-pixel-icon win2k-icon-forms';image.setAttribute('aria-hidden','true');const label=document.createElement('span');label.className='icon-label';el.append(image,label);root.append(el);
+   const image=document.createElement('span');image.className='pi2000-pixel-icon pi2000-icon-forms';image.setAttribute('aria-hidden','true');const label=document.createElement('span');label.className='icon-label';el.append(image,label);root.append(el);
   }
   if(!el)continue;
   el.hidden=!allowed(action)||!(state.icons[action]?.visible??entry.initial);
-  const label=el.querySelector('.icon-label'),stored=state.icons[action]?.name,name=stored&&stored!==formerNames[action]?stored:entry.name;if(label.textContent!==name)label.textContent=name;
+  const label=el.querySelector('.icon-label'),stored=state.icons[action]?.name,name=stored||entry.name;if(label.textContent!==name)label.textContent=name;
   el.title=name;
  }
  root.classList.toggle('desktop-icons-hidden',!options().showIcons);
  for(const id of selected)if(!visible().some(el=>key(el)===id))selected.delete(id);
- paint();window.Win2kUI?.decorate(root);window.dispatchEvent(new Event('win2k-icons-changed'));
+ paint();window.Pi2000UI?.decorate(root);window.dispatchEvent(new Event('pi2000-icons-changed'));
 }
 function info(el){
- if(el.dataset.fileId){const item=Win2kFiles.getItem(el.dataset.fileId);return {key:key(el),name:item?.name||el.textContent,type:item?.kind==='folder'?'Folder':item?.name.includes('.')?item.name.split('.').at(-1).toUpperCase()+' file':'File',item};}
+ if(el.dataset.fileId){const item=Pi2000Files.getItem(el.dataset.fileId);return {key:key(el),name:item?.name||el.textContent,type:item?.kind==='folder'?'Folder':item?.name.includes('.')?item.name.split('.').at(-1).toUpperCase()+' file':'File',item};}
  if(el.dataset.shortcutId){const item=shell.getShortcut(el.dataset.shortcutId);return {key:key(el),name:item?.name||el.textContent,type:'Web shortcut',item};}
  return {key:key(el),name:el.querySelector('.icon-label').textContent,type:'Application',action:el.dataset.action};
 }
-function open(el){const d=info(el);if(d.action)return shell.actions[d.action]?.();if(d.type==='Web shortcut')return shell.actions.browser(d.item.url);if(d.item)return Win2kFiles.openDesktopItem(d.item.id);}
+function open(el){const d=info(el);if(d.action)return shell.actions[d.action]?.();if(d.type==='Web shortcut')return shell.actions.browser(d.item.url);if(d.item)return Pi2000Files.openDesktopItem(d.item.id);}
 function form(title,content,submit){
  closeMenu();shell.show(title,content);const f=document.querySelector('#window-content form'),owner=shell.getUser();
  f.addEventListener('submit',async event=>{event.preventDefault();if(owner!==shell.getUser())return;const buttons=[...f.querySelectorAll('button')];buttons.forEach(b=>b.disabled=true);try{await submit(f);if(owner===shell.getUser()&&f.isConnected)document.querySelector('#window').close();}catch(e){if(f.isConnected){f.querySelector('.error').textContent=e.message;buttons.forEach(b=>b.disabled=false);}}});
  f.querySelector('input,select')?.focus();return f;
 }
-function rename(el){const d=info(el);if(d.item&&d.type!=='Web shortcut')return Win2kFiles.renameDesktopItem(d.item.id);
- const f=form('Rename Desktop Icon','<form><label class="form-row">Name:<input name="name" maxlength="80" required autocomplete="off"></label><p class="error" role="alert"></p><div class="actions"><button type="button" class="win2k-button" data-action="close">Cancel</button><button class="win2k-button">Save</button></div></form>',async f=>{
+function rename(el){const d=info(el);if(d.item&&d.type!=='Web shortcut')return Pi2000Files.renameDesktopItem(d.item.id);
+ const f=form('Rename Desktop Icon','<form><label class="form-row">Name:<input name="name" maxlength="80" required autocomplete="off"></label><p class="error" role="alert"></p><div class="actions"><button type="button" class="pi2000-button" data-action="close">Cancel</button><button class="pi2000-button">Save</button></div></form>',async f=>{
   const name=f.elements.name.value.trim();if(!name)throw Error('Enter a name.');
   await shell.updateDesktop(state=>{if(d.action)state.icons[d.action]={name,visible:true};else{const item=state.shortcuts.find(x=>x.id===d.item.id);if(item)item.name=name;}});
  });f.elements.name.value=d.name;f.elements.name.select();
@@ -57,29 +55,29 @@ async function remove(elements){
  const objects=elements.map(info);if(!objects.length)return;
  if(!confirm('Remove '+objects.length+' selected desktop item'+(objects.length===1?'':'s')+'? Files and web shortcuts go to the Recycle Bin. Applications remain available in Start.'))return;
  await shell.updateDesktop(state=>{for(const d of objects){if(d.action)state.icons[d.action]={name:d.name,visible:false};else if(d.type==='Web shortcut'){const item=state.shortcuts.find(x=>x.id===d.item.id);if(item)item.deleted=true;}}});
- for(const d of objects)if(d.item&&d.type!=='Web shortcut')await Win2kFiles.trashDesktopItem(d.item.id);
- selected.clear();paint();await Win2kFiles.refresh();
+ for(const d of objects)if(d.item&&d.type!=='Web shortcut')await Pi2000Files.trashDesktopItem(d.item.id);
+ selected.clear();paint();await Pi2000Files.refresh();
 }
 function properties(el){
- const d=info(el);closeMenu();shell.show('Properties – '+d.name,'<dl class="desktop-properties"></dl><div class="actions"><button class="win2k-button" data-action="close">Close</button></div>');
+ const d=info(el);closeMenu();shell.show('Properties – '+d.name,'<dl class="desktop-properties"></dl><div class="actions"><button class="pi2000-button" data-action="close">Close</button></div>');
  const rows=[['Name',d.name],['Type',d.type],['Location','Your desktop']];
  if(d.action)rows.push(['Application',catalog.get(d.action)?.name||d.action],['Removing this icon','Only the desktop shortcut is removed.']);
  else if(d.type==='Web shortcut')rows.push(['Address',d.item.url]);
  else if(d.item)rows.push(['Size',d.item.kind==='folder'?'Folder':d.item.size+' bytes'],['Modified',new Date(d.item.modified*1000).toLocaleString()]);
  const dl=document.querySelector('.desktop-properties');for(const [label,value] of rows){const dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent=label;dd.textContent=value;dl.append(dt,dd);}
 }
-function editLink(el){const d=info(el),f=form('Shortcut Properties','<form><label class="form-row">Name:<input name="name" required maxlength="80"></label><label class="form-row">Web Address:<input name="url" type="url" required maxlength="4096"></label><label class="check-row"><input name="desktop" type="checkbox">Desktop</label><label class="check-row"><input name="start" type="checkbox">Start → Programs</label><p class="error" role="alert"></p><div class="actions"><button type="button" class="win2k-button" data-action="close">Cancel</button><button class="win2k-button">Save</button></div></form>',async f=>{
+function editLink(el){const d=info(el),f=form('Shortcut Properties','<form><label class="form-row">Name:<input name="name" required maxlength="80"></label><label class="form-row">Web Address:<input name="url" type="url" required maxlength="4096"></label><label class="check-row"><input name="desktop" type="checkbox">Desktop</label><label class="check-row"><input name="start" type="checkbox">Start → Programs</label><p class="error" role="alert"></p><div class="actions"><button type="button" class="pi2000-button" data-action="close">Cancel</button><button class="pi2000-button">Save</button></div></form>',async f=>{
  const url=new URL(f.elements.url.value);if(!['http:','https:'].includes(url.protocol))throw Error('Use an HTTP or HTTPS address.');
  if(!f.elements.name.value.trim()||(!f.elements.desktop.checked&&!f.elements.start.checked))throw Error('Enter a name and select at least one location.');
  await shell.updateDesktop(state=>{const item=state.shortcuts.find(x=>x.id===d.item.id);if(item)Object.assign(item,{name:f.elements.name.value.trim(),url:url.href,desktop:f.elements.desktop.checked,start:f.elements.start.checked});});
  });for(const k of ['name','url'])f.elements[k].value=d.item[k];for(const k of ['desktop','start'])f.elements[k].checked=d.item[k];}
 function manage(){
- const state=shell.getDesktop();const f=form('Desktop Icons','<form><p>Choose the applications shown on your desktop. Removing an icon does not uninstall the application.</p><div class="desktop-app-picker"></div><div class="actions"><button type="button" class="win2k-button" data-restore>Restore Defaults</button><button type="button" class="win2k-button" data-action="close">Cancel</button><button class="win2k-button">Save</button></div><p class="error" role="alert"></p></form>',async f=>shell.updateDesktop(next=>{for(const input of f.querySelectorAll('[data-app]'))next.icons[input.dataset.app]={name:f.dataset.restoreNames?catalog.get(input.dataset.app).name:next.icons[input.dataset.app]?.name||catalog.get(input.dataset.app).name,visible:input.checked};}));
+ const state=shell.getDesktop();const f=form('Desktop Icons','<form><p>Choose the applications shown on your desktop. Removing an icon does not uninstall the application.</p><div class="desktop-app-picker"></div><div class="actions"><button type="button" class="pi2000-button" data-restore>Restore Defaults</button><button type="button" class="pi2000-button" data-action="close">Cancel</button><button class="pi2000-button">Save</button></div><p class="error" role="alert"></p></form>',async f=>shell.updateDesktop(next=>{for(const input of f.querySelectorAll('[data-app]'))next.icons[input.dataset.app]={name:f.dataset.restoreNames?catalog.get(input.dataset.app).name:next.icons[input.dataset.app]?.name||catalog.get(input.dataset.app).name,visible:input.checked};}));
  const box=f.querySelector('.desktop-app-picker');for(const [action,entry] of [...catalog].filter(([id])=>allowed(id)).sort((a,b)=>a[1].name.localeCompare(b[1].name))){const label=document.createElement('label');label.className='check-row';const c=document.createElement('input');c.type='checkbox';c.dataset.app=action;c.checked=state.icons[action]?.visible??entry.initial;label.append(c,document.createTextNode(entry.name));box.append(label);}
  f.querySelector('[data-restore]').onclick=()=>{f.dataset.restoreNames='true';for(const input of box.querySelectorAll('input'))input.checked=catalog.get(input.dataset.app).initial;};
 }
 function settings(){
- const o=options(),f=form('Desktop Options','<form><fieldset><legend>Opening icons</legend><label class="form-row">Open with:<select name="openMode"><option value="double">Double-click (single-click selects)</option><option value="single">Single-click</option></select></label></fieldset><fieldset><legend>Arrangement</legend><label class="check-row"><input type="checkbox" name="autoArrange">Auto arrange icons</label><label class="check-row"><input type="checkbox" name="snap">Align dragged icons to grid</label><label class="check-row"><input type="checkbox" name="showIcons">Show desktop icons</label></fieldset><p class="error" role="alert"></p><div class="actions"><button type="button" class="win2k-button" data-action="close">Cancel</button><button class="win2k-button">Save</button></div></form>',async f=>shell.updateDesktop(state=>{state.view={...options(),openMode:f.elements.openMode.value};for(const k of ['autoArrange','snap','showIcons'])state.view[k]=f.elements[k].checked;}));
+ const o=options(),f=form('Desktop Options','<form><fieldset><legend>Opening icons</legend><label class="form-row">Open with:<select name="openMode"><option value="double">Double-click (single-click selects)</option><option value="single">Single-click</option></select></label></fieldset><fieldset><legend>Arrangement</legend><label class="check-row"><input type="checkbox" name="autoArrange">Auto arrange icons</label><label class="check-row"><input type="checkbox" name="snap">Align dragged icons to grid</label><label class="check-row"><input type="checkbox" name="showIcons">Show desktop icons</label></fieldset><p class="error" role="alert"></p><div class="actions"><button type="button" class="pi2000-button" data-action="close">Cancel</button><button class="pi2000-button">Save</button></div></form>',async f=>shell.updateDesktop(state=>{state.view={...options(),openMode:f.elements.openMode.value};for(const k of ['autoArrange','snap','showIcons'])state.view[k]=f.elements[k].checked;}));
  f.elements.openMode.value=o.openMode;for(const k of ['autoArrange','snap','showIcons'])f.elements[k].checked=o[k];
 }
 function showMenu(event,entries,from){
@@ -92,14 +90,14 @@ function showMenu(event,entries,from){
 function context(event,el){
  if(el){if(!selected.has(key(el)))select(el);const d=info(el),many=selected.size>1;
  const fileIds=visible().filter(e=>selected.has(key(e))).map(e=>e.dataset.fileId),onlyFiles=fileIds.length>0&&fileIds.every(Boolean);
- const entries=[{label:'Open',disabled:many,run:()=>open(el)},...(!many&&el.dataset.fileId?Win2kFiles.desktopActions(el.dataset.fileId):[]),{label:'Rename…',disabled:many,run:()=>rename(el)},null,{label:'Cut',disabled:!onlyFiles,run:()=>Win2kFiles.copyDesktopItems(fileIds,true)},{label:'Copy',disabled:!onlyFiles,run:()=>Win2kFiles.copyDesktopItems(fileIds)},{label:'Paste into Folder',disabled:many||d.type!=='Folder'||!Win2kFiles.canPaste(),run:()=>Win2kFiles.pasteDesktopItems(d.item.id)},null,{label:many?'Remove Selected…':d.action?'Remove from Desktop…':'Move to Recycle Bin',run:()=>{if(!many&&!d.action)return d.type==='Web shortcut'?shell.trashShortcut(d.item.id):Win2kFiles.trashDesktopItem(d.item.id);return remove(visible().filter(e=>selected.has(key(e))));}},null,{label:'Properties',disabled:many,run:()=>d.type==='Web shortcut'?editLink(el):properties(el)}];
+ const entries=[{label:'Open',disabled:many,run:()=>open(el)},...(!many&&el.dataset.fileId?Pi2000Files.desktopActions(el.dataset.fileId):[]),{label:'Rename…',disabled:many,run:()=>rename(el)},null,{label:'Cut',disabled:!onlyFiles,run:()=>Pi2000Files.copyDesktopItems(fileIds,true)},{label:'Copy',disabled:!onlyFiles,run:()=>Pi2000Files.copyDesktopItems(fileIds)},{label:'Paste into Folder',disabled:many||d.type!=='Folder'||!Pi2000Files.canPaste(),run:()=>Pi2000Files.pasteDesktopItems(d.item.id)},null,{label:many?'Remove Selected…':d.action?'Remove from Desktop…':'Move to Recycle Bin',run:()=>{if(!many&&!d.action)return d.type==='Web shortcut'?shell.trashShortcut(d.item.id):Pi2000Files.trashDesktopItem(d.item.id);return remove(visible().filter(e=>selected.has(key(e))));}},null,{label:'Properties',disabled:many,run:()=>d.type==='Web shortcut'?editLink(el):properties(el)}];
  showMenu(event,entries,el);return;
  }
  selected.clear();paint();const o=options();showMenu(event,[
- {label:'Paste',disabled:!Win2kFiles.canPaste(),run:()=>Win2kFiles.pasteDesktopItems()},null,{label:'Desktop Icons…',run:manage},{label:'New Shortcut…',run:()=>shell.actions.add()},{label:'New Folder…',run:()=>shell.actions['new-folder']()},{label:'Upload Files…',run:()=>shell.actions['upload-desktop']()},null,
- {label:'Sort by Name',run:()=>Win2kIconLayout.arrange('name')},{label:'Sort by Type',run:()=>Win2kIconLayout.arrange('type')},{label:'Sort by Size',run:()=>Win2kIconLayout.arrange('size')},{label:'Sort by Modified',run:()=>Win2kIconLayout.arrange('modified')},{label:'Reverse Sort Order',checked:o.direction==='desc',run:()=>Win2kIconLayout.arrange(o.sort==='manual'?'name':o.sort,o.direction==='asc'?'desc':'asc')},
- {label:'Auto Arrange',checked:o.autoArrange,run:()=>shell.updateDesktop(s=>{s.view={...o,autoArrange:!o.autoArrange};})},{label:'Align to Grid',run:()=>Win2kIconLayout.align()},null,
- {label:'Show Desktop Icons',checked:o.showIcons,run:()=>shell.updateDesktop(s=>{s.view={...o,showIcons:!o.showIcons};})},{label:'Refresh Desktop',run:async()=>{await shell.reloadDesktop();await Win2kFiles.refresh();}},
+ {label:'Paste',disabled:!Pi2000Files.canPaste(),run:()=>Pi2000Files.pasteDesktopItems()},null,{label:'Desktop Icons…',run:manage},{label:'New Shortcut…',run:()=>shell.actions.add()},{label:'New Folder…',run:()=>shell.actions['new-folder']()},{label:'Upload Files…',run:()=>shell.actions['upload-desktop']()},null,
+ {label:'Sort by Name',run:()=>Pi2000IconLayout.arrange('name')},{label:'Sort by Type',run:()=>Pi2000IconLayout.arrange('type')},{label:'Sort by Size',run:()=>Pi2000IconLayout.arrange('size')},{label:'Sort by Modified',run:()=>Pi2000IconLayout.arrange('modified')},{label:'Reverse Sort Order',checked:o.direction==='desc',run:()=>Pi2000IconLayout.arrange(o.sort==='manual'?'name':o.sort,o.direction==='asc'?'desc':'asc')},
+ {label:'Auto Arrange',checked:o.autoArrange,run:()=>shell.updateDesktop(s=>{s.view={...o,autoArrange:!o.autoArrange};})},{label:'Align to Grid',run:()=>Pi2000IconLayout.align()},null,
+ {label:'Show Desktop Icons',checked:o.showIcons,run:()=>shell.updateDesktop(s=>{s.view={...o,showIcons:!o.showIcons};})},{label:'Refresh Desktop',run:async()=>{await shell.reloadDesktop();await Pi2000Files.refresh();}},
  {label:'Desktop Options…',run:settings},{label:'Properties',run:()=>shell.actions.settings()}
  ]);
 }
@@ -116,7 +114,7 @@ desktop.addEventListener('keydown',event=>{
  else if(event.key==='ContextMenu'||event.shiftKey&&event.key==='F10'){context(event,el);}
  else if((event.ctrlKey||event.metaKey)&&['c','x','v'].includes(event.key.toLowerCase())){
   const command=event.key.toLowerCase(),ids=nodes.filter(e=>selected.has(key(e))).map(e=>e.dataset.fileId);
-  if(command==='v')run(()=>Win2kFiles.pasteDesktopItems());else if(ids.length&&ids.every(Boolean))Win2kFiles.copyDesktopItems(ids,command==='x');
+  if(command==='v')run(()=>Pi2000Files.pasteDesktopItems());else if(ids.length&&ids.every(Boolean))Pi2000Files.copyDesktopItems(ids,command==='x');
  }
  else if(event.key===' '&&el)select(el,event.ctrlKey,event.ctrlKey);
  else if(event.key==='Enter'&&el)run(()=>open(el));
@@ -148,11 +146,11 @@ document.querySelector('#programs').addEventListener('contextmenu',event=>{
 },true);
 
 document.addEventListener('pointerdown',e=>{if(menu&&!menu.contains(e.target))closeMenu();});
-window.addEventListener('win2k-user',()=>{closeMenu();cancelSelection?.();selected.clear();sync();});
-window.addEventListener('win2k-desktop-render',sync);
-window.addEventListener('win2k-files-render',()=>{paint();window.dispatchEvent(new Event('win2k-icons-changed'));});
+window.addEventListener('pi2000-user',()=>{closeMenu();cancelSelection?.();selected.clear();sync();});
+window.addEventListener('pi2000-desktop-render',sync);
+window.addEventListener('pi2000-files-render',()=>{paint();window.dispatchEvent(new Event('pi2000-icons-changed'));});
 // Existing background menu remains an accessible fallback for earlier clients.
 shell.actions['desktop-icons']=manage;shell.actions['desktop-options']=settings;
-window.Win2kDesktopManager={key,options,visible,info,selected,select,sync,remove,afterDrag(){suppressClick=true;setTimeout(()=>suppressClick=false,100);},context};
+window.Pi2000DesktopManager={key,options,visible,info,selected,select,sync,remove,afterDrag(){suppressClick=true;setTimeout(()=>suppressClick=false,100);},context};
 sync();
 })();

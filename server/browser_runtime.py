@@ -31,8 +31,8 @@ class BrowserUnavailable(Exception):
 class BrowserRuntime:
     def __init__(self, state, venv=None, deps=None, limit=3):
         self.root = Path(state) / 'browsers'
-        self.venv = Path(venv or os.environ.get('WIN2K_BROWSER_VENV', '/opt/pi2000-browser/venv'))
-        self.deps = deps or os.environ.get('WIN2K_BROWSER_DEPS')
+        self.venv = Path(venv or os.environ.get('PI2000_BROWSER_VENV', '/opt/pi2000-browser/venv'))
+        self.deps = deps or os.environ.get('PI2000_BROWSER_DEPS')
         self.limit = limit
         self.sessions = {}
         self.lock = asyncio.Lock()

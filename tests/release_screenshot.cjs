@@ -5,13 +5,13 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),path
  try{
   const page=await browser.newPage({viewport:{width:1600,height:1000}}),errors=[];
   page.on('pageerror',e=>errors.push(e.message));
-  await page.goto(process.env.WIN2K_TEST_URL);await page.locator('#login-form [name=password]').fill('browser-test-password');await page.locator('#login-form [type=submit]').click();await page.locator('#session').waitFor({state:'visible'});
+  await page.goto(process.env.PI2000_TEST_URL);await page.locator('#login-form [name=password]').fill('browser-test-password');await page.locator('#login-form [type=submit]').click();await page.locator('#session').waitFor({state:'visible'});
   await page.evaluate(async()=>{
-   const r=await fetch('/api/files/upload?'+new URLSearchParams({parent:'files',name:'Welcome to Alpha 7.txt'}),{method:'POST',body:'Pi-2000 — Alpha 7\n===================\n\nYour private Raspberry Pi desktop.\nConsistent Pi app and service names.\nCleaner code and reliable logout.\n\nPi-IPTV\n  Live TV, movies and series\n  Country and group filters\n  Favorites and programme guides\n  Buffered audio and video\n\nPersonal workspace\n  Arrange your desktop icons\n  Restore windows and drafts\n  Keep private entries in Pi-Vault\n\nClassic tools\n  Pi++ and Pi-Arduino\n  SSH, files and MariaDB\n\nThis is a disposable demo.\nTV media is generated locally.\n'});
-   const file=await r.json();await Win2kEditor.openFile(file.id);
-   const owner=Win2kDesktop.getUser().id;
+   const r=await fetch('/api/files/upload?'+new URLSearchParams({parent:'files',name:'Welcome to Alpha 8.txt'}),{method:'POST',body:'Pi-2000 — Alpha 8\n===================\n\nYour private Raspberry Pi desktop.\nIndependent 0.2 data line.\nPi-2000 names from UI to services.\n\nPi-IPTV\n  Live TV, movies and series\n  Country and group filters\n  Favorites and programme guides\n  Buffered audio and video\n\nPersonal workspace\n  Arrange your desktop icons\n  Restore windows and drafts\n  Keep private entries in Pi-Vault\n\nClassic tools\n  Pi++ and Pi-Arduino\n  SSH, files and MariaDB\n\nThis is a disposable demo.\nTV media is generated locally.\n'});
+   const file=await r.json();await Pi2000Editor.openFile(file.id);
+   const owner=Pi2000Desktop.getUser().id;
    const imported=await fetch('/api/iptv/sources',{method:'POST',headers:{'Content-Type':'application/json','X-IPTV-Owner':String(owner)},body:JSON.stringify({name:'Demo Television',kind:'file',content:'#EXTM3U\n#EXTINF:-1 tvg-country="SE" group-title="Sweden",Swedish Test News\nhttps://media.example/master.m3u8\n#EXTINF:-1 tvg-country="SE" group-title="Sweden",Culture — Demo\nhttps://media.example/master.m3u8?channel=culture\n#EXTINF:-1 tvg-country="GB" group-title="United Kingdom",British Test Channel\nhttps://media.example/live.ts\n#EXTINF:-1 tvg-country="FI" group-title="Finland",Nordic Test Channel\nhttps://media.example/master.m3u8?channel=nordic\n#EXTINF:-1 group-title="Movies",Sample Film\nhttps://media.example/film.mp4\n'})});
-   if(!imported.ok)throw Error('Demo import failed');Win2kShell.actions.iptv();
+   if(!imported.ok)throw Error('Demo import failed');Pi2000Shell.actions.iptv();
   });
   const w=page.locator('.iptv-window');await w.getByRole('option',{name:/Swedish Test News/}).dblclick();
   await page.waitForFunction(()=>{const v=document.querySelector('.iptv-window video');return v.videoWidth===320&&v.currentTime>1;});
@@ -25,7 +25,7 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),path
   await w.getByRole('option',{name:/Swedish Test News/}).click();
   await page.mouse.move(1590,960);await page.waitForTimeout(500);
   assert.deepEqual(errors,[]);
-  await page.screenshot({path:path.join(process.env.WIN2K_TEST_ARTIFACTS,'desktop.png')});
+  await page.screenshot({path:path.join(process.env.PI2000_TEST_ARTIFACTS,'desktop.png')});
   console.log('PASS public desktop screenshot: isolated Pi++ document and generated HLS media');
  }finally{await browser.close();}
 })().catch(e=>{console.error(e);process.exit(1)});

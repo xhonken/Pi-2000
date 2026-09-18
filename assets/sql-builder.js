@@ -4,7 +4,7 @@
  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const ident=v=>'`'+String(v).replace(/`/g,'``')+'`';
  const literal=v=>"CONVERT(X'"+Array.from(new TextEncoder().encode(v),b=>b.toString(16).padStart(2,'0')).join('')+"' USING utf8mb4)";
- window.Win2kSQLBuilder={attach(ctx){ctx.button(ctx.toolbar,'Query Builder',async()=>{
+ window.Pi2000SQLBuilder={attach(ctx){ctx.button(ctx.toolbar,'Query Builder',async()=>{
   const database=ctx.database();if(!database)throw Error('Select a database first.');
   const tables=(await ctx.command('objects',{database})).results[0].rows.map(r=>r[0]);
   const relations=(await ctx.command('admin_list',{section:'relations',database})).results[0].rows;

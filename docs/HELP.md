@@ -1,9 +1,9 @@
 # Pi-2000 User Guide
 
-Alpha 7 standardizes Pi-2000 application and service names, fixes blocked logout,
-and removes unused code while retaining the classic desktop and private data.
-See the [release notes](releases/0.1.0-alpha.7.md) for installation and migration
-requirements. IPTV, Vault, personal desktop controls and workspace recovery remain included.
+Alpha 8 starts the independent 0.2 data line, with Pi-2000 names throughout the
+application. It requires a fresh installation; Alpha 5, 6 and 7 cannot be upgraded.
+See the [release notes](releases/0.2.0-alpha.8.md) and
+[installation boundaries](SYSTEM-NAMES.md).
 
 ## Getting started
 

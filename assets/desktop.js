@@ -10,7 +10,7 @@ async function requestDesktop(method='GET', data, owner=desktopUser) {
  if(data){headers['Content-Type']='application/json';if(desktopTag)headers['If-Match']=desktopTag;}
  const response=await fetch('/api/desktop',{method,headers,cache:'no-store',...(data?{body:JSON.stringify(data)}:{})});
  const result=await response.json();
- if(!response.ok){if([401,403].includes(response.status)&&desktopUser===owner)window.dispatchEvent(new Event('win2k-session-expired'));if(response.status===409 && desktopUser===owner)saveBlocked=true;throw Error(result.error||'Could not save desktop.');}
+ if(!response.ok){if([401,403].includes(response.status)&&desktopUser===owner)window.dispatchEvent(new Event('pi2000-session-expired'));if(response.status===409 && desktopUser===owner)saveBlocked=true;throw Error(result.error||'Could not save desktop.');}
  if(desktopUser===owner)desktopTag=response.headers.get('ETag');
  return result;
 }
@@ -36,17 +36,6 @@ async function setUser(user, api) {
  if (!user) return;
  let data = await requestDesktop('GET',undefined,user);
  if (desktopUser !== user) return;
- // Previous browser-wide settings belong only to the original owner.
- if (data === null && user.is_owner) {
-  try {
-   const legacy = JSON.parse(localStorage.getItem('win2k.shortcuts.v1') || '[]');
-   const color = localStorage.getItem('win2k.background');
-   data = {shortcuts: Array.isArray(legacy) ? legacy.filter(x => x && typeof x.id === 'string' && typeof x.name === 'string' && safeUrl(x.url)).map(x => ({id:x.id, name:x.name, url:safeUrl(x.url), desktop:!!x.desktop, start:!!x.start, deleted:!!x.deleted})) : [], color: ['#3a6ea5','#008080','#2d4739'].includes(color) ? color : '#3a6ea5'};
-  } catch { data = {shortcuts:[], color:'#3a6ea5'}; }
-  await requestDesktop('PUT',data,user);
-  if (desktopUser !== user) return;
-  try { localStorage.removeItem('win2k.shortcuts.v1'); localStorage.removeItem('win2k.background'); } catch {}
- }
  if (data) { shortcuts = data.shortcuts; currentColor = data.color; positions = data.positions || {}; icons=data.icons||{}; view=data.view||{}; }
  document.body.style.backgroundColor = currentColor; render();
 }
@@ -60,7 +49,7 @@ function shortcutContext(item,event) {
  event.preventDefault();event.stopPropagation();closeStart();$('#desktop-menu').hidden=true;
  document.querySelector('.file-context')?.remove();
  const menu=document.createElement('div');menu.className='frame context-menu file-context';
- for(const [label,fn] of [['Open',()=>openUrl(item.url)],['Move to Recycle Bin',()=>window.Win2kShell.trashShortcut(item.id)]]){
+ for(const [label,fn] of [['Open',()=>openUrl(item.url)],['Move to Recycle Bin',()=>window.Pi2000Shell.trashShortcut(item.id)]]){
   const b=document.createElement('button');b.textContent=label;b.onclick=()=>{menu.remove();Promise.resolve().then(fn).catch(error=>notify(error.message));};menu.append(b);
  }
  menu.onkeydown=e=>{if(e.key==='Escape'){menu.remove();event.currentTarget?.focus();}};
@@ -69,9 +58,9 @@ function shortcutContext(item,event) {
 function link(item, desktop = false) {
  const el=document.createElement('button');el.type='button';el.dataset.shortcutId=item.id;el.title=item.url;
  el.onclick=()=>openUrl(item.url);el.oncontextmenu=event=>shortcutContext(item,event);
- el.onkeydown=event=>{if(event.key==='Delete'){event.preventDefault();window.Win2kShell.trashShortcut(item.id).catch(error=>notify(error.message));}};
- el.ondragstart=event=>{event.dataTransfer.setData('application/x-win2k-shortcut',item.id);event.dataTransfer.effectAllowed='move';};
- if(desktop){el.className='desktop-icon';const icon=document.createElement('span');icon.className='win2k-pixel-icon win2k-icon-forms';icon.append(document.createElement('i'));icon.setAttribute('aria-hidden','true');el.append(icon);}
+ el.onkeydown=event=>{if(event.key==='Delete'){event.preventDefault();window.Pi2000Shell.trashShortcut(item.id).catch(error=>notify(error.message));}};
+ el.ondragstart=event=>{event.dataTransfer.setData('application/x-pi2000-shortcut',item.id);event.dataTransfer.effectAllowed='move';};
+ if(desktop){el.className='desktop-icon';const icon=document.createElement('span');icon.className='pi2000-pixel-icon pi2000-icon-forms';icon.append(document.createElement('i'));icon.setAttribute('aria-hidden','true');el.append(icon);}
  const label=document.createElement('span');label.className=desktop?'icon-label':'link-label';label.textContent=item.name;el.append(label);return el;
 }
 function render() {
@@ -79,14 +68,14 @@ function render() {
  if (desktopUser?.role === 'admin' && !terminalIcon) {
   const icon = button('', 'localterminal');
   icon.type = 'button'; icon.className = 'desktop-icon';
-  icon.innerHTML = '<span class="win2k-pixel-icon win2k-icon-run" aria-hidden="true"><i></i></span><span class="icon-label">Local Terminal</span>';
+  icon.innerHTML = '<span class="pi2000-pixel-icon pi2000-icon-run" aria-hidden="true"><i></i></span><span class="icon-label">Local Terminal</span>';
   $('#desktop-icons').append(icon);
  } else if (desktopUser?.role !== 'admin') terminalIcon?.remove();
  $('#custom-icons').replaceChildren(...shortcuts.filter(x => x.desktop && !x.deleted).map(x => link(x, true)));
  const programs = $('#programs'); programs.replaceChildren();
  function category(label,entries,icon='folder') {
   const details=document.createElement('details'),summary=document.createElement('summary'),panel=document.createElement('div');
-  summary.innerHTML='<span class="win2k-pixel-icon win2k-icon-'+icon+'" aria-hidden="true"></span><span class="menu-label"></span><span class="menu-arrow" aria-hidden="true">▸</span>';
+  summary.innerHTML='<span class="pi2000-pixel-icon pi2000-icon-'+icon+'" aria-hidden="true"></span><span class="menu-label"></span><span class="menu-arrow" aria-hidden="true">▸</span>';
   summary.querySelector('.menu-label').textContent=label;panel.className='submenu';panel.append(...entries);details.append(summary,panel);programs.append(details);
  }
  category('Accessories',[button('My Files','files'),button('Notes','notes'),button('Pi-Calt','calculator'),button('Archive Manager','archive'),button('Search and Favourites','search')]);
@@ -94,8 +83,8 @@ function render() {
  category('Internet and Connections',[button('Browser','browser'),button('Pi-IPTV','iptv'),button('My Devices','devices'),button('Network Tools','network'),button('SFTP – File Transfer','sftp')],'browser');
  category('System Tools',[...(desktopUser?.role==='admin'?[button('Local Terminal','localterminal')]:[]),button('Task Manager','taskmanager'),button('Pi-Vault','vault'),button('Log Viewer','logviewer'),button('My Activities','activities'),button('System Status','status'),button('About Pi-2000','about'),button('My Settings','preferences')],'settings');
  category('My Shortcuts',[...shortcuts.filter(x=>x.start&&!x.deleted).map(x=>link(x)),button('Manage Shortcuts…','links'),button('New Shortcut…','add')]);
- bindStartMenus();window.Win2kUI?.decorate(document.querySelector('#start-menu'));
- window.dispatchEvent(new Event('win2k-desktop-render'));
+ bindStartMenus();window.Pi2000UI?.decorate(document.querySelector('#start-menu'));
+ window.dispatchEvent(new Event('pi2000-desktop-render'));
 
 }
 // Fixed positioning lets cascades extend beyond the scrollable Start list.
@@ -129,18 +118,18 @@ function show(title, html) { closeStart(); $('#desktop-menu').hidden = true; $('
 function listing(items, trash = false) {
  const list = document.createElement('ul'); list.className = 'link-list';
  if (!items.length) { const p = document.createElement('p'); p.className = 'empty'; p.textContent = trash ? 'The Recycle Bin is empty.' : 'No shortcuts to display.'; return p; }
- items.forEach(item => { const row = document.createElement('li'); const a = link(item); const meta = document.createElement('small'); meta.textContent = item.url; a.append(meta); row.append(a); const remove = button(trash ? 'Restore' : 'Delete', ''); remove.className = 'win2k-button'; remove.removeAttribute('data-action'); remove.setAttribute('aria-label', `${remove.textContent} ${item.name}`); remove.onclick = () => { item.deleted = !trash; save(); actions[trash ? 'trash' : 'links'](); }; row.append(remove); list.append(row); }); return list;
+ items.forEach(item => { const row = document.createElement('li'); const a = link(item); const meta = document.createElement('small'); meta.textContent = item.url; a.append(meta); row.append(a); const remove = button(trash ? 'Restore' : 'Delete', ''); remove.className = 'pi2000-button'; remove.removeAttribute('data-action'); remove.setAttribute('aria-label', `${remove.textContent} ${item.name}`); remove.onclick = () => { item.deleted = !trash; save(); actions[trash ? 'trash' : 'links'](); }; row.append(remove); list.append(row); }); return list;
 }
 const actions = {
  add() {
-  show('Create Shortcut', '<form id="shortcut-form"><label class="form-row">Name:<input name="name" required maxlength="80"></label><label class="form-row">Web Address:<input name="url" type="url" placeholder="https://" required></label><fieldset><legend>Show shortcut on</legend><label class="check-row"><input type="checkbox" name="desktop" checked> Desktop</label><label class="check-row"><input type="checkbox" name="start" checked> Start → Programs</label></fieldset><p id="form-error" class="error" role="alert"></p><div class="actions"><button type="button" class="win2k-button" data-action="close">Cancel</button><button class="win2k-button default">Create</button></div></form>');
+  show('Create Shortcut', '<form id="shortcut-form"><label class="form-row">Name:<input name="name" required maxlength="80"></label><label class="form-row">Web Address:<input name="url" type="url" placeholder="https://" required></label><fieldset><legend>Show shortcut on</legend><label class="check-row"><input type="checkbox" name="desktop" checked> Desktop</label><label class="check-row"><input type="checkbox" name="start" checked> Start → Programs</label></fieldset><p id="form-error" class="error" role="alert"></p><div class="actions"><button type="button" class="pi2000-button" data-action="close">Cancel</button><button class="pi2000-button default">Create</button></div></form>');
   $('#shortcut-form').onsubmit = event => { event.preventDefault(); const f = event.target.elements; const url = safeUrl(f.url.value); if (!f.name.value.trim() || !url || (!f.desktop.checked && !f.start.checked)) { $('#form-error').textContent = 'Enter a name, an HTTP or HTTPS address and at least one location.'; return; } shortcuts.push({id: `${Date.now()}-${Math.random().toString(36).slice(2)}`, name:f.name.value.trim(), url, desktop:f.desktop.checked, start:f.start.checked, deleted:false}); save(); $('#window').close(); };
  },
- links() { show('My Shortcuts', '<p>Your links on this desktop.</p><button class="win2k-button" data-action="add">New Shortcut…</button>'); $('#window-content').append(listing(shortcuts.filter(x => !x.deleted))); },
- computer() { show('My Computer', '<p>Find your shortcuts and desktop settings here.</p><div class="actions"><button class="win2k-button" data-action="links">My Shortcuts</button><button class="win2k-button" data-action="settings">Control Panel</button></div>'); },
+ links() { show('My Shortcuts', '<p>Your links on this desktop.</p><button class="pi2000-button" data-action="add">New Shortcut…</button>'); $('#window-content').append(listing(shortcuts.filter(x => !x.deleted))); },
+ computer() { show('My Computer', '<p>Find your shortcuts and desktop settings here.</p><div class="actions"><button class="pi2000-button" data-action="links">My Shortcuts</button><button class="pi2000-button" data-action="settings">Control Panel</button></div>'); },
  trash() { show('Recycle Bin', '<p>Restore deleted shortcuts here.</p>'); $('#window-content').append(listing(shortcuts.filter(x => x.deleted), true)); },
  search() { show('Search', '<label class="form-row">Search shortcuts:<input id="search-input" type="search" placeholder="Name or web address"></label><p id="search-count" role="status"></p><div id="search-results"></div>'); const search = () => { const q = $('#search-input').value.toLocaleLowerCase('en'); const found = shortcuts.filter(x => !x.deleted && `${x.name} ${x.url}`.toLocaleLowerCase('en').includes(q)); $('#search-count').textContent = `${found.length} shortcuts`; $('#search-results').replaceChildren(listing(found)); }; $('#search-input').oninput = search; search(); $('#search-input').focus(); },
- settings() { show('Control Panel – Display', '<form id="settings-form"><fieldset><legend>Desktop</legend><label class="form-row">Background:<select name="color"><option value="#3a6ea5">Windows 2000 Blue</option><option value="#008080">Classic Teal</option><option value="#2d4739">Dark Green</option></select></label></fieldset><p>Shortcuts and background are saved for your account.</p><button type="button" class="win2k-button" data-action="desktop-icons">Desktop Icons…</button> <button type="button" class="win2k-button" data-action="desktop-options">Desktop Options…</button> <button type="button" class="win2k-button" data-action="links">Manage Shortcuts…</button><div class="actions"><button class="win2k-button default">OK</button></div></form>'); $('#settings-form').elements.color.value = document.body.style.backgroundColor ? currentColor : '#3a6ea5'; $('#settings-form').onsubmit = e => { e.preventDefault(); currentColor = e.target.elements.color.value; document.body.style.backgroundColor = currentColor; save(); $('#window').close(); }; },
+ settings() { show('Control Panel – Display', '<form id="settings-form"><fieldset><legend>Desktop</legend><label class="form-row">Background:<select name="color"><option value="#3a6ea5">Windows 2000 Blue</option><option value="#008080">Classic Teal</option><option value="#2d4739">Dark Green</option></select></label></fieldset><p>Shortcuts and background are saved for your account.</p><button type="button" class="pi2000-button" data-action="desktop-icons">Desktop Icons…</button> <button type="button" class="pi2000-button" data-action="desktop-options">Desktop Options…</button> <button type="button" class="pi2000-button" data-action="links">Manage Shortcuts…</button><div class="actions"><button class="pi2000-button default">OK</button></div></form>'); $('#settings-form').elements.color.value = document.body.style.backgroundColor ? currentColor : '#3a6ea5'; $('#settings-form').onsubmit = e => { e.preventDefault(); currentColor = e.target.elements.color.value; document.body.style.backgroundColor = currentColor; save(); $('#window').close(); }; },
  async about() {
   show('About Pi-2000','<p>Loading installed version…</p>');
   try {const response=await fetch('/api/version',{cache:'no-store'});if(!response.ok)throw Error('Could not read the installed version. Sign in and try again.');const data=await response.json();if($('#window-title').textContent!=='About Pi-2000')return;
@@ -157,9 +146,9 @@ const actions = {
   }catch(error){if($('#window-title').textContent==='About Pi-2000')$('#window-content').textContent=error.message;}
  },
  help() { show('Desktop Help', '<p><b>Start and Applications</b></p><p>Start → Programs contains Accessories, Development and Drawing, Internet and Connections, and System Tools. Your links are in My Shortcuts. Search finds your files, folders, applications and connections.</p><p><b>Application Menus</b></p><p>File contains commands to open, create and save. Edit contains actions for the content. View controls the display. Help explains the current application. Common actions are also available in the toolbar.</p><p><b>Files and Devices</b></p><p>Drag files from your computer to My Files or the desktop. Click Actions next to a file for more commands. Restore deleted items using the Recycle Bin. Create SSH profiles in My Devices and double-click to connect. The Connection menu in Pi++ opens remote files via SFTP.</p><p><b>Desktop Icons</b></p><p>Double-click to open. Right-click icons to rename, remove or view properties. Right-click the background to add program icons, sort by name or type, align to grid, or change desktop options. Ctrl-click selects several icons; F2 renames and Delete removes selected items. Program icons can be restored with Desktop Icons. Deleted files and web shortcuts go to the Recycle Bin.</p><p><b>Appearance and Keyboard</b></p><p>Change text size and background under Start → Settings. Icon positions are saved for your account. Ctrl+Esc opens Start. F10 focuses the application menu. Alt+F opens File, Alt+E Edit and Alt+V View. Use the arrow keys, Enter and Escape in menus.</p><p><b>Private Desktop</b></p><p>Files, connections and settings belong to your account. SSH jobs continue when the window is closed. Enter passwords when connecting; they are not stored permanently.</p>'); },
- run() { show('Run', '<form id="run-form"><p>Enter the web address you want to open.</p><label class="form-row">Open:<input name="url" type="url" required placeholder="https://"></label><p class="error" id="run-error" role="alert"></p><div class="actions"><button type="button" class="win2k-button" data-action="close">Cancel</button><button class="win2k-button default">OK</button></div></form>'); $('#run-form').onsubmit = e => { e.preventDefault(); const url = safeUrl(e.target.elements.url.value); if (!url) { $('#run-error').textContent = 'Enter an HTTP or HTTPS address.'; return; } openUrl(url); }; },
+ run() { show('Run', '<form id="run-form"><p>Enter the web address you want to open.</p><label class="form-row">Open:<input name="url" type="url" required placeholder="https://"></label><p class="error" id="run-error" role="alert"></p><div class="actions"><button type="button" class="pi2000-button" data-action="close">Cancel</button><button class="pi2000-button default">OK</button></div></form>'); $('#run-form').onsubmit = e => { e.preventDefault(); const url = safeUrl(e.target.elements.url.value); if (!url) { $('#run-error').textContent = 'Enter an HTTP or HTTPS address.'; return; } openUrl(url); }; },
  logout() { /* Server logout is installed by devices.js. */ },
- shutdown() { show('Log off Pi-2000', '<p>Log off? Your SSH jobs will continue on the server and your windows will be restored when you log in again.</p><div class="actions"><button class="win2k-button" data-action="close">Cancel</button><button class="win2k-button" data-action="logout">Log Off</button></div>'); },
+ shutdown() { show('Log off Pi-2000', '<p>Log off? Your SSH jobs will continue on the server and your windows will be restored when you log in again.</p><div class="actions"><button class="pi2000-button" data-action="close">Cancel</button><button class="pi2000-button" data-action="logout">Log Off</button></div>'); },
  close() { $('#window').close(); }
 };
 let currentColor = '#3a6ea5';
@@ -203,14 +192,14 @@ bindStartMenus();
 window.addEventListener('resize', positionOpenSubmenus);
 $('#start-menu .start-items').addEventListener('scroll', positionOpenSubmenus);
 function clock() { const now = new Date(); $('#clock').textContent = now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}); $('#clock').title = now.toLocaleDateString('en-GB',{dateStyle:'full'}); $('#clock').dateTime = now.toISOString(); }
-window.Win2kShell = {getPositions:()=>positions, setPosition(key,point){positions[key]=point;return save();},
+window.Pi2000Shell = {getPositions:()=>positions, setPosition(key,point){positions[key]=point;return save();},
  getDesktop:documentState, getView:()=>({...view}), getShortcut:id=>{const item=shortcuts.find(x=>x.id===id);return item?{...item}:null;}, getUser:()=>desktopUser, whenSaved:()=>saveQueue,
  updateDesktop(change){const state=documentState();change(state);shortcuts=state.shortcuts;positions=state.positions;icons=state.icons;view=state.view;return save();},
  async reloadDesktop(){await saveQueue.catch(()=>{});if(saveBlocked&&!confirm('Discard unsaved desktop changes and load the saved desktop?'))return;return setUser(desktopUser,desktopApi);}, actions, show, notify, closeStart, setUser,
  trashShortcuts:()=>shortcuts.filter(item=>item.deleted).map(item=>({...item})),
  async trashShortcut(id){
   await this.changeTrashShortcut(id,false,true);
-  await window.Win2kFiles?.refresh();
+  await window.Pi2000Files?.refresh();
   notify('Shortcut was moved to the Recycle Bin.');
  },
  async changeTrashShortcut(id,permanent=false,deleted=false){

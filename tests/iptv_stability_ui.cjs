@@ -1,13 +1,13 @@
 const {chromium}=require('playwright'),assert=require('node:assert/strict');
 (async()=>{
- const browser=await chromium.launch({executablePath:process.env.WIN2K_TEST_CHROMIUM||'/usr/bin/chromium',headless:true,args:['--autoplay-policy=no-user-gesture-required']});
+ const browser=await chromium.launch({executablePath:process.env.PI2000_TEST_CHROMIUM||'/usr/bin/chromium',headless:true,args:['--autoplay-policy=no-user-gesture-required']});
  try{
   const page=await browser.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
-  await page.goto(process.env.WIN2K_TEST_URL);await page.locator('#login-form [name=password]').fill('browser-test-password');await page.locator('#login-form [type=submit]').click();await page.locator('#session').waitFor({state:'visible'});
+  await page.goto(process.env.PI2000_TEST_URL);await page.locator('#login-form [name=password]').fill('browser-test-password');await page.locator('#login-form [type=submit]').click();await page.locator('#session').waitFor({state:'visible'});
   await page.evaluate(async()=>{
-   const user=Win2kDesktop.getUser();
+   const user=Pi2000Desktop.getUser();
    const response=await fetch('/api/iptv/sources',{method:'POST',headers:{'Content-Type':'application/json','X-IPTV-Owner':String(user.id)},body:JSON.stringify({kind:'file',name:'Network jitter fixture',content:'#EXTM3U\n#EXTINF:-1,Jitter TV\nhttps://media.example/jitter.ts\n'})});
-   if(!response.ok)throw Error('Fixture import failed');Win2kShell.actions.iptv();
+   if(!response.ok)throw Error('Fixture import failed');Pi2000Shell.actions.iptv();
   });
   const w=page.locator('.iptv-window');await w.getByRole('option',{name:/Jitter TV/}).waitFor();
   await w.locator('video').evaluate(v=>{
@@ -23,7 +23,7 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict');
   const metrics=await w.locator('video').evaluate(v=>{clearInterval(window.sampleTimer);return {...window.playbackMetrics,time:v.currentTime,width:v.videoWidth,audio:v.webkitAudioDecodedByteCount||0,error:v.error?.code||0};});
   console.log('Live TS with 2.5 s network outage:',JSON.stringify(metrics));
   assert.equal(metrics.width,320);assert.equal(metrics.error,0);assert.ok(metrics.time>15);assert.ok(metrics.audio>0);assert.deepEqual(errors,[]);
-  if(!process.env.WIN2K_TEST_BASELINE){assert.equal(metrics.stalls,0,'network outage exhausted the live buffer');assert.equal(metrics.seeks,0,'live latency chasing skipped programme content');}
+  if(!process.env.PI2000_TEST_BASELINE){assert.equal(metrics.stalls,0,'network outage exhausted the live buffer');assert.equal(metrics.seeks,0,'live latency chasing skipped programme content');}
   await w.getByRole('button',{name:'Stop',exact:true}).click();
   // Stop must cancel delayed startup, so a slow connection cannot restart itself.
   await w.getByRole('option',{name:/Jitter TV/}).dblclick();await page.waitForTimeout(500);await w.getByRole('button',{name:'Stop',exact:true}).click();await page.waitForTimeout(5000);

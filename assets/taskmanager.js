@@ -1,6 +1,6 @@
 (() => {
 'use strict';
-const d=window.Win2kDesktop,s=window.Win2kShell,t=window.Win2kTools;
+const d=window.Pi2000Desktop,s=window.Pi2000Shell,t=window.Pi2000Tools;
 const bytes=value=>{if(!Number.isFinite(value))return '—';const units=['B','KB','MB','GB','TB'];let i=0;while(value>=1024&&i<4){value/=1024;i++;}return value.toLocaleString('en-GB',{maximumFractionDigits:i>1?1:0})+' '+units[i];};
 const percent=(used,total)=>total>0?Math.min(100,100*used/total):0;
 const duration=seconds=>{const value=Math.floor(seconds);return `${Math.floor(value/86400)} d ${String(Math.floor(value/3600)%24).padStart(2,'0')}:${String(Math.floor(value/60)%60).padStart(2,'0')}:${String(value%60).padStart(2,'0')}`;};
@@ -30,7 +30,7 @@ win.status.textContent=`Processes: ${data.process_count} · CPU: ${data.cpu.perc
 }catch(e){if(!closed&&!(paused&&e.name==='AbortError'))win.status.textContent='Could not refresh: '+e.message+' · Latest measurement '+(sample?new Date(sample.sampled_at*1000).toLocaleTimeString('en-GB'):'unavailable');}finally{busy=false;if(!closed){refreshButton.disabled=false;if(rerun){rerun=false;timer=setTimeout(refresh,0);}else if(!paused)timer=setTimeout(refresh,2000);}}}
 win.onclose=()=>{closed=true;clearTimeout(timer);controller?.abort();history=[];};tab('performance');win.status.textContent='Reading server resources…';refresh();return win;
 }
-s.actions.taskmanager=open;window.Win2kApps.register({type:'taskmanager-window',singleton:true,restore:open});
+s.actions.taskmanager=open;window.Pi2000Apps.register({type:'taskmanager-window',singleton:true,restore:open});
 document.addEventListener('keydown',e=>{if(e.ctrlKey&&e.shiftKey&&e.key==='Escape'&&!document.querySelector('#session').hidden){e.preventDefault();e.stopImmediatePropagation();open();}},true);
-const menu=document.createElement('div');menu.className='frame context-menu taskmanager-context';menu.hidden=true;const launch=document.createElement('button');launch.textContent='Task Manager';launch.onclick=()=>{menu.hidden=true;open();};menu.append(launch);document.body.append(menu);document.querySelector('.taskbar').addEventListener('contextmenu',e=>{e.preventDefault();s.closeStart();menu.hidden=false;menu.style.left=Math.max(4,Math.min(e.clientX,innerWidth-menu.offsetWidth-4))+'px';menu.style.top=Math.max(4,e.clientY-menu.offsetHeight-8)+'px';launch.focus();});document.addEventListener('pointerdown',e=>{if(!menu.contains(e.target))menu.hidden=true;});document.addEventListener('keydown',e=>{if(e.key==='Escape')menu.hidden=true;});window.addEventListener('win2k-user',()=>{menu.hidden=true;});
+const menu=document.createElement('div');menu.className='frame context-menu taskmanager-context';menu.hidden=true;const launch=document.createElement('button');launch.textContent='Task Manager';launch.onclick=()=>{menu.hidden=true;open();};menu.append(launch);document.body.append(menu);document.querySelector('.taskbar').addEventListener('contextmenu',e=>{e.preventDefault();s.closeStart();menu.hidden=false;menu.style.left=Math.max(4,Math.min(e.clientX,innerWidth-menu.offsetWidth-4))+'px';menu.style.top=Math.max(4,e.clientY-menu.offsetHeight-8)+'px';launch.focus();});document.addEventListener('pointerdown',e=>{if(!menu.contains(e.target))menu.hidden=true;});document.addEventListener('keydown',e=>{if(e.key==='Escape')menu.hidden=true;});window.addEventListener('pi2000-user',()=>{menu.hidden=true;});
 })();

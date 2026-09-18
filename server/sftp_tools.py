@@ -107,7 +107,7 @@ class SFTPTools:
                                 return
                             if not expected or actual!=expected:raise web.HTTPConflict(text='The file changed on the device. Your changes remain in the editor. Open the device version or save a copy.')
                         await check_version()
-                        temporary=posixpath.join(posixpath.dirname(target),'.win2k-'+secrets.token_hex(16))
+                        temporary=posixpath.join(posixpath.dirname(target),'.pi2000-'+secrets.token_hex(16))
                         try:
                             async with sftp.open(temporary,'xb',attrs=asyncssh.SFTPAttrs(permissions=0o600)) as remote:
                                 await remote.write(encoded)
@@ -139,7 +139,7 @@ class SFTPTools:
                     row=a.FILES.row(db,uid,data.get('file'),'live')
                     if row['kind']!='file' or row['size']>limit:raise web.HTTPBadRequest(text='Select a file no larger than 50 MB.')
                     handle=a.FILES.blob(uid,row['content_key'] or row['id']).open('rb')
-                temporary=posixpath.join(posixpath.dirname(path),'.win2k-'+secrets.token_hex(16))
+                temporary=posixpath.join(posixpath.dirname(path),'.pi2000-'+secrets.token_hex(16))
                 try:
                     async with sftp.open(temporary,'xb') as remote:
                         with handle:

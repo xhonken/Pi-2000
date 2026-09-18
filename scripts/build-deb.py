@@ -75,6 +75,7 @@ def main():
     for name in ('package_setup.py','provision.py','Caddyfile.template'):copy(ROOT/'packaging'/name,'/usr/lib/pi2000web/'+name)
     copy(ROOT/'packaging/pi2000web','/usr/sbin/pi2000web')
     copy(ROOT/'scripts/setup.py','/usr/lib/pi2000web/source_setup.py')
+    copy(ROOT/'server/installation.py','/usr/lib/pi2000web/installation.py')
     for name in ('README.md',):copy(ROOT/name,'/usr/share/doc/pi2000web/'+name)
     copy(ROOT/'docs/DEB-INSTALLATION.md','/usr/share/doc/pi2000web/DEB-INSTALLATION.md')
     copy(ROOT/'docs/SYSTEM-ACCOUNTS.md','/usr/share/doc/pi2000web/SYSTEM-ACCOUNTS.md')

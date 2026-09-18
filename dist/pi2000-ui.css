@@ -1,0 +1,271 @@
+/* Pi2000 UI Framework v0.1.0 | Platform-independent core */
+:root {
+  --pi2000-desktop: #3a6ea5;
+  --pi2000-surface: #d4d0c8;
+  --pi2000-light: #fff;
+  --pi2000-mid: #808080;
+  --pi2000-dark: #000;
+  --pi2000-title-start: #0a246a;
+  --pi2000-title-end: #1084d0;
+  --pi2000-link: #0000ee;
+  --pi2000-success: #008000;
+  --pi2000-font: "Segoe UI", Tahoma, Arial, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+body.pi2000,
+body:has([data-pi2000-app]) {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  overflow-x: hidden;
+  background: var(--pi2000-desktop);
+  color: #000;
+  font: 13px/1.45 var(--pi2000-font);
+}
+
+[hidden] { display: none !important; }
+
+.pi2000-app {
+  min-height: 100vh;
+  padding: 12px 12px 52px;
+}
+
+.pi2000-window {
+  width: min(1180px, 100%);
+  min-height: calc(100vh - 76px);
+  margin: 0 auto;
+  padding: 2px;
+  border: 2px solid;
+  border-color: var(--pi2000-light) var(--pi2000-dark) var(--pi2000-dark) var(--pi2000-light);
+  background: var(--pi2000-surface);
+  box-shadow: inset -1px -1px var(--pi2000-mid), inset 1px 1px #dfdfdf;
+}
+
+.pi2000-titlebar {
+  min-height: 24px;
+  padding: 3px 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(90deg, var(--pi2000-title-start), var(--pi2000-title-end));
+  color: #fff;
+  font-weight: 700;
+}
+
+.pi2000-titlebar strong { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pi2000-window-buttons { margin-left: auto; white-space: nowrap; letter-spacing: 4px; }
+
+.pi2000-menubar {
+  min-height: 27px;
+  padding: 2px 4px 3px;
+  display: flex;
+  align-items: start;
+  gap: 2px;
+  border-bottom: 1px solid var(--pi2000-mid);
+  box-shadow: 0 1px var(--pi2000-light);
+}
+
+.pi2000-menu { position: relative; }
+.pi2000-menu summary { padding: 3px 7px; list-style: none; user-select: none; }
+.pi2000-menu summary::-webkit-details-marker { display: none; }
+.pi2000-menu[open] summary { background: var(--pi2000-title-start); color: #fff; }
+.pi2000-menu-panel {
+  position: absolute;
+  z-index: 50;
+  left: 0;
+  top: 24px;
+  min-width: 210px;
+  padding: 2px;
+  border: 2px solid;
+  border-color: var(--pi2000-light) var(--pi2000-dark) var(--pi2000-dark) var(--pi2000-light);
+  background: var(--pi2000-surface);
+  box-shadow: inset -1px -1px var(--pi2000-mid);
+}
+
+.pi2000-menu-panel :is(a,button) {
+  width: 100%;
+  min-height: 25px;
+  padding: 4px 24px 4px 8px;
+  display: block;
+  border: 0;
+  background: transparent;
+  color: #000;
+  font: inherit;
+  text-align: left;
+  text-decoration: none;
+}
+
+.pi2000-menu-panel :is(a,button):hover,
+.pi2000-menu-panel :is(a,button):focus { background: var(--pi2000-title-start); color: #fff; outline: 0; }
+
+.pi2000-content { padding: 12px; }
+
+.pi2000-page-heading {
+  margin: 0 0 12px;
+  padding: 16px 18px;
+  border: 1px solid;
+  border-color: var(--pi2000-mid) var(--pi2000-light) var(--pi2000-light) var(--pi2000-mid);
+  background: #fff;
+  box-shadow: inset 1px 1px var(--pi2000-dark);
+}
+
+.pi2000-page-heading .eyebrow { margin: 0 0 3px; color: #006000; font-size: 12px; font-weight: 700; }
+.pi2000-page-heading h1 { margin: 0; font-size: clamp(22px, 4vw, 34px); line-height: 1.15; }
+.pi2000-page-heading p:last-child { max-width: 72ch; margin: 7px 0 0; color: #333; }
+
+.pi2000-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.pi2000-grid.metrics { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.pi2000-grid .wide { grid-column: 1 / -1; }
+
+.pi2000-group {
+  min-width: 0;
+  margin: 0;
+  padding: 12px;
+  border: 1px solid;
+  border-color: var(--pi2000-mid) var(--pi2000-light) var(--pi2000-light) var(--pi2000-mid);
+  background: var(--pi2000-surface);
+  box-shadow: inset 1px 1px #9a9a9a;
+}
+
+fieldset.pi2000-group > legend,
+.pi2000-group > .pi2000-legend {
+  padding: 0 5px;
+  color: #000;
+  font-weight: 700;
+}
+
+.pi2000-metric strong { display: block; margin: 4px 0; color: var(--pi2000-title-start); font-size: 28px; line-height: 1; }
+.pi2000-metric small { color: #333; }
+
+.pi2000-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 12px; }
+.pi2000-form-grid .wide { grid-column: 1 / -1; }
+.pi2000-form-grid label,
+.pi2000-field { display: grid; gap: 4px; }
+
+.pi2000 :is(input,select,textarea) {
+  width: 100%;
+  min-height: 29px;
+  padding: 4px 6px;
+  border: 0;
+  border-radius: 0;
+  background: #fff;
+  color: #000;
+  box-shadow: inset 1px 1px var(--pi2000-mid), inset -1px -1px var(--pi2000-light), inset 2px 2px var(--pi2000-dark);
+  font: inherit;
+}
+
+.pi2000 :is(input[type="checkbox"],input[type="radio"]) {
+  width: 15px;
+  min-height: 15px;
+  margin: 0 6px 0 0;
+  vertical-align: -2px;
+  box-shadow: none;
+}
+
+.pi2000-button,
+.pi2000 .button {
+  min-height: 28px;
+  padding: 4px 13px;
+  border: 2px solid;
+  border-color: var(--pi2000-light) var(--pi2000-dark) var(--pi2000-dark) var(--pi2000-light);
+  border-radius: 0;
+  background: var(--pi2000-surface);
+  color: #000;
+  box-shadow: inset -1px -1px var(--pi2000-mid), inset 1px 1px #dfdfdf;
+  font: inherit;
+}
+
+a.pi2000-button { display: inline-flex; align-items: center; color: #000; text-decoration: none; }
+
+.pi2000-button:active,
+.pi2000 .button:active { border-color: var(--pi2000-dark) var(--pi2000-light) var(--pi2000-light) var(--pi2000-dark); box-shadow: inset 1px 1px var(--pi2000-mid); }
+.pi2000-button.default { outline: 1px solid #000; outline-offset: 1px; }
+.pi2000-button:disabled { color: var(--pi2000-mid); text-shadow: 1px 1px #fff; }
+.pi2000-actions { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 8px; }
+
+.pi2000-table-wrap { overflow-x: auto; border: 1px solid var(--pi2000-mid); background: #fff; box-shadow: inset 1px 1px var(--pi2000-dark); }
+.pi2000-table { width: 100%; min-width: 640px; border-collapse: collapse; }
+.pi2000-table :is(th,td) { padding: 7px 8px; border-bottom: 1px solid #a0a0a0; text-align: left; }
+.pi2000-table th { background: var(--pi2000-surface); box-shadow: inset -1px -1px var(--pi2000-mid), inset 1px 1px #fff; }
+.pi2000-status { display: inline-flex; align-items: center; gap: 5px; }
+.pi2000-status::before { content: "i"; width: 15px; height: 15px; display: grid; place-items: center; border-radius: 50%; background: var(--pi2000-success); color: #fff; font: 700 10px/1 var(--pi2000-font); }
+
+.pi2000-statusbar { min-height: 24px; margin-top: 8px; padding: 3px 6px; display: grid; grid-template-columns: 1fr minmax(130px,.35fr); gap: 3px; }
+.pi2000-statusbar span { padding: 2px 5px; overflow: hidden; box-shadow: inset 1px 1px var(--pi2000-mid), inset -1px -1px #fff; text-overflow: ellipsis; white-space: nowrap; }
+
+.pi2000-taskbar {
+  position: fixed;
+  z-index: 100;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  min-height: 42px;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  border-top: 2px solid #fff;
+  background: var(--pi2000-surface);
+  box-shadow: inset 0 1px #dfdfdf;
+}
+
+.pi2000-start-button { min-width: 78px; font-weight: 700; }
+.pi2000-tray { min-width: 132px; margin-left: auto; padding: 3px 7px; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; box-shadow: inset 1px 1px var(--pi2000-mid), inset -1px -1px #fff; text-align: center; }
+
+.pi2000-start-menu {
+  position: fixed;
+  z-index: 110;
+  left: 4px;
+  bottom: 41px;
+  width: min(320px, calc(100vw - 8px));
+  padding: 3px 3px 3px 34px;
+  border: 2px solid;
+  border-color: #fff #000 #000 #fff;
+  background: linear-gradient(90deg, var(--pi2000-title-start) 0 31px, var(--pi2000-surface) 31px);
+  box-shadow: inset -1px -1px var(--pi2000-mid);
+}
+
+.pi2000-start-menu::before { content: "PI2000 UI"; position: absolute; left: 7px; bottom: 7px; color: #fff; font-size: 17px; font-weight: 700; letter-spacing: 2px; writing-mode: vertical-rl; transform: rotate(180deg); }
+.pi2000-start-list { display: grid; }
+.pi2000-start-list > :is(a,button,.pi2000-cascade-wrap > button) { width: 100%; min-height: 38px; padding: 7px 22px 7px 10px; border: 0; background: transparent; color: #000; font: inherit; text-align: left; text-decoration: none; }
+.pi2000-start-list > :is(a,button):hover,
+.pi2000-cascade-wrap > button:hover { background: var(--pi2000-title-start); color: #fff; }
+.pi2000-cascade-wrap { position: relative; }
+.pi2000-cascade { position: absolute; left: calc(100% - 2px); bottom: 0; width: 230px; padding: 3px; border: 2px solid; border-color: #fff #000 #000 #fff; background: var(--pi2000-surface); }
+.pi2000-cascade a { min-height: 32px; padding: 7px; display: block; color: #000; text-decoration: none; }
+.pi2000-cascade a:hover,
+.pi2000-cascade a:focus { background: var(--pi2000-title-start); color: #fff; }
+
+.pi2000 :is(a,button,input,select,textarea,summary):focus-visible { outline: 1px dotted #000; outline-offset: -4px; }
+.pi2000 a { color: var(--pi2000-link); }
+.pi2000 pre { max-width: 100%; padding: 10px; overflow: auto; border: 1px solid var(--pi2000-mid); background: #fff; box-shadow: inset 1px 1px var(--pi2000-dark); }
+.pi2000 code { font-family: "Courier New", monospace; }
+
+@media (max-width: 900px) {
+  .pi2000-app { padding: 4px 4px 50px; }
+  .pi2000-window { min-height: calc(100vh - 58px); }
+  .pi2000-grid,
+  .pi2000-grid.metrics { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 600px) {
+  .pi2000-content { padding: 8px; }
+  .pi2000-grid,
+  .pi2000-grid.metrics,
+  .pi2000-form-grid { grid-template-columns: 1fr; }
+  .pi2000-grid .wide,
+  .pi2000-form-grid .wide { grid-column: auto; }
+  .pi2000 :is(input,select,textarea) { min-height: 40px; font-size: 16px; }
+  .pi2000-button,
+  .pi2000 .button { min-height: 40px; }
+  .pi2000-menu-panel { position: fixed; left: 8px; right: 8px; top: 58px; }
+  .pi2000-cascade { position: fixed; left: 8px; right: 8px; bottom: 46px; width: auto; max-height: 65vh; overflow-y: auto; }
+  .pi2000-statusbar { grid-template-columns: 1fr; }
+  .pi2000-statusbar span:last-child { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pi2000 *, .pi2000 *::before, .pi2000 *::after { scroll-behavior: auto !important; transition: none !important; animation: none !important; }
+}

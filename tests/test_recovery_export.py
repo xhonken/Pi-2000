@@ -8,6 +8,7 @@ import tempfile
 import unittest
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'server'))
 from backup import snapshot
+from installation import APPLICATION_ID
 from recovery import export_encrypted
 
 @unittest.skipUnless(shutil.which('age') and shutil.which('age-keygen'),'Install age for encrypted backup round-trip checks')
@@ -15,7 +16,9 @@ class ExportTests(unittest.IsolatedAsyncioTestCase):
     async def test_encrypted_roundtrip_and_corruption_detection(self):
         with tempfile.TemporaryDirectory() as tmp:
             root=Path(tmp);state=root/'state';state.mkdir()
-            with closing(sqlite3.connect(state/'admin.sqlite3')) as db:db.execute('CREATE TABLE fixture(id INTEGER)');db.commit()
+            with closing(sqlite3.connect(state/'admin.sqlite3')) as db:
+                db.execute(f'PRAGMA application_id={APPLICATION_ID}')
+                db.execute('CREATE TABLE fixture(id INTEGER)');db.commit()
             archive=await snapshot(state,root/'backups','',None)
             key=root/'identity.txt'
             subprocess.run(['age-keygen','-o',str(key)],check=True,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)

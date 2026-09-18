@@ -1,85 +1,46 @@
-# Pi-2000 system names
+# Pi-2000 names and the 0.2 installation boundary
 
-New installations use `pi2000-admin.service`, `pi2000-sessions.service`,
-`pi2000-backup.service` and `pi2000-backup.timer`. The shared service account and
-group are `pi2000-admin`. The accounts, Arduino, phpMyAdmin and private terminal
-units already use `pi2000-*` names.
+Alpha 8 (`0.2.0-alpha.8`) starts an independent data line. **It requires a fresh
+installation. Alpha 5, 6 and 7 cannot be upgraded, even if their Linux services
+already have Pi-2000 names.** Keep the earlier installation and its backups on a
+separate system. Published releases and Git history are unchanged.
 
-The API, session worker, account broker and Arduino worker set their Linux task
-names to `pi2000-api`, `pi2000-sessions`, `pi2000-accounts` and `pi2000-arduino`.
-Third-party processes such as Chromium, MariaDB, Caddy and SSH retain their names.
+There is no automatic conversion of old accounts, settings, sessions or system
+backups. Export ordinary documents through the earlier version and copy only the
+files you need into your new account. Do not copy application SQLite files,
+private state directories, browser profiles, environment files or system accounts.
+Keep the old installation available to read material that needs the old software.
 
-Canonical installation paths are `/opt/pi2000-admin`, `/opt/pi2000-browser`,
-`/var/lib/pi2000-admin`, `/srv/pi2000`, `/var/backups/pi2000` and
-`/var/lib/caddy/pi2000-admin`. The session socket is
-`/run/pi2000-sessions/worker.sock`.
+## Consistent identifiers
 
-## Existing source installations
+- Services and service account: `pi2000-admin`, `pi2000-sessions`, `pi2000-backup`,
+  `pi2000-accounts`, `pi2000-arduino`, `pi2000-terminal`, `pi2000-phpmyadmin`.
+- Linux task names: `pi2000-api`, `pi2000-sessions`, `pi2000-accounts`, `pi2000-arduino`.
+- Environment variables: `PI2000_*`; session cookie: `__Host-pi2000`.
+- JavaScript globals: `Pi2000*`; CSS, custom events and browser keys: `pi2000-*`.
+- Main stylesheet: `dist/pi2000-ui.css`.
+- Code: `/opt/pi2000-admin`, `/opt/pi2000-browser`; web files: `/srv/pi2000`.
+- State: `/var/lib/pi2000-admin`; backups: `/var/backups/pi2000`.
+- Worker socket: `/run/pi2000-sessions/worker.sock`.
 
-**This is a maintenance operation, not a live unit alias.** Renaming the service
-account and session unit requires stopping their processes. Live SSH terminals,
-browser sessions and Arduino operations cannot be transferred to another unit.
-Save work first. Workspace checkpoints can restore supported windows/drafts,
-but cannot preserve running OS processes through this migration.
+Third-party processes such as Chromium, MariaDB, Caddy and SSH retain their own
+names. The Debian package and management command are `pi2000web`.
 
-From the reviewed source checkout:
+## Enforced boundary
 
-```sh
-sudo bash scripts/migrate-system.sh --plan
-sudo bash scripts/migrate-system.sh --apply
-```
+The Debian pre-install script rejects earlier package versions before unpacking
+and refuses existing unmarked installations, including retained data after removal.
+The source installer and publish scripts enforce the same data-line marker,
+`/etc/pi2000web/installation-format`. It is retained on purge with user data so
+compatible reinstallation remains possible. Do not create it manually to bypass
+checks: it is an installation identity, not a migration mechanism.
 
-The plan is read-only and reports paths, numeric service identity and worker
-counts. Apply obtains worker admission leases and refuses busy workers before
-stopping services. It checks them again after staging and backup. Only after the
-operator explicitly accepts interruption of current jobs may they use:
+The API and worker require the 0.2 SQLite application identity before initializing
+schema or credentials. An earlier database is rejected without modifying it.
+System backups use format 3; earlier formats are rejected before extracting their
+contents. The [recovery guide](RECOVERY.md) applies only within this data line.
 
-```sh
-sudo bash scripts/migrate-system.sh --apply --allow-session-stop
-```
-
-The migrator:
-
-- rejects conflicting accounts/directories, modified deployment inventories,
-  custom legacy unit overrides and unrecognised Caddy configurations;
-- creates a verified data backup using the currently installed backup service;
-- snapshots code, web files and affected configuration in a private directory
-  under `/var/backups/pi2000-namespace`;
-- moves directories and renames the service account/group while retaining their
-  numeric UID/GID, data, ownership and permissions;
-- installs the reviewed source and new units, restores prior enablement/start
-  state and runs the full installation doctor;
-- automatically restores old code, paths, account names and unit configuration
-  if a caught activation/start/verification error occurs. Rollback also requires
-  restarting services; it cannot resurrect terminated OS jobs.
-
-Root-owned links from the old directories to their canonical replacements remain
-for existing virtualenv shebangs and operator references. They do not create a
-second data store or a second service identity. Do not delete these compatibility
-links without rebuilding the dependent environments. Protocol keys, cookies,
-`WIN2K_*` configuration and UI namespaces also remain compatible.
-
-The migration record and recovery snapshot are root-only. A power failure cannot
-be caught by the rollback handler: retain the snapshot and verified data archive,
-inspect `migration.json`, and repair the recorded moves/configuration before
-restarting services. Do not run a fresh installation over a partially migrated
-data directory. The [recovery guide](RECOVERY.md) covers verified data restoration.
-
-After a successful migration:
-
-```sh
-sudo bash scripts/doctor.sh
-sudo bash scripts/workers.sh status
-systemctl status pi2000-admin pi2000-sessions pi2000-backup.timer
-```
-
-A repeat plan detects the canonical installation. Source installers refuse to
-create a second installation beside an unmigrated legacy state directory.
-
-## Debian package boundary
-
-The new namespace is used for future fresh package builds. The published Alpha 6
-package is unchanged. This source migration refuses installations marked as
-managed by dpkg; an old-package upgrade needs a separately validated package
-migration. The new pre-install guard rejects an unmigrated legacy installation
-instead of creating a second account/state directory.
+Later compatible 0.2 updates still require verified backups and normal maintenance
+procedures. Preserved workers need a planned restart after live jobs finish.
+The removed source migrator and historical provenance remain in the Alpha 7 Git
+snapshot for operators who still maintain that release; they are not Alpha 8 tools.

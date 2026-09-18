@@ -9,20 +9,20 @@ ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'server'))
 import app
 import phpmyadmin_bridge
-if os.environ.get("WIN2K_TEST_PMA_ROOT"):
-    phpmyadmin_bridge.ROOT=Path(os.environ["WIN2K_TEST_PMA_ROOT"])
-    phpmyadmin_bridge.SOCKET=os.environ["WIN2K_TEST_PMA_SOCKET"]
-state=tempfile.TemporaryDirectory(prefix='win2k-ui-test-')
-app.STATE=Path(os.environ.get('WIN2K_TEST_STATE',state.name))
+if os.environ.get("PI2000_TEST_PMA_ROOT"):
+    phpmyadmin_bridge.ROOT=Path(os.environ["PI2000_TEST_PMA_ROOT"])
+    phpmyadmin_bridge.SOCKET=os.environ["PI2000_TEST_PMA_SOCKET"]
+state=tempfile.TemporaryDirectory(prefix='pi2000-ui-test-')
+app.STATE=Path(os.environ.get('PI2000_TEST_STATE',state.name))
 # Never read the real host Local Terminal configuration from a disposable fixture.
 app.local_terminal.CONFIG=app.STATE/'local-terminal.json'
-app.ORIGIN=os.environ.get('WIN2K_TEST_URL','http://127.0.0.1:18765')
+app.ORIGIN=os.environ.get('PI2000_TEST_URL','http://127.0.0.1:18765')
 application=app.make_app()
-if os.environ.get('WIN2K_TEST_ARDUINO_RUNTIME'):
-    (app.STATE/'arduino-runtime'/'1').symlink_to(Path(os.environ['WIN2K_TEST_ARDUINO_RUNTIME']).resolve(), target_is_directory=True)
-if os.environ.get('WIN2K_TEST_IPTV_MEDIA'):
+if os.environ.get('PI2000_TEST_ARDUINO_RUNTIME'):
+    (app.STATE/'arduino-runtime'/'1').symlink_to(Path(os.environ['PI2000_TEST_ARDUINO_RUNTIME']).resolve(), target_is_directory=True)
+if os.environ.get('PI2000_TEST_IPTV_MEDIA'):
     from iptv_fixture import attach
-    attach(application,os.environ['WIN2K_TEST_IPTV_MEDIA'])
+    attach(application,os.environ['PI2000_TEST_IPTV_MEDIA'])
 with app.db() as conn:
     salt='12'*16
     conn.execute("UPDATE users SET salt=?,hash=? WHERE username='admin'",(salt,app.password_hash('browser-test-password',salt)))
@@ -36,11 +36,11 @@ async def index(request):return web.FileResponse(ROOT/'index.html')
 application.router.add_get('/',index)
 application.router.add_static('/assets',ROOT/'assets')
 application.router.add_static('/dist',ROOT/'dist')
-if os.environ.get('WIN2K_TEST_SFTP_DIR'):
+if os.environ.get('PI2000_TEST_SFTP_DIR'):
     import asyncssh
     from test_server import SSHServer
     async def sftp_fixture(application):
-        remote=Path(os.environ['WIN2K_TEST_SFTP_DIR'])
+        remote=Path(os.environ['PI2000_TEST_SFTP_DIR'])
         remote.mkdir(exist_ok=True)
         (remote/'hello.py').write_text('print("remote original")\n')
         (remote/'project').mkdir(exist_ok=True)
@@ -51,7 +51,7 @@ if os.environ.get('WIN2K_TEST_SFTP_DIR'):
         yield
         server.close();await server.wait_closed()
     application.cleanup_ctx.append(sftp_fixture)
-if os.environ.get('WIN2K_TEST_SERIAL_PTY'):
+if os.environ.get('PI2000_TEST_SERIAL_PTY'):
     import asyncio, pty, math
     async def serial_fixture(application):
         master,slave=pty.openpty();path=os.ttyname(slave);os.set_blocking(master,False)
@@ -73,8 +73,8 @@ if os.environ.get('WIN2K_TEST_SERIAL_PTY'):
             except asyncio.CancelledError:pass
             os.close(master);os.close(slave)
     application.cleanup_ctx.append(serial_fixture)
-if os.environ.get('WIN2K_TEST_LISTEN_FD'):
+if os.environ.get('PI2000_TEST_LISTEN_FD'):
     import socket
-    web.run_app(application,sock=socket.socket(fileno=int(os.environ['WIN2K_TEST_LISTEN_FD'])),access_log=None)
+    web.run_app(application,sock=socket.socket(fileno=int(os.environ['PI2000_TEST_LISTEN_FD'])),access_log=None)
 else:
-    web.run_app(application,host='127.0.0.1',port=int(os.environ.get('WIN2K_TEST_PORT','18765')),access_log=None)
+    web.run_app(application,host='127.0.0.1',port=int(os.environ.get('PI2000_TEST_PORT','18765')),access_log=None)

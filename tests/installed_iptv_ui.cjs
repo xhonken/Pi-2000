@@ -8,7 +8,7 @@ let phase='startup';
   // The Python operator harness independently verifies system-CA HTTPS trust.
   const context=await browser.newContext({ignoreHTTPSErrors:true,viewport:{width:1280,height:900}}),page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.name));
   phase='PAM login';await page.goto(cfg.origin);await page.locator('#login-form [name=username]').fill(cfg.username);await page.locator('#login-form [name=password]').fill(cfg.password);cfg.password='';await page.locator('#login-form [type=submit]').click();await page.locator('#session').waitFor({state:'visible'});
-  await page.evaluate(()=>Win2kShell.actions.iptv());const w=page.locator('.iptv-window'),dialog=page.locator('#window');
+  await page.evaluate(()=>Pi2000Shell.actions.iptv());const w=page.locator('.iptv-window'),dialog=page.locator('#window');
   phase='public Free-TV import';await w.getByRole('button',{name:'Add Playlist',exact:true}).click();await dialog.getByRole('button',{name:'Use Free-TV Sample'}).click();await dialog.getByRole('button',{name:'Import Playlist'}).click();await dialog.waitFor({state:'hidden',timeout:120000});
   await w.getByLabel('IPTV country',{exact:true}).selectOption('SE');await page.waitForFunction(()=>document.querySelector('.iptv-window .app-status').textContent.includes('matching entries'));
   assert.ok(await w.locator('.iptv-row').count()>0);assert.equal(await w.locator('[aria-label="IPTV playlist"] option:checked').textContent(),'Free-TV');console.log('PASS installed PAM/HTTPS, new desktop app, public Free-TV import and Sweden filter');

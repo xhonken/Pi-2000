@@ -4,7 +4,7 @@ import json
 import os
 from aiohttp import web
 
-SOCKET = os.environ.get('WIN2K_ACCOUNTS_SOCKET', '')
+SOCKET = os.environ.get('PI2000_ACCOUNTS_SOCKET', '')
 
 def enabled(): return bool(SOCKET)
 

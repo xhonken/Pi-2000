@@ -17,8 +17,8 @@ import time
 from aiohttp import web, ClientSession, UnixConnector
 from runtime_health import RuntimeIdentity
 
-CLI = Path(os.environ.get('WIN2K_ARDUINO_CLI', '/opt/pi2000-arduino/arduino-cli'))
-SOCKET = os.environ.get('WIN2K_ARDUINO_SOCKET', '')
+CLI = Path(os.environ.get('PI2000_ARDUINO_CLI', '/opt/pi2000-arduino/arduino-cli'))
+SOCKET = os.environ.get('PI2000_ARDUINO_SOCKET', '')
 ESP_INDEX = 'https://espressif.github.io/arduino-esp32/package_esp32_index.json'
 CORES = {'esp32:esp32': 'ESP32 by Espressif Systems', 'arduino:avr': 'Arduino AVR Boards'}
 MAX_SOURCE = 2 * 1024 * 1024

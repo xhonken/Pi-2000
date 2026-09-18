@@ -21,6 +21,7 @@ We use the [Semantic Versioning format](https://semver.org/): `MAJOR.MINOR.PATCH
 | --- | --- |
 | `0.1.0-alpha.1` | First numbered Alpha snapshot. |
 | `0.1.0-alpha.2` | Next Alpha iteration toward 0.1.0. |
+| `0.2.0-alpha.8` | Independent data line; fresh installation only, no Alpha 5/6/7 upgrade. |
 | `0.1.0-beta.1` | A later testing stage when the planned scope is ready. |
 | `0.1.0` | Release without a prerelease suffix; still in the 0.x development series. |
 | `1.0.0` | Future stable compatibility baseline, when ready. |
@@ -32,7 +33,7 @@ Every published version is immutable: do not move its tag or replace its content
 For a new installation, check out the tag before following the [installation guide](INSTALLATION.md):
 
 ```sh
-git clone --branch v0.1.0-alpha.1 --depth 1 https://github.com/xhonken/Pi-2000.git
+git clone --branch v0.2.0-alpha.8 --depth 1 https://github.com/xhonken/Pi-2000.git
 cd Pi-2000
 ./scripts/version.sh
 cp config/config.example.toml pi2000.toml

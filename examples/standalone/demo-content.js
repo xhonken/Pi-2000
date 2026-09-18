@@ -18,12 +18,12 @@
     target.innerHTML = projects.map((project) => `<tr>
       <td><strong>${escapeHtml(project.title)}</strong></td>
       <td>${escapeHtml(project.area)}</td>
-      <td><span class="win2k-status">${escapeHtml(project.status)}</span></td>
+      <td><span class="pi2000-status">${escapeHtml(project.status)}</span></td>
       <td>${escapeHtml(project.updated)}</td>
     </tr>`).join('');
   };
 
-  const status = (message) => document.querySelector('[data-win2k-app]')?.dispatchEvent(new CustomEvent('win2k:status', { detail: { message } }));
+  const status = (message) => document.querySelector('[data-pi2000-app]')?.dispatchEvent(new CustomEvent('pi2000:status', { detail: { message } }));
 
   const bindDemoActions = () => {
     document.querySelector('[data-demo-settings]')?.addEventListener('submit', (event) => {

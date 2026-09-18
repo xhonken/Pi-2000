@@ -10,7 +10,7 @@ alone does not establish that code is unused.
 
 - Removed the 31-file superseded reference gallery, including duplicate framework
   distributions, demo applications and fonts. Its source provenance remains in
-  `source-manifest.json`; Git history retains the original files.
+  [the Alpha 7 source manifest](https://github.com/xhonken/Pi-2000/blob/v0.1.0-alpha.7/docs/source-manifest.json); Git history retains the original files.
 - Removed `assets/system-icons.css`. Its pixel drawings had already been hidden
   by the current SVG icon styles. Essential layout declarations now belong to
   `classic-icons.css`; the icon generator also retains Pi++ and Pi-Vault icons.

@@ -1,16 +1,16 @@
 const {chromium}=require('playwright');
 const assert=require('node:assert/strict');
 (async()=>{
- const browser=await chromium.launch({executablePath:process.env.WIN2K_TEST_CHROMIUM||'/usr/bin/chromium',headless:true});
+ const browser=await chromium.launch({executablePath:process.env.PI2000_TEST_CHROMIUM||'/usr/bin/chromium',headless:true});
  try{
   const page=await browser.newPage({viewport:{width:1440,height:1000}}),errors=[];
   page.on('pageerror',e=>errors.push(e.message));
-  await page.goto((process.env.WIN2K_TEST_URL||'http://127.0.0.1:18765'));
+  await page.goto((process.env.PI2000_TEST_URL||'http://127.0.0.1:18765'));
   assert.equal(await page.locator('html').getAttribute('lang'),'en');
   assert.equal(await page.title(),'Pi-2000 – Desktop');
   assert.equal(await page.locator('.login-wordmark .brand').innerText(),'Pi-2000');
   assert.doesNotMatch(await page.locator('#logon').innerText(),/Microsoft|Professional/);
-  await page.screenshot({path:require('node:path').join(process.env.WIN2K_TEST_ARTIFACTS||'/tmp','pi2000-english-login.png')});
+  await page.screenshot({path:require('node:path').join(process.env.PI2000_TEST_ARTIFACTS||'/tmp','pi2000-english-login.png')});
   await page.locator('#login-form [name=password]').fill('browser-test-password');
   await page.locator('#login-form [type=submit]').click();
   await page.locator('#session').waitFor({state:'visible'});
@@ -24,10 +24,10 @@ const assert=require('node:assert/strict');
   await page.locator('#start-menu summary').filter({hasText:'Programs'}).first().hover();
   await page.locator('#programs summary').filter({hasText:'System Tools'}).hover();
   await check(page.locator('#start-menu'));
-  await page.screenshot({path:require('node:path').join(process.env.WIN2K_TEST_ARTIFACTS||'/tmp','pi2000-english-start.png')});
+  await page.screenshot({path:require('node:path').join(process.env.PI2000_TEST_ARTIFACTS||'/tmp','pi2000-english-start.png')});
   await page.keyboard.press('Escape');await page.keyboard.press('Escape');await page.keyboard.press('Escape');
   for(const [action,type] of [['files','files'],['trash','trash'],['devices','explorer'],['notes','notes'],['preferences','preferences'],['sftp','sftp'],['calculator','calculator'],['cad','cad'],['editor','editor'],['users','users'],['taskmanager','taskmanager']]){
-   await page.evaluate(action=>Win2kShell.actions[action](),action);
+   await page.evaluate(action=>Pi2000Shell.actions[action](),action);
    const win=page.locator('.'+type+'-window');await win.locator('.classic-menubar').waitFor();
    if(action==='cad')await win.locator('.cad-controls:not([inert])').waitFor();
    if(action==='taskmanager')await win.locator('.taskmgr-statboxes dl').first().waitFor();
@@ -43,13 +43,13 @@ const assert=require('node:assert/strict');
    await win.locator('[data-control=close]').click();
   }
   for(const action of ['help','settings','add','password','run','shutdown']){
-   await page.evaluate(action=>Win2kShell.actions[action](),action);await check(page.locator('#window'));await page.locator('#close-window').click();
+   await page.evaluate(action=>Pi2000Shell.actions[action](),action);await check(page.locator('#window'));await page.locator('#close-window').click();
   }
   // User-authored Unicode names and content remain untouched by UI language changes.
   const expected={name:'Mina mått åäö.txt',content:'Anteckningar: blå ram, Ø 8 mm.'};
   const id=await page.evaluate(async expected=>{const response=await fetch('/api/files/upload?'+new URLSearchParams({name:expected.name,parent:'desktop'}),{method:'POST',body:expected.content});if(!response.ok)throw Error(await response.text());return (await response.json()).id;},expected);
   await page.reload();await page.locator('#session').waitFor({state:'visible'});
-  const result=await page.evaluate(async id=>({files:await Win2kDesktop.api('/files'),text:await Win2kDesktop.api('/files/'+id+'/content')}),id);
+  const result=await page.evaluate(async id=>({files:await Pi2000Desktop.api('/files'),text:await Pi2000Desktop.api('/files/'+id+'/content')}),id);
   assert.equal(result.files.items.find(f=>f.id===id).name,expected.name);assert.equal(result.text.text,expected.content);
   assert.deepEqual(errors,[]);
   console.log('PASS: English branding, menus, application labels and dialogs, English mnemonics, unchanged Unicode user files across reload');

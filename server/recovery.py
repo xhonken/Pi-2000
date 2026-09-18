@@ -2,8 +2,8 @@
 """Root-only recovery planning, guarded application and encrypted export.
 
 No web endpoint. Plans contain summaries/digests, never credentials. Application
-requires stopped services and an unchanged plan. Older format-1 backups remain
-inspectable; they cannot promise home ownership/executable-mode recovery.
+requires stopped services and an unchanged plan. Only backups from the
+independent 0.2 data line are accepted.
 """
 import argparse
 from contextlib import closing
@@ -22,6 +22,7 @@ import subprocess
 import tempfile
 import time
 from backup import restore, checksum
+from installation import check_backup, check_database as check_data_line
 
 SERVICES = ('pi2000-backup.timer','pi2000-backup.service','pi2000-admin','pi2000-sessions',
             'pi2000-arduino','pi2000-accounts','pi2000-terminal','pi2000-phpmyadmin')
@@ -109,6 +110,8 @@ def replace_shadow(text, records):
 
 
 def make_plan(stage, manifest, host, archive_digest):
+    check_backup(manifest)
+    check_data_line(stage/'state/admin.sqlite3')
     safe_members(stage,manifest)
     state=host.path(STATE);registry=host.path(ACCOUNTS)/'accounts.sqlite3'
     users={r['id']:r for r in rows(stage/'state/admin.sqlite3','users')}
@@ -120,8 +123,6 @@ def make_plan(stage, manifest, host, archive_digest):
     for key,binding in current.items():
         if binding['managed'] and key not in backed_up:
             blockers.append('Target has a managed identity absent from this backup: '+binding['name'])
-    if manifest['format']<2 and any(b['managed'] for b in bindings):
-        blockers.append('Old backup lacks managed-home ownership metadata; use documented manual recovery.')
     for b in bindings:
         name=b['name'];u=users.get(b['web_id'],{})
         if not u:

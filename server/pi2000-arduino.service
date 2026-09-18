@@ -10,7 +10,7 @@ SupplementaryGroups=dialout
 WorkingDirectory=/opt/pi2000-admin
 ExecStart=/opt/pi2000-admin/venv/bin/python /opt/pi2000-admin/arduino_service.py
 EnvironmentFile=/etc/pi2000web/runtime.env
-Environment=WIN2K_STATE=/var/lib/pi2000-admin
+Environment=PI2000_STATE=/var/lib/pi2000-admin
 RuntimeDirectory=pi2000-arduino
 RuntimeDirectoryMode=0700
 MemoryHigh=1536M

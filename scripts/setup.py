@@ -23,6 +23,8 @@ from urllib.request import urlopen
 from urllib.error import HTTPError
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / 'server'))
+from installation import check_installation, reserve_installation
 CONFIG = Path('/etc/pi2000web/config.toml')
 ENV = Path('/etc/pi2000web/runtime.env')
 CADDY = Path('/etc/caddy/Caddyfile')
@@ -100,7 +102,7 @@ def render(config):
     caddy = caddy.replace('@PUBLIC_URL@', n['public_url']).replace('@BIND@',
         '    bind ' + n['bind_address'] + '\n' if n['bind_address'] else '')
     caddy = caddy.replace('@TLS@', 'tls internal' if n['tls'] == 'internal' else '# Public certificate: automatic HTTPS')
-    return {'Caddyfile': caddy, 'runtime.env': 'WIN2K_ORIGIN=' + n['public_url'] + '\n',
+    return {'Caddyfile': caddy, 'runtime.env': 'PI2000_ORIGIN=' + n['public_url'] + '\n',
             'config.toml': config_text(config)}
 
 
@@ -159,19 +161,19 @@ def atomic(path, text, mode=0o644):
 def existing_origin():
     if ENV.exists():
         for line in ENV.read_text().splitlines():
-            if line.startswith('WIN2K_ORIGIN='):
+            if line.startswith('PI2000_ORIGIN='):
                 return line.split('=', 1)[1].strip('"')
     values = run('systemctl', 'show', 'pi2000-admin', '--property=Environment', '--value', capture=True)
-    return next((v.split('=', 1)[1] for v in shlex.split(values) if v.startswith('WIN2K_ORIGIN=')), None)
+    return next((v.split('=', 1)[1] for v in shlex.split(values) if v.startswith('PI2000_ORIGIN=')), None)
 
 
-def check_caddy_ownership(text, adopt):
+def check_caddy_ownership(text):
     if not text.strip():
         return
     # Accept the packaged default welcome site, but never another user's site.
     lines = '\n'.join(line.split('#', 1)[0].strip() for line in text.splitlines())
     compact = re.sub(r'\s+', ' ', lines).strip()
-    if text.startswith(('# Managed by Pi-2000.', '# Managed by Pi-2000Web.')):
+    if text.startswith('# Managed by Pi-2000.'):
         host = re.search(r'https://[^\s{]+', compact)
         bind = re.search(r'\bbind ([^ ]+)', compact)
         if host:
@@ -179,39 +181,19 @@ def check_caddy_ownership(text, adopt):
                                      'tls': 'internal' if 'tls internal' in compact else 'public'},
                          'features': {'browser': True}}
             expected = render(candidate)['Caddyfile']
-            # Recognize the complete previous managed template during upgrades;
-            # never accept arbitrary extra directives under our marker comment.
-            previous = '\n'.join(line for line in expected.splitlines()
-                if not any(marker in line for marker in ('Strict-Transport-Security',
-                    'Permissions-Policy', '@desktop path', 'header @desktop Content-Security-Policy')))
             expected = re.sub(r'\s+', ' ', '\n'.join(line.split('#', 1)[0].strip() for line in expected.splitlines())).strip()
-            previous = re.sub(r'\s+', ' ', '\n'.join(line.split('#', 1)[0].strip() for line in previous.splitlines())).strip()
-            if compact in (expected, previous, expected.replace(" media-src 'self' blob:;", ""), previous.replace(" media-src 'self' blob:;", "")):
+            if compact == expected:
                 return
     if compact == ':80 { root * /usr/share/caddy file_server }':
         return
-    if adopt:
-        # Legacy adoption is narrow: compare the complete non-comment token sequence.
-        origin = existing_origin()
-        if origin:
-            host = urlsplit(origin).hostname
-            expected = ('{ admin unix//var/lib/caddy/pi2000-admin/control.sock } '
-                        f'http://{host} {{ bind {host} redir https://{host}{{uri}} permanent }} '
-                        f'https://{host} {{ bind {host} tls internal header {{ '
-                        'X-Content-Type-Options nosniff X-Frame-Options SAMEORIGIN Referrer-Policy same-origin } '
-                        'handle /api/* { reverse_proxy 127.0.0.1:8765 } '
-                        'handle { root * /srv/pi2000 file_server } }')
-            if compact == expected:
-                return
     raise ValueError('Existing Caddyfile is not managed by Pi-2000. It was not changed. '
-                     'Use a dedicated Pi or integrate the generated site manually; see docs/CADDY.md. '
-                     'For the original single-site deployment, use --adopt-existing.')
+                     'Use a dedicated Pi or integrate the generated site manually; see docs/CADDY.md.')
 
 
-def preflight(config, adopt=False, restart=False):
-    legacy = Path('/var/lib/win2k-admin')
-    if legacy.exists() and not legacy.is_symlink():
-        raise ValueError('Legacy system names detected. Run scripts/migrate-system.sh --plan before updating; do not create a second installation.')
+def preflight(config, restart=False):
+    check_installation()
+    if Path('/var/lib/pi2000web/package-managed').exists():
+        raise ValueError('Use APT to update a package-managed installation.')
     if os.geteuid() != 0:
         raise ValueError('Run with sudo. Use --check or --render-dir without sudo for a preview.')
     if not Path('/run/systemd/system').exists():
@@ -226,7 +208,7 @@ def preflight(config, adopt=False, restart=False):
     except socket.gaierror as exc:
         raise ValueError('The public hostname does not resolve on the Pi. Configure DNS or use its LAN IP.') from exc
     if CADDY.exists():
-        check_caddy_ownership(CADDY.read_text(), adopt)
+        check_caddy_ownership(CADDY.read_text())
     if active('pi2000-sessions'):
         old = existing_origin()
         if old != config['network']['public_url'] and not restart:
@@ -347,7 +329,7 @@ def verify(config, compare=True):
 
 
 def deploy(config, args):
-    preflight(config, args.adopt_existing, args.restart_sessions)
+    preflight(config, args.restart_sessions)
     old_origin = existing_origin()
     old_config = read_config(CONFIG) if CONFIG.exists() else None
     if args.command == 'update' and not (APP / 'venv/bin/python').exists():
@@ -371,6 +353,7 @@ def deploy(config, args):
             if source.exists():
                 shutil.copy2(source, backup / name)
         print('Verified data backup and previous code snapshot:', backup, flush=True)
+    reserve_installation()
     install_system_packages(config, args.command)
     ensure_account('pi2000-admin', STATE)
     run('install', '-d', '-m', '755', APP, SITE)
@@ -445,7 +428,6 @@ def main():
     parser.add_argument('--config', type=Path, help='TOML file (install: ./pi2000.toml; update/doctor: installed config)')
     parser.add_argument('--check', action='store_true', help='Validate configuration and print the plan without changes')
     parser.add_argument('--render-dir', type=Path, help='Write reviewable configuration templates here; do not install')
-    parser.add_argument('--adopt-existing', action='store_true', help='Adopt the original single-site Pi-2000 Caddyfile')
     parser.add_argument('--restart-sessions', action='store_true', help='Explicitly allow ending worker jobs to apply its changes')
     args = parser.parse_args()
     path = args.config or (Path('pi2000.toml') if args.command == 'install' else CONFIG)
@@ -473,7 +455,7 @@ def main():
             fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
             deploy(config, args)
         return 0
-    except (ValueError, OSError, subprocess.CalledProcessError, tomllib.TOMLDecodeError) as exc:
+    except (ValueError, RuntimeError, OSError, subprocess.CalledProcessError, tomllib.TOMLDecodeError) as exc:
         print('ERROR:', exc, file=sys.stderr)
         return 1
 

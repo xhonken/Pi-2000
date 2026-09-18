@@ -60,11 +60,11 @@ class SetupTests(unittest.TestCase):
         self.assertIn('https://pi.example.com {', rendered['Caddyfile'])
         self.assertNotIn('tls internal', rendered['Caddyfile'])
         self.assertIn('bind 192.0.2.25', rendered['Caddyfile'])
-        self.assertEqual(rendered['runtime.env'], 'WIN2K_ORIGIN=https://pi.example.com\n')
+        self.assertEqual(rendered['runtime.env'], 'PI2000_ORIGIN=https://pi.example.com\n')
         for name in ['pi2000-admin.service', 'pi2000-sessions.service']:
             unit = (ROOT / 'server' / name).read_text()
             self.assertIn('EnvironmentFile=/etc/pi2000web/runtime.env', unit)
-            self.assertNotIn('Environment=WIN2K_ORIGIN=', unit)
+            self.assertNotIn('Environment=PI2000_ORIGIN=', unit)
 
     def test_internal_ipv6_and_config_roundtrip(self):
         config = self.parse('https://[2001:db8::2]', bind='::1', browser=False)
@@ -98,27 +98,15 @@ class SetupTests(unittest.TestCase):
                     setup.read_config(p)
 
     def test_existing_caddy_sites_are_never_silently_replaced(self):
-        setup.check_caddy_ownership(':80 {\n root * /usr/share/caddy\n file_server\n}', False)
-        config = self.parse()
-        setup.check_caddy_ownership(setup.render(config)['Caddyfile'], False)
-        legacy=setup.render(config)['Caddyfile'].replace('# Managed by Pi-2000.', '# Managed by Pi-2000Web.')
-        setup.check_caddy_ownership(legacy, False)
-        with self.assertRaises(ValueError):
-            setup.check_caddy_ownership(legacy+'\nother.example { respond "other" }', False)
-        previous='\n'.join(line for line in setup.render(config)['Caddyfile'].splitlines()
-            if not any(marker in line for marker in ('Strict-Transport-Security','Permissions-Policy','@desktop path','header @desktop Content-Security-Policy')))
-        setup.check_caddy_ownership(previous, False)
-        with self.assertRaises(ValueError):
-            setup.check_caddy_ownership(previous+'\nother.example { respond "other" }', False)
-        with self.assertRaises(ValueError):
-            setup.check_caddy_ownership(setup.render(config)['Caddyfile'] + '\nother.example { respond \"other\" }', False)
-        with patch.object(setup, 'existing_origin', return_value='https://192.0.2.25'):
-            for text in ['example.com { reverse_proxy localhost:3000 }',
-                         'example.com { root * /srv/pi2000 file_server }',
-                         ':80 { root * /usr/share/caddy file_server }\nother.example { respond "other" }']:
-                for adopt in (True, False):
-                    with self.assertRaises(ValueError):
-                        setup.check_caddy_ownership(text, adopt)
+        setup.check_caddy_ownership(':80 {\n root * /usr/share/caddy\n file_server\n}')
+        managed = setup.render(self.parse())['Caddyfile']
+        setup.check_caddy_ownership(managed)
+        for text in [managed + '\nother.example { respond "other" }',
+                     'example.com { reverse_proxy localhost:3000 }',
+                     ':80 { root * /usr/share/caddy file_server }\nother.example { respond "other" }',
+                     managed.replace('X-Content-Type-Options nosniff', '')]:
+            with self.assertRaises(ValueError):
+                setup.check_caddy_ownership(text)
 
     def test_preview_requires_no_privileges_or_external_commands(self):
         with tempfile.TemporaryDirectory() as tmp:

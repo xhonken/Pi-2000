@@ -1,7 +1,7 @@
 const {chromium,firefox}=require('playwright');const assert=require('node:assert/strict');
-(async()=>{const browser=await(process.env.PI_TEST_BROWSER==='firefox'?firefox.launch({headless:true}):chromium.launch({executablePath:process.env.WIN2K_TEST_CHROMIUM||'/usr/bin/chromium',headless:true}));try{
+(async()=>{const browser=await(process.env.PI_TEST_BROWSER==='firefox'?firefox.launch({headless:true}):chromium.launch({executablePath:process.env.PI2000_TEST_CHROMIUM||'/usr/bin/chromium',headless:true}));try{
  const page=await browser.newPage({viewport:{width:1400,height:950},ignoreHTTPSErrors:!!process.env.PI_TEST_ORIGIN}),errors=[];page.on('pageerror',e=>errors.push(e.message));
- await page.goto(process.env.PI_TEST_ORIGIN||(process.env.WIN2K_TEST_URL||'http://127.0.0.1:18765'));
+ await page.goto(process.env.PI_TEST_ORIGIN||(process.env.PI2000_TEST_URL||'http://127.0.0.1:18765'));
  if(process.env.PI_TEST_USERNAME)await page.locator('#login-form [name=username]').fill(process.env.PI_TEST_USERNAME);
  await page.locator('#login-form [name=password]').fill(process.env.PI_TEST_PASSWORD||'browser-test-password');await page.locator('#login-form [type=submit]').click();await page.locator('#session').waitFor({state:'visible'});
  await page.evaluate(()=>{
@@ -12,7 +12,7 @@ const {chromium,firefox}=require('playwright');const assert=require('node:assert
  await page.locator('#desktop').click({button:'right',position:{x:1250,y:30}});
  let chooser=page.waitForEvent('filechooser');await page.locator('.desktop-context').getByRole('button',{name:'Upload Files…',exact:true}).click();await(await chooser).setFiles({name:'picker-desktop.txt',mimeType:'text/plain',buffer:Buffer.from('desktop upload')});
  await page.locator('#file-icons .desktop-icon').filter({hasText:'picker-desktop.txt'}).waitFor();
- await page.evaluate(()=>Win2kFiles.openFolder('files'));let w=page.locator('.files-window').last();
+ await page.evaluate(()=>Pi2000Files.openFolder('files'));let w=page.locator('.files-window').last();
  chooser=page.waitForEvent('filechooser');await w.getByRole('button',{name:'Upload…',exact:true}).click();await(await chooser).setFiles({name:'picker-files.txt',mimeType:'text/plain',buffer:Buffer.from('files upload')});await w.getByRole('row').filter({hasText:'picker-files.txt'}).waitFor();
  await w.getByRole('menuitem',{name:'File',exact:true}).click();chooser=page.waitForEvent('filechooser');await page.getByRole('menuitem',{name:'Upload…',exact:true}).click();await(await chooser).setFiles({name:'picker-menu.txt',mimeType:'text/plain',buffer:Buffer.from('menu upload')});await w.getByRole('row').filter({hasText:'picker-menu.txt'}).waitFor();
  const checks=await page.evaluate(()=>pickerChecks);assert.equal(checks.length,3);assert(checks.every(x=>x.connected&&x.active),JSON.stringify(checks));assert.equal(await page.locator('input[type=file]').count(),0);

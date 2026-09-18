@@ -4,7 +4,7 @@
  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const privileges=['SELECT','INSERT','UPDATE','DELETE','CREATE','DROP','REFERENCES','INDEX','ALTER','CREATE TEMPORARY TABLES','LOCK TABLES','EXECUTE','CREATE VIEW','SHOW VIEW','CREATE ROUTINE','ALTER ROUTINE','EVENT','TRIGGER','CREATE USER','PROCESS','RELOAD','SHOW DATABASES','REPLICATION CLIENT','REPLICATION SLAVE','SUPER','ALL PRIVILEGES','USAGE'];
  const types=['INT','BIGINT','TINYINT','SMALLINT','MEDIUMINT','DECIMAL','FLOAT','DOUBLE','BOOLEAN','VARCHAR','CHAR','TEXT','TINYTEXT','MEDIUMTEXT','LONGTEXT','BINARY','VARBINARY','BLOB','TINYBLOB','MEDIUMBLOB','LONGBLOB','DATE','TIME','DATETIME','TIMESTAMP','YEAR','JSON','ENUM','SET','GEOMETRY','POINT','LINESTRING','POLYGON'];
- window.Win2kDatabaseAdmin={attach(ctx){
+ window.Pi2000DatabaseAdmin={attach(ctx){
   const {button,toolbar,dialog,command,putSQL}=ctx;
   const field=(key,label,value='',type='text')=>({key,label,value,type});
   const select=(key,label,values,value=values[0])=>({key,label,values,value,type:'select'});
@@ -65,7 +65,7 @@
   }
   function inspect(title,sections,actions,perform){
    ctx.requireConnection();
-   const el=dialog(title,'<div class="db-admin-tabs" role="tablist"></div><div class="db-admin-tools"><label>Action<select aria-label="Administration action"></select></label><button type="button" class="win2k-button" data-open>Open…</button><button type="button" class="win2k-button" data-refresh>Refresh</button><input type="search" placeholder="Filter displayed rows" aria-label="Filter administration rows"></div><div class="db-admin-grid" tabindex="0"></div><p class="db-admin-info" role="status"></p>');
+   const el=dialog(title,'<div class="db-admin-tabs" role="tablist"></div><div class="db-admin-tools"><label>Action<select aria-label="Administration action"></select></label><button type="button" class="pi2000-button" data-open>Open…</button><button type="button" class="pi2000-button" data-refresh>Refresh</button><input type="search" placeholder="Filter displayed rows" aria-label="Filter administration rows"></div><div class="db-admin-grid" tabindex="0"></div><p class="db-admin-info" role="status"></p>');
    el.classList.add('db-admin-wide');const location=document.createElement('p');location.className='db-admin-context';location.textContent=ctx.connectionInfo();el.querySelector('.db-dialog-fields').prepend(location);el.querySelector('[type=submit]').hidden=true;el.querySelector('[data-cancel]').textContent='Close';
    let section=sections[0][1],rows=[],columns=[],selected={},epoch=0;
    const grid=el.querySelector('.db-admin-grid'),info=el.querySelector('.db-admin-info'),action=el.querySelector('select');

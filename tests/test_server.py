@@ -170,18 +170,17 @@ class ServerTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual((await self.client.patch(endpoint, headers=self.headers, json={'active':False})).status, 200)
         self.assertEqual((await self.client.delete(endpoint, headers=self.headers)).status, 200)
 
-    async def test_legacy_migration(self):
+    async def test_earlier_admin_database_is_not_migrated(self):
         with app.db() as conn:
             admin = conn.execute("SELECT * FROM users WHERE role='admin'").fetchone()
             conn.execute('CREATE TABLE admin(id INTEGER PRIMARY KEY,salt TEXT,hash TEXT)')
             conn.execute('INSERT INTO admin VALUES(1,?,?)', (admin['salt'],admin['hash']))
             conn.execute('DROP TABLE users')
-        app.initialize()
-        app.initialize()
-        await self.login_account('admin', self.password)
-        with app.db() as conn:
-            self.assertEqual(conn.execute('SELECT COUNT(*) FROM users').fetchone()[0], 1)
-            self.assertIsNone(conn.execute("SELECT 1 FROM sqlite_master WHERE name='admin'").fetchone())
+            conn.execute('PRAGMA application_id=0')
+        before = (app.STATE/'admin.sqlite3').read_bytes()
+        with self.assertRaisesRegex(RuntimeError, 'fresh installation'):
+            app.initialize()
+        self.assertEqual((app.STATE/'admin.sqlite3').read_bytes(), before)
 
     async def test_private_content_and_role_changes(self):
         uid = await self.create_account()
@@ -363,7 +362,7 @@ class ServerTests(unittest.IsolatedAsyncioTestCase):
         await ws.close()
         self.assertEqual((await self.client.delete('/api/terminals/'+term.id, headers=self.headers)).status, 200)
 
-    async def test_shared_content_migration(self):
+    async def test_earlier_shared_content_is_not_adopted(self):
         await self.create_account()
         with app.db() as conn:
             conn.execute('DROP TABLE items')
@@ -373,16 +372,11 @@ class ServerTests(unittest.IsolatedAsyncioTestCase):
             conn.execute("INSERT INTO items VALUES ('folder',NULL,'folder','Old folder','',22,'')")
             conn.execute("INSERT INTO items VALUES ('profile','folder','profile','Old profile','host',22,'pi')")
             conn.execute("INSERT INTO hostkeys VALUES ('host',22,'trusted-key')")
-        app.initialize()
-        app.initialize()
-        alice = await self.login_account()
-        self.assertEqual((await (await self.client.get('/api/items', headers=alice)).json())['items'], [])
-        rows = (await (await self.client.get('/api/items', headers=self.headers)).json())['items']
-        self.assertEqual(len(rows), 2)
-        self.assertEqual(next(row for row in rows if row['id']=='profile')['parent'], 'folder')
-        with app.db() as conn:
-            self.assertEqual(conn.execute('SELECT user_id FROM hostkeys').fetchone()[0], app.SESSIONS[self.token]['user_id'])
-            self.assertEqual(conn.execute('PRAGMA foreign_key_check').fetchall(), [])
+            conn.execute('PRAGMA application_id=0')
+        before = (app.STATE/'admin.sqlite3').read_bytes()
+        with self.assertRaisesRegex(RuntimeError, 'fresh installation'):
+            app.initialize()
+        self.assertEqual((app.STATE/'admin.sqlite3').read_bytes(), before)
 
     async def test_folders_persistence_and_cycles(self):
         response = await self.client.post('/api/items', headers=self.headers, json={'name':'Pi','kind':'folder'})

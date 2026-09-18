@@ -34,7 +34,7 @@ sudo ./Examples/installation/install-from-config.sh pi2000.toml
 | [caddy/preview-caddy-config.sh](caddy/preview-caddy-config.sh) | Render Caddy, application environment and service files into a new directory for review. If Caddy is installed, also adapt its configuration to JSON. |
 | [caddy/export-local-ca-certificate.sh](caddy/export-local-ca-certificate.sh) | Export the public LAN CA certificate for your client devices. |
 
-The Caddyfiles illustrate what the installer generates. Use TOML and the installer to apply changes so the application origin and Caddy address remain consistent. These are complete configurations for a dedicated server; they are not snippets to append to another Caddy installation. The private Unix administration socket and internal `win2k` paths are intentional. The installer creates the required directories and permissions.
+The Caddyfiles illustrate what the installer generates. Use TOML and the installer to apply changes so the application origin and Caddy address remain consistent. These are complete configurations for a dedicated server; they are not snippets to append to another Caddy installation. The private Unix administration socket and `pi2000` installation paths are intentional. The installer creates the required directories and permissions.
 
 ```sh
 # Choose a directory that does not already exist.

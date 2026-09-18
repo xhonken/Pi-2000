@@ -1,6 +1,7 @@
 from request_security import body_chunks
 import asyncio
 import build_info
+from installation import prepare_state
 from runtime_health import RuntimeIdentity, compare as compare_runtime
 from resource_limits import BROWSER_MEMORY_MAX
 from contextlib import contextmanager
@@ -39,9 +40,9 @@ from utility_tools import UtilityTools
 from git_tools import GitTools
 import arduino_workshop
 
-STATE = Path(os.environ.get('WIN2K_STATE', '/var/lib/pi2000-admin'))
-ORIGIN = os.environ.get('WIN2K_ORIGIN', 'https://localhost')
-COOKIE = '__Host-win2k'
+STATE = Path(os.environ.get('PI2000_STATE', '/var/lib/pi2000-admin'))
+ORIGIN = os.environ.get('PI2000_ORIGIN', 'https://localhost')
+COOKIE = '__Host-pi2000'
 TOKEN = web.RequestKey('token', str)
 USER = web.RequestKey('user', dict)
 SESSIONS = {}
@@ -51,8 +52,8 @@ HASHING = 0
 TERMINALS = {}
 BROWSERS = None
 FILES = None
-WORKER_MODE = os.environ.get('WIN2K_SESSION_WORKER') == '1'
-WORKER_SOCKET = os.environ.get('WIN2K_WORKER_SOCKET', '') if not WORKER_MODE else ''
+WORKER_MODE = os.environ.get('PI2000_SESSION_WORKER') == '1'
+WORKER_SOCKET = os.environ.get('PI2000_WORKER_SOCKET', '') if not WORKER_MODE else ''
 TERMINAL_HISTORY_LIMIT = 2 * 1024 * 1024
 
 
@@ -89,7 +90,7 @@ async def hash_password(password, salt):
 def initialize(initial_password=None, initial_username="admin"):
     if initial_password is not None and (not isinstance(initial_password, str) or not 12 <= len(initial_password) <= 1024):
         raise ValueError('The initial password must contain 12 to 1024 characters.')
-    STATE.mkdir(parents=True, exist_ok=True)
+    prepare_state(STATE)
     with db() as conn:
         conn.executescript('''
         CREATE TABLE IF NOT EXISTS users (
@@ -98,25 +99,22 @@ def initialize(initial_password=None, initial_username="admin"):
             salt TEXT NOT NULL, hash TEXT NOT NULL,
             role TEXT NOT NULL DEFAULT 'user' CHECK(role IN ('admin','user')),
             active INTEGER NOT NULL DEFAULT 1 CHECK(active IN (0,1)),
-            version INTEGER NOT NULL DEFAULT 1);
+            version INTEGER NOT NULL DEFAULT 1,
+            storage_quota INTEGER NOT NULL DEFAULT 52428800,
+            is_creator INTEGER NOT NULL DEFAULT 0,
+            auth_backend TEXT NOT NULL DEFAULT 'legacy',
+            linux_username TEXT NOT NULL DEFAULT '',
+            account_state TEXT NOT NULL DEFAULT 'ready',
+            linux_managed INTEGER NOT NULL DEFAULT 1);
         DROP TRIGGER IF EXISTS protect_admin_delete;
         DROP TRIGGER IF EXISTS protect_admin_update;
-        CREATE TABLE IF NOT EXISTS items (id TEXT PRIMARY KEY, parent TEXT, kind TEXT, name TEXT, host TEXT, port INTEGER, username TEXT);
-        CREATE TABLE IF NOT EXISTS hostkeys (host TEXT, port INTEGER, key TEXT, PRIMARY KEY(host, port));
+        CREATE TABLE IF NOT EXISTS items (id TEXT PRIMARY KEY, parent TEXT, kind TEXT,
+            name TEXT, host TEXT, port INTEGER, username TEXT,
+            user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE);
+        CREATE TABLE IF NOT EXISTS hostkeys (host TEXT, port INTEGER, key TEXT,
+            user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            PRIMARY KEY(user_id,host,port));
         ''')
-        if 'storage_quota' not in {row['name'] for row in conn.execute('PRAGMA table_info(users)')}:
-            conn.execute('ALTER TABLE users ADD COLUMN storage_quota INTEGER NOT NULL DEFAULT 52428800')
-        columns = {row['name'] for row in conn.execute('PRAGMA table_info(users)')}
-        for name, definition in [('is_creator', 'INTEGER NOT NULL DEFAULT 0'), ('auth_backend', "TEXT NOT NULL DEFAULT 'legacy'"), ('linux_username', "TEXT NOT NULL DEFAULT ''"), ('account_state', "TEXT NOT NULL DEFAULT 'ready'"), ('linux_managed', 'INTEGER NOT NULL DEFAULT 1')]:
-            if name not in columns: conn.execute('ALTER TABLE users ADD COLUMN '+name+' '+definition)
-        if 'is_creator' not in columns:
-            conn.execute("UPDATE users SET is_creator=1 WHERE username='admin' COLLATE NOCASE")
-        legacy = conn.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='admin'").fetchone()
-        if legacy:
-            admin = conn.execute('SELECT * FROM admin WHERE id=1').fetchone()
-            if admin and not conn.execute("SELECT 1 FROM users WHERE role='admin'").fetchone():
-                conn.execute("INSERT INTO users(username,salt,hash,role) VALUES ('admin',?,?,'admin')", (admin['salt'], admin['hash']))
-            conn.execute('DROP TABLE admin')
         if not conn.execute("SELECT 1 FROM users WHERE role='admin'").fetchone():
             password = initial_password if initial_password is not None else secrets.token_urlsafe(18)
             salt = secrets.token_hex(16)
@@ -126,8 +124,6 @@ def initialize(initial_password=None, initial_username="admin"):
                 path.write_text(password + '\n')
                 path.chmod(0o600)
 
-        if not conn.execute('SELECT 1 FROM users WHERE is_creator=1').fetchone():
-            conn.execute("UPDATE users SET is_creator=1 WHERE username='admin' COLLATE NOCASE")
         conn.executescript("""
         CREATE UNIQUE INDEX IF NOT EXISTS one_creator ON users(is_creator) WHERE is_creator=1;
         CREATE TRIGGER protect_admin_delete BEFORE DELETE ON users WHEN OLD.is_creator=1
@@ -139,17 +135,6 @@ def initialize(initial_password=None, initial_username="admin"):
             WHEN OLD.is_creator=0 AND NEW.is_creator=1
             BEGIN SELECT RAISE(ABORT, 'Creator is immutable'); END;
         """)
-        owner_id = conn.execute('SELECT id FROM users WHERE is_creator=1').fetchone()['id']
-        if 'user_id' not in {row['name'] for row in conn.execute('PRAGMA table_info(items)')}:
-            conn.execute('ALTER TABLE items RENAME TO legacy_items')
-            conn.execute('CREATE TABLE items (id TEXT PRIMARY KEY, parent TEXT, kind TEXT, name TEXT, host TEXT, port INTEGER, username TEXT, user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE)')
-            conn.execute('INSERT INTO items SELECT *,? FROM legacy_items', (owner_id,))
-            conn.execute('DROP TABLE legacy_items')
-        if 'user_id' not in {row['name'] for row in conn.execute('PRAGMA table_info(hostkeys)')}:
-            conn.execute('ALTER TABLE hostkeys RENAME TO legacy_hostkeys')
-            conn.execute('CREATE TABLE hostkeys (host TEXT, port INTEGER, key TEXT, user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE, PRIMARY KEY(user_id,host,port))')
-            conn.execute('INSERT INTO hostkeys SELECT *,? FROM legacy_hostkeys', (owner_id,))
-            conn.execute('DROP TABLE legacy_hostkeys')
         conn.execute('CREATE INDEX IF NOT EXISTS items_user ON items(user_id)')
         conn.execute('CREATE TABLE IF NOT EXISTS workspaces (user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE, data TEXT NOT NULL)')
         conn.execute('CREATE TABLE IF NOT EXISTS desktops (user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE, data TEXT NOT NULL)')
@@ -1233,6 +1218,6 @@ if __name__ == '__main__':
     identify('pi2000-sessions' if WORKER_MODE else 'pi2000-api')
     os.umask(0o077)
     if WORKER_MODE:
-        web.run_app(make_app(), path=os.environ.get('WIN2K_LISTEN_SOCKET', '/run/pi2000-sessions/worker.sock'), access_log=None)
+        web.run_app(make_app(), path=os.environ.get('PI2000_LISTEN_SOCKET', '/run/pi2000-sessions/worker.sock'), access_log=None)
     else:
-        web.run_app(make_app(), host='127.0.0.1', port=int(os.environ.get('WIN2K_PORT', 8765)), access_log=None)
+        web.run_app(make_app(), host='127.0.0.1', port=int(os.environ.get('PI2000_PORT', 8765)), access_log=None)

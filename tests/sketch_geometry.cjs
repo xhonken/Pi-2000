@@ -1,4 +1,4 @@
-const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict'),ctx={window:{}};vm.runInNewContext(fs.readFileSync('assets/sketch-geometry.js','utf8'),ctx);const g=ctx.window.Win2kGeometry;
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict'),ctx={window:{}};vm.runInNewContext(fs.readFileSync('assets/sketch-geometry.js','utf8'),ctx);const g=ctx.window.Pi2000Geometry;
 const near=(a,b)=>assert.ok(Math.abs(a-b)<1e-7,`${a} != ${b}`);
 near(g.shape({type:'triangle',width:3,sideB:4,sideC:5}).area,6);assert.throws(()=>g.shape({type:'triangle',width:3,sideB:1,sideC:1}));
 near(g.shape({type:'circle',width:10}).area,Math.PI*25);near(g.shape({type:'ellipse',width:10,height:6}).area,Math.PI*15);near(g.shape({type:'polygon',width:10,sides:4}).area,100);near(g.shape({type:'trapezoid',width:10,height:5,top:6}).area,40);near(g.shape({type:'slot',width:20,height:10}).area,100+Math.PI*25);

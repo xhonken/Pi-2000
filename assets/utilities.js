@@ -1,7 +1,7 @@
 /* Shared private-file workflows and graphical network/archive/log tools. */
 (() => {
  'use strict';
- const d=Win2kDesktop,s=Win2kShell,{esc,button}=Win2kDevelopment,windows=new Map();
+ const d=Pi2000Desktop,s=Pi2000Shell,{esc,button}=Pi2000Development,windows=new Map();
  function focus(type){const w=windows.get(type);if(w){s.closeStart();w.focus();}return w;}
  function create(type,title,html){
   s.closeStart();const w=d.makeWindow(title,type),owner=d.getUser().id,controllers=new Set();windows.set(type,w);
@@ -16,7 +16,7 @@
  }
  function download(name,data,type='application/octet-stream'){const url=URL.createObjectURL(new Blob([data],{type})),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
  function form(c,title,html,label,submit){
-  s.show(title,`<form class="utility-form">${html}<p class="error" role="alert"></p><div class="utility-form-actions"><button class="win2k-button" type="button" data-cancel>Cancel</button><button class="win2k-button">${esc(label)}</button></div></form>`);
+  s.show(title,`<form class="utility-form">${html}<p class="error" role="alert"></p><div class="utility-form-actions"><button class="pi2000-button" type="button" data-cancel>Cancel</button><button class="pi2000-button">${esc(label)}</button></div></form>`);
   c.formOpen=true;const f=document.querySelector('.utility-form'),modal=document.querySelector('#window'),guardCancel=e=>{if(c.busy)e.preventDefault();};modal.addEventListener('cancel',guardCancel);modal.addEventListener('close',()=>{c.formOpen=false;modal.removeEventListener('cancel',guardCancel);for(const input of f.querySelectorAll('input[type=password]'))input.value='';f.remove();},{once:true});f.querySelector('[data-cancel]').onclick=()=>modal.close();
   f.onsubmit=async e=>{e.preventDefault();if(!c.alive())return modal.close();if(c.busy){f.querySelector('.error').textContent='Wait for the current operation.';return;}const buttons=[...f.querySelectorAll('button')];buttons.forEach(b=>b.disabled=true);c.busy=true;try{await submit(f);modal.close();}catch(e){f.querySelector('.error').textContent=e.message;}finally{c.busy=false;buttons.forEach(b=>b.disabled=false);}};f.querySelector('input,select')?.focus();return f;
  }
@@ -54,8 +54,8 @@
   c.command('Open Archive',()=>picker(c,'Open ZIP Archive',f=>/\.zip$/i.test(f.name),load));
   c.command('Create Archive',async()=>{const {items}=await c.request('/files');const available=items.filter(x=>x.state==='live');if(!available.length)throw Error('Upload or create files in My Files first.');form(c,'Create ZIP Archive',`<label>Files and folders<select name="files" multiple size="12" required>${available.map(x=>`<option value="${x.id}">${esc(x.name)}${x.kind==='folder'?'/':''}</option>`).join('')}</select></label><p>Use Ctrl or Shift to select several entries. The ZIP downloads to your computer. Folder contents are included.</p>`,'Download ZIP',async f=>{const ids=[...f.elements.files.selectedOptions].map(x=>x.value);const response=await fetch('/api/files/archive?'+new URLSearchParams({ids:ids.join(',')}));if(!response.ok)throw Error((await response.json()).error||'Could not create ZIP.');const blob=await response.blob();if(c.alive())download('archive.zip',blob);});});
   c.command('Select All',()=>{selected=new Set(entries.map(r=>r.index));draw();});c.command('Select None',()=>{selected.clear();draw();});
-  c.command('Extract Selected',async()=>{if(!file||!selected.size)throw Error('Open an archive and select entries first.');const {items}=await c.request('/files');form(c,'Extract ZIP Entries',`<label>Destination parent<select name="parent">${folderOptions(items.filter(x=>x.state==='live'))}</select></label><label>New folder name<input name="name" required value="${esc(file.name.replace(/\.zip$/i,''))}"></label><p>Selected folders include their contents. Extraction is checked against your quota and preserves the ZIP folder structure.</p>`,'Extract',async f=>{const result=await c.request('/utilities/archive',{action:'extract',file:file.id,version,entries:[...selected],parent:f.elements.parent.value,name:f.elements.name.value});destination=result.folder;w.status.textContent='Extracted '+result.files+' files ('+result.bytes.toLocaleString()+' bytes). Use Open Destination to view them.';window.dispatchEvent(new Event('win2k-files-refresh'));});});
-  c.command('Open Destination',()=>{if(!destination)throw Error('Extract an archive first.');Win2kFiles.openFolder(destination);});c.command('Refresh Archive',()=>{if(!file)throw Error('Open a ZIP first.');return load(file);});$('.archive-filter').oninput=draw;return w;
+  c.command('Extract Selected',async()=>{if(!file||!selected.size)throw Error('Open an archive and select entries first.');const {items}=await c.request('/files');form(c,'Extract ZIP Entries',`<label>Destination parent<select name="parent">${folderOptions(items.filter(x=>x.state==='live'))}</select></label><label>New folder name<input name="name" required value="${esc(file.name.replace(/\.zip$/i,''))}"></label><p>Selected folders include their contents. Extraction is checked against your quota and preserves the ZIP folder structure.</p>`,'Extract',async f=>{const result=await c.request('/utilities/archive',{action:'extract',file:file.id,version,entries:[...selected],parent:f.elements.parent.value,name:f.elements.name.value});destination=result.folder;w.status.textContent='Extracted '+result.files+' files ('+result.bytes.toLocaleString()+' bytes). Use Open Destination to view them.';window.dispatchEvent(new Event('pi2000-files-refresh'));});});
+  c.command('Open Destination',()=>{if(!destination)throw Error('Extract an archive first.');Pi2000Files.openFolder(destination);});c.command('Refresh Archive',()=>{if(!file)throw Error('Open a ZIP first.');return load(file);});$('.archive-filter').oninput=draw;return w;
  }
  function logs(){
   const previous=focus('log-window');if(previous)return previous;
@@ -73,6 +73,6 @@
   $('.log-filter').oninput=draw;$('.log-level').onchange=draw;c.cleanup=()=>{stop();if(remote)remote.password='';remote=null;text='';};return w;
  }
  s.actions.network=network;s.actions.archive=archive;s.actions.logviewer=logs;
- for(const [type,restore] of [['network-window',network],['archive-window',archive],['log-window',logs]])Win2kApps.register({type,singleton:true,restore});
- window.Win2kUtilities={create,focus,form,picker,saveText,folderOptions,download,esc};
+ for(const [type,restore] of [['network-window',network],['archive-window',archive],['log-window',logs]])Pi2000Apps.register({type,singleton:true,restore});
+ window.Pi2000Utilities={create,focus,form,picker,saveText,folderOptions,download,esc};
 })();

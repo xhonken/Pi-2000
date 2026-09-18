@@ -95,5 +95,5 @@ class ToolsTests(unittest.IsolatedAsyncioTestCase):
                 r=await call('read',path=path);self.assertEqual(r.status,400)
             r=await call('write',path='new.py',version='bad',text='bad');self.assertEqual(r.status,400)
             await self.create_account();alice=await self.login_account();r=await self.client.post('/api/sftp/editor',headers=alice,json={**data,'action':'read'});self.assertEqual(r.status,404)
-            self.assertFalse(list(remote.glob('.win2k-*')))
+            self.assertFalse(list(remote.glob('.pi2000-*')))
         finally:server.close();await server.wait_closed()

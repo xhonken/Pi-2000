@@ -62,7 +62,7 @@ def main():
   forward=f'127.0.0.1:18306:127.0.0.1:{db.port}'
   command=['ssh','-S',a.control,'-O']
   subprocess.run(command+['forward','-R',forward,a.ssh_user+'@'+a.host],check=True)
-  try:subprocess.run(['node','tests/phpmyadmin_ui.cjs'],cwd=ROOT,env={**env,'WIN2K_TEST_DB_PORT':'18306'},check=True)
+  try:subprocess.run(['node','tests/phpmyadmin_ui.cjs'],cwd=ROOT,env={**env,'PI2000_TEST_DB_PORT':'18306'},check=True)
   finally:subprocess.run(command+['cancel','-R',forward,a.ssh_user+'@'+a.host],check=True)
  print('PASS: package functional checks complete',flush=True)
  api('/logout',{})
