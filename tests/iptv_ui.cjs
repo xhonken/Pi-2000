@@ -33,7 +33,7 @@ const {command}=require('./classic_helpers.cjs');
   await page.screenshot({path:path.join(process.env.WIN2K_TEST_ARTIFACTS,'iptv-narrow.png')});
   await page.setViewportSize({width:1280,height:900});await page.evaluate(()=>document.documentElement.style.removeProperty('--personal-font-size'));
   await page.waitForTimeout(2200);await page.reload();await page.locator('#session').waitFor({state:'visible'});await w.waitFor();assert.equal(await w.locator('video').evaluate(v=>v.paused),true);await w.getByRole('option',{name:/Archive TV/}).waitFor();
-  await w.locator('[data-control=close]').click();assert.equal(await page.locator('.iptv-window').count(),0);assert.deepEqual(errors,[]);
+  await w.getByRole('button',{name:'Add Playlist',exact:true}).click();await dialog.locator('[name=url]').fill('https://example.invalid/?password=discarded-fixture');await page.evaluate(()=>document.querySelector('.iptv-window [data-control=close]').click());assert.equal(await dialog.locator('input').count(),0);assert.equal(await page.locator('.iptv-window').count(),0);assert.deepEqual(errors,[]);
   console.log('PASS IPTV private import, country/search filters, HLS and TS decoded video/audio, isolated AAC conversion, MP4/history, Xtream episodes/archive, guide, favorites, window recovery, narrow 18px UI and credential-free media URLs');
  }finally{await browser.close();}
 })().catch(e=>{console.error(e);process.exit(1)});

@@ -51,9 +51,9 @@
   $('.iptv-breadcrumb button').onclick=()=>run(()=>{parent='';return catalog(true);});
   function clock(value){value=Math.floor(value||0);return Math.floor(value/3600)+':'+String(Math.floor(value%3600/60)).padStart(2,'0')+':'+String(value%60).padStart(2,'0');}
   function savePosition(keepalive=false){if(!playing||!alive()&&!keepalive||!Number.isFinite(video.currentTime))return Promise.resolve();lastSave=Date.now();return api(entryPath(playing.item,playing.source),{position:video.currentTime},'PATCH',keepalive).catch(()=>{});}
-  function stop(notify=true){
-   playEpoch++;savePosition();hls?.destroy();hls=null;ts?.destroy();ts=null;video.pause();video.removeAttribute('src');video.load();playing=null;seekTo=0;
-   if(session){api('/play/'+session,undefined,'DELETE',!alive()).catch(()=>{});session=null;}
+  function stop(notify=true,closing=false){
+   playEpoch++;savePosition(closing);hls?.destroy();hls=null;ts?.destroy();ts=null;video.pause();video.removeAttribute('src');video.load();playing=null;seekTo=0;
+   if(session){api('/play/'+session,undefined,'DELETE',closing||!alive()).catch(()=>{});session=null;}
    $('.iptv-empty').hidden=false;$('.iptv-now').textContent='Nothing playing';if(notify)status('Playback stopped');
   }
   function playbackError(){message('Playback failed. Try Reconnect, another channel or a compatible playback mode. The provider may be offline, geo-blocked, over its connection limit, DRM-protected or using an unsupported codec.');status('Playback unavailable');}
@@ -125,7 +125,7 @@
   w.captureState=()=>({source,kind,group:group.value,country:country.value,search:search.value});
   const accountChanged=()=>{if(d.getUser()?.id!==owner)w.close(true);};window.addEventListener('win2k-user',accountChanged);
   const leaving=()=>{savePosition(true);if(session)api('/play/'+session,undefined,'DELETE',true).catch(()=>{});};window.addEventListener('pagehide',leaving);
-  w.onclose=()=>{stop(false);closed=true;clearTimeout(searchTimer);for(const c of controllers)c.abort();window.removeEventListener('win2k-user',accountChanged);window.removeEventListener('pagehide',leaving);current=null;};
+  w.onclose=()=>{stop(false,true);const form=document.querySelector('#window .iptv-form');if(form){form.reset();form.replaceChildren();document.querySelector('#window').close();}closed=true;clearTimeout(searchTimer);for(const c of controllers)c.abort();window.removeEventListener('win2k-user',accountChanged);window.removeEventListener('pagehide',leaving);current=null;};
   // Restore the library, never autoplay paid streams after login/reboot.
   run(async()=>{await refreshSources();if(!alive())return;search.value=String(saved.search||'').slice(0,200);if([...group.options].some(o=>o.value===saved.group))group.value=saved.group;if([...country.options].some(o=>o.value===saved.country))country.value=saved.country;await catalog();});
   return w;
