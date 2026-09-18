@@ -3,7 +3,7 @@ import hashlib
 import json
 from urllib.parse import urlsplit
 
-APPS = frozenset('computer files devices browser trash editor arduino cad calculator search links network displaystudio archive vault logviewer add localterminal notes database apitester git sftp taskmanager activities status about preferences settings help'.split())
+APPS = frozenset('computer files devices browser trash editor arduino cad calculator search links network displaystudio archive vault iptv logviewer add localterminal notes database apitester git sftp taskmanager activities status about preferences settings help'.split())
 
 def etag(data):
     raw=json.dumps(data,sort_keys=True,separators=(',',':')).encode()

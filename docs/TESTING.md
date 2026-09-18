@@ -85,3 +85,14 @@ checkout. It creates and removes four real PAM test accounts, checks HTTPS heade
 anonymous/compressed requests, cross-account file/Vault boundaries and the installed
 Browser version gate. Generated passwords and the temporary operator token stay in
 memory. It does not open real users' documents or start an external Browser session.
+
+## IPTV media fixtures
+
+`test_iptv.py` includes per-account/credential boundaries, pinned public-network
+checks including redirects, bounded M3U/XMLTV/streaming JSON parsing, catalogue
+replacement, HLS rewriting, Xtream series/archive and actual network-isolated
+FFmpeg conversion. `iptv_ui.cjs` generates local H.264/AAC media, plays HLS/TS/MP4
+through the production gateway, verifies decoded audio/video and tests the UI,
+recovery and account-safe URLs. The fake provider is injected only by the test
+fixture; production has no private-network bypass. FFmpeg is required for these
+tests. Real-provider availability and installed PAM/HTTPS verification are separate.

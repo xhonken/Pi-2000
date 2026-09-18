@@ -57,6 +57,21 @@ If server memory is low, starting a new Browser may be refused. Status messages 
 
 Browser also pauses when the installed Chromium engine is older than the reviewed security minimum. The Pi operator must install a security update before Browser can reconnect. Your saved profile is retained. See [Security](SECURITY.md) for the current minimum and its limitations.
 
+## IPTV Player
+
+Open IPTV Player from the desktop or Start → Programs → Internet and Connections.
+Use **Add Playlist** for a complete M3U URL, an Xtream server/login or an M3U file.
+The source is private to your account. Filter Live TV, Movies and Series by group,
+country and search; double-click to play or open series episodes. Favorite toggles
+the selected entry. File contains refresh, rename, removal and Programme Guide.
+
+Load Guide fetches Xtream listings or displays imported XMLTV. Watch Archive is
+available only when the provider supplies completed programmes within its archive
+window. Playback mode offers original quality or direct TS/file audio/video
+compatibility conversion on the Pi. Saved viewing positions resume when the media
+supports seeking; restored windows never autoplay. Read the [IPTV guide](IPTV.md)
+for supported formats, guide setup and limitations.
+
 ## Pi++ and SFTP
 
 Pi++ is the former Code Editor, redesigned with a Notepad++-inspired document panel, toolbar and menus. Open a file from the folder panel or File → Open. File → Import from Computer opens UTF-8 files as unsaved tabs. Ctrl+S saves the active file; Save All saves changed documents in order and stops on a conflict or cancelled Save As. Download exports the active text.

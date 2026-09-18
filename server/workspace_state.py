@@ -3,8 +3,8 @@ import json
 import re
 
 MAX_BYTES = 4 * 1024**2
-TYPES = frozenset((name+'-window') for name in 'explorer users terminal browser status files trash editor preview search activities notes preferences sftp cad calculator taskmanager phpmyadmin database api git arduino network display archive log vault'.split())
-STATE_TYPES = {'arduino-window', 'display-window', 'cad-window', 'calculator-window', 'editor-window'}
+TYPES = frozenset((name+'-window') for name in 'explorer users terminal browser status files trash editor preview search activities notes preferences sftp cad calculator taskmanager phpmyadmin database api git arduino network display archive log vault iptv'.split())
+STATE_TYPES = {'iptv-window', 'arduino-window', 'display-window', 'cad-window', 'calculator-window', 'editor-window'}
 
 def validate(data):
     if not isinstance(data, dict) or set(data) != {'windows'} or not isinstance(data['windows'], list) or len(data['windows']) > 12:

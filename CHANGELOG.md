@@ -4,6 +4,12 @@ User-visible changes are recorded here for each numbered release. Development be
 
 ## Unreleased
 
+- Add a private IPTV Player with M3U/Xtream import, live/movie/series views,
+  country/group/search filters, favorites, viewing positions, XMLTV and provider
+  catchup. Stream HLS, TS and media files through login-bound opaque URLs; add
+  isolated FFmpeg AAC/H.264 compatibility modes and bounded streaming imports.
+  See [IPTV Player](docs/IPTV.md) for format, provider and security boundaries.
+
 - Harden Browser supervisor log handling and root backup traversal against planted
   or raced filesystem links; rotate Vault data keys as well as passwords/recovery
   protection. Bound active requests and login sessions, reject encoded/malformed

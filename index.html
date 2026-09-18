@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; worker-src 'self' blob:; font-src 'self' data:; connect-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; worker-src 'self' blob:; media-src 'self' blob:; font-src 'self' data:; connect-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'">
 <meta name="description" content="Pi-2000Web: your personal web desktop inspired by Windows 2000.">
 <title>Pi-2000Web – Desktop</title>
 <link rel="stylesheet" href="dist/win2k-ui.css"><link rel="stylesheet" href="assets/system-icons.css?v=5"><link rel="stylesheet" href="assets/desktop.css?v=5">
@@ -46,6 +46,10 @@
 <script src="assets/display-studio.js" defer></script>
 <script src="assets/serial-plotter.js" defer></script>
 <script src="assets/arduino.js" defer></script>
+<link rel="stylesheet" href="assets/iptv.css">
+<script src="assets/vendor/hls.js/hls.min.js" defer></script>
+<script src="assets/vendor/mpegts.js/mpegts.js" defer></script>
+<script src="assets/iptv.js" defer></script>
 <link rel="stylesheet" href="assets/vault.css">
 <script src="assets/vault-crypto.js" defer></script>
 <script src="assets/vault.js" defer></script>
@@ -86,6 +90,7 @@
    <button class="desktop-icon" data-action="network"><span class="win2k-pixel-icon win2k-icon-devices" aria-hidden="true"></span><span class="icon-label">Network Tools</span></button>
    <button class="desktop-icon" data-action="displaystudio"><span class="win2k-pixel-icon win2k-icon-cad" aria-hidden="true"></span><span class="icon-label">Display Studio</span></button>
    <button class="desktop-icon" data-action="archive"><span class="win2k-pixel-icon win2k-icon-folder" aria-hidden="true"></span><span class="icon-label">Archive Manager</span></button>
+   <button class="desktop-icon" data-action="iptv"><span class="win2k-pixel-icon win2k-icon-iptv" aria-hidden="true"></span><span class="icon-label">IPTV Player</span></button>
    <button class="desktop-icon" data-action="vault"><span class="win2k-pixel-icon win2k-icon-vault" aria-hidden="true"></span><span class="icon-label">Vault</span></button>
    <button class="desktop-icon" data-action="logviewer"><span class="win2k-pixel-icon win2k-icon-notes" aria-hidden="true"></span><span class="icon-label">Log Viewer</span></button>
   <div id="custom-icons"></div><div id="file-icons"></div>

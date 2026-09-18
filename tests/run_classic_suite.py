@@ -28,6 +28,10 @@ for test in tests:
         env={**os.environ,'NODE_PATH':str(root/'node_modules'),
              'WIN2K_TEST_URL':origin,'WIN2K_TEST_LISTEN_FD':str(listener.fileno()),
              'WIN2K_TEST_ARTIFACTS':str(artifacts)}
+        if test=='iptv_ui.cjs':
+            from iptv_fixture import make_media
+            make_media(Path(work)/'media')
+            env['WIN2K_TEST_IPTV_MEDIA']=str(Path(work)/'media')
         if test in ('editor_sftp_ui.cjs','utilities_ui.cjs'):
             env['WIN2K_TEST_SFTP_DIR']=str(Path(work)/'sftp')
         if test=='utilities_ui.cjs':env['WIN2K_TEST_SERIAL_PTY']='1'

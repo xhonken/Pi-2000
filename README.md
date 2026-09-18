@@ -24,6 +24,14 @@ and [utility tools guide](docs/UTILITY-TOOLS.md). **Fresh installation of this
 release on a reimaged Pi 4 and physical ESP32/sensor/display acceptance remain
 pending.** This is a prerelease intended for testing.
 
+## IPTV Player (development after Alpha 5)
+
+Private M3U and Xtream sources, country/group filters, live TV, movies, series,
+favorites, XMLTV and provider archive playback are available in the new
+[IPTV Player](docs/IPTV.md). HLS/TS/native playback and isolated FFmpeg compatibility
+modes run through authenticated media routes. Provider access and codec limits
+are documented in the guide; no subscription or channels are included.
+
 ## Development maintenance work
 
 Post-Alpha 5 development adds guarded recovery and encrypted backup export,
@@ -47,6 +55,7 @@ Existing web accounts migrate on their next successful login. A pre-existing Lin
 | Recycle Bin | Restore deleted files, folders and shortcuts, or delete them permanently. |
 | Local Terminal | Private terminal on the Pi under each administrator’s individual Linux identity. Sudo is granted separately by the OS administrator. |
 | My Devices | Organise SSH connection profiles in folders; verify host keys and connect to remote devices. |
+| IPTV Player | Private M3U/Xtream library, countries/groups, live/films/series, favorites, programme guide and provider archive. See [IPTV](docs/IPTV.md). |
 | Browser | Persistent Chromium tabs, separate cookies and profiles for each account, audio, automatic resizing and an enforced uBlock Origin Lite policy. |
 | Pi++ | Notepad++-inspired editor with a compact toolbar, document panel, accessible tabs, Save All, search across open documents, bookmarks, language selection, LF/CR LF conversion, private preferences, recovery drafts, SFTP and syntax diagnostics. |
 | MariaDB Manager | Embedded phpMyAdmin, private local/external connections, SQL, table data and structure, users/privileges, search and import/export within the database account's permissions. Saved SQL Workspace preserves native drafts, direct row editing and the guided JOIN builder. |

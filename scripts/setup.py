@@ -31,7 +31,7 @@ STATE = Path('/var/lib/win2k-admin')
 APP = Path('/opt/win2k-admin')
 SITE = Path('/srv/win2k')
 CA = Path('/var/lib/caddy/.local/share/caddy/pki/authorities/local/root.crt')
-BASE_PACKAGES = ['python3-venv', 'caddy', 'sqlite3', 'git', 'ca-certificates', 'sudo', 'iproute2', 'iputils-ping', 'age', 'nodejs', 'bubblewrap', 'openssh-server', 'libpam0g', 'libpam-modules']
+BASE_PACKAGES = ['ffmpeg', 'python3-venv', 'caddy', 'sqlite3', 'git', 'ca-certificates', 'sudo', 'iproute2', 'iputils-ping', 'age', 'nodejs', 'bubblewrap', 'openssh-server', 'libpam0g', 'libpam-modules']
 BROWSER_PACKAGES = ['chromium', 'xvfb', 'pulseaudio', 'pulseaudio-utils', 'bubblewrap',
                     'openbox', 'xauth', 'x11-xserver-utils', 'dbus-x11', 'gnome-keyring',
                     'fonts-liberation', 'nodejs', 'npm', 'build-essential',
@@ -187,7 +187,7 @@ def check_caddy_ownership(text, adopt):
                     'Permissions-Policy', '@desktop path', 'header @desktop Content-Security-Policy')))
             expected = re.sub(r'\s+', ' ', '\n'.join(line.split('#', 1)[0].strip() for line in expected.splitlines())).strip()
             previous = re.sub(r'\s+', ' ', '\n'.join(line.split('#', 1)[0].strip() for line in previous.splitlines())).strip()
-            if compact in (expected, previous):
+            if compact in (expected, previous, expected.replace(" media-src 'self' blob:;", ""), previous.replace(" media-src 'self' blob:;", "")):
                 return
     if compact == ':80 { root * /usr/share/caddy file_server }':
         return

@@ -1128,6 +1128,8 @@ def make_app():
     app.router.add_route('*','/api/phpmyadmin/view/{sid}/{path:.*}',phpmyadmin.view)
     app.router.add_post('/api/databases/transfer',databases.transfers.handle)
     app.cleanup_ctx.append(databases.lifecycle)
+    from iptv import IPTV
+    IPTV(sys.modules[__name__],databases.cipher).register(app)
     api_client=ApiClient(sys.modules[__name__],databases.cipher);api_client.initialize()
     utilities=UtilityTools(sys.modules[__name__]);utilities.initialize()
     app.router.add_post('/api/utilities/network',utilities.network)
