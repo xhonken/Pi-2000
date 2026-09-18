@@ -57,3 +57,31 @@ reconnect, locked Vault, failed reads/writes and stale-tab conflict handling.
 This verifies abrupt application-process death and durable state recovery; it
 is not a physical power-cut or filesystem-corruption test. No production server
 is killed.
+
+## Security regression fixtures
+
+`tests/test_security_hardening.py` checks a sandbox-profile log link, descriptor-based
+backup traversal during a directory swap, four-account object isolation including
+administrators, revoked phpMyAdmin requests, encoded/deep/mistyped bodies, bounded
+login/request admission, slow-account isolation, body timeouts, safe audit fields
+and the minimum Browser engine policy. `security_crypto_ui.cjs` uses the actual
+Web Crypto/Argon2 implementation to prove password/recovery rotation rejects old
+data keys, preserves every entry and fails without replacement on corrupt content.
+
+The browser-engine policy is mocked only in cold-start/filesystem unit fixtures;
+it is not bypassed by any production environment variable or web preference.
+Ordinary UI tests visit only the disposable local application, even when the test
+host's browser package is older than the production Browser security floor.
+
+Separate dependency checks can use a disposable pip-audit/bandit environment,
+`npm audit`, the OSV API for `assets/vendor/versions.json`, and Debian's security
+tracker. Record skipped/unrecognized packages and distribution backport caveats.
+Do not run destructive exploit probes against installed accounts to obtain a
+passing test. Installed validation uses newly created disposable accounts only.
+
+After installation, the operator can run
+`sudo /opt/win2k-admin/venv/bin/python tests/verify_installed_security.py` from the
+checkout. It creates and removes four real PAM test accounts, checks HTTPS headers,
+anonymous/compressed requests, cross-account file/Vault boundaries and the installed
+Browser version gate. Generated passwords and the temporary operator token stay in
+memory. It does not open real users' documents or start an external Browser session.

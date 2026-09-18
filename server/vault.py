@@ -1,4 +1,5 @@
 """Account-scoped opaque client-encrypted vaults. No server decryption keys."""
+from request_security import body_chunks
 import base64
 import binascii
 import json
@@ -84,7 +85,7 @@ class Vault:
                 value['vault'] = json.loads(row['data']) if row else None
             return web.json_response(value, headers={'Cache-Control': 'no-store'})
         raw = bytearray()
-        async for chunk in request.content.iter_chunked(65536):
+        async for chunk in body_chunks(request):
             raw.extend(chunk)
             if len(raw) > MAX_BYTES:
                 raise web.HTTPRequestEntityTooLarge(max_size=MAX_BYTES, actual_size=len(raw))

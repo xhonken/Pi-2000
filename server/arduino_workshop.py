@@ -1,4 +1,5 @@
 """Private Arduino projects and bounded CLI jobs. No client-supplied shell commands."""
+from request_security import body_chunks
 import asyncio
 import codecs
 import fcntl
@@ -84,6 +85,8 @@ class ArduinoWorkshop:
             if path.is_dir() and not path.is_symlink(): shutil.rmtree(path)
 
     def project(self, uid, key):
+        if not isinstance(key, str) or not re.fullmatch(r'[a-f0-9]{32}', key):
+            raise web.HTTPNotFound(text='Arduino project not found in your account.')
         with self.app.db() as db:
             row = db.execute('SELECT * FROM arduino_projects WHERE id=? AND user_id=?', (key, uid)).fetchone()
         if not row: raise web.HTTPNotFound(text='Arduino project not found in your account.')
@@ -388,7 +391,7 @@ class ArduinoWorkshop:
 
     async def handle_command(self, request):
         raw = bytearray()
-        async for chunk in request.content.iter_chunked(65536):
+        async for chunk in body_chunks(request):
             raw.extend(chunk)
             if len(raw) > MAX_SOURCE + 65536:
                 raise web.HTTPRequestEntityTooLarge(max_size=MAX_SOURCE+65536, actual_size=len(raw))
@@ -534,7 +537,7 @@ class ArduinoWorkshop:
 async def proxy(request):
     # The worker revalidates the same account cookie using the shared session DB.
     raw = bytearray()
-    async for chunk in request.content.iter_chunked(65536):
+    async for chunk in body_chunks(request):
         raw.extend(chunk)
         if len(raw) > MAX_SOURCE+65536: raise web.HTTPRequestEntityTooLarge(max_size=MAX_SOURCE+65536, actual_size=len(raw))
     async with ClientSession(connector=UnixConnector(path=SOCKET)) as client:

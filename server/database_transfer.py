@@ -3,6 +3,7 @@
 A transfer has a separate connection, never commits the editor's transaction,
 and never invokes client programs or grants access to server filesystem paths.
 """
+from request_security import body_chunks
 import asyncio
 import base64
 import json
@@ -84,7 +85,7 @@ class Transfers:
     async def handle(self,request):
         manager=self.manager;app=manager.app
         raw=bytearray()
-        async for chunk in request.content.iter_chunked(65536):
+        async for chunk in body_chunks(request):
             raw.extend(chunk)
             if len(raw)>MAX_IMPORT*2:raise web.HTTPRequestEntityTooLarge(max_size=MAX_IMPORT*2,actual_size=len(raw))
         data=json.loads(raw);app.require_current(request)

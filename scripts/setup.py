@@ -180,8 +180,14 @@ def check_caddy_ownership(text, adopt):
                                      'tls': 'internal' if 'tls internal' in compact else 'public'},
                          'features': {'browser': True}}
             expected = render(candidate)['Caddyfile']
+            # Recognize the complete previous managed template during upgrades;
+            # never accept arbitrary extra directives under our marker comment.
+            previous = '\n'.join(line for line in expected.splitlines()
+                if not any(marker in line for marker in ('Strict-Transport-Security',
+                    'Permissions-Policy', '@desktop path', 'header @desktop Content-Security-Policy')))
             expected = re.sub(r'\s+', ' ', '\n'.join(line.split('#', 1)[0].strip() for line in expected.splitlines())).strip()
-            if compact == expected:
+            previous = re.sub(r'\s+', ' ', '\n'.join(line.split('#', 1)[0].strip() for line in previous.splitlines())).strip()
+            if compact in (expected, previous):
                 return
     if compact == ':80 { root * /usr/share/caddy file_server }':
         return

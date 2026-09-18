@@ -4,6 +4,14 @@ User-visible changes are recorded here for each numbered release. Development be
 
 ## Unreleased
 
+- Harden Browser supervisor log handling and root backup traversal against planted
+  or raced filesystem links; rotate Vault data keys as well as passwords/recovery
+  protection. Bound active requests and login sessions, reject encoded/malformed
+  request bodies, revalidate phpMyAdmin operations and add security event logging.
+- Add desktop HTTP security headers and a minimum reviewed Chromium security
+  version; Browser pauses if the installed engine is known to predate fixes.
+  See [security boundaries and verification](docs/SECURITY.md).
+
 - Continuously checkpoint each account's workspace with save status, conditional
   writes and recovery that survives failed reads, individual app errors and a
   missing terminal service. Restore window order/layout and supported Pi++,

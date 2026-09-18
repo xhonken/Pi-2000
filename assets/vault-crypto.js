@@ -38,7 +38,19 @@
  function validSecret(value){exact(value,['username','url','secret','notes']);if(Object.values(value).some(s=>typeof s!=='string'||te.encode(s).length>32768))throw Error('Each content field must be at most 32 KB.');if(te.encode(JSON.stringify(value)).length>120000)throw Error('Entry content is too large.');return value;}
  async function readEntry(v,k,id){const raw=await decrypt(k,v.entries[id],aad(v,'entry-'+id));try{return validSecret(JSON.parse(td.decode(raw)));}finally{raw.fill(0);}}
  async function writeEntry(v,k,id,value){v.entries[id]=await encrypt(k,te.encode(JSON.stringify(validSecret(value))),aad(v,'entry-'+id));}
- async function rekey(v,a,b,newA,newB,signal){strong(newA,newB);const rawA=await unlockRaw(v,'a',a,signal);let rawB;try{rawB=await unlockRaw(v,'b',b,signal);const next=structuredClone(v);next.a=await wrap(next,'a',newA,rawA,signal);next.b=await wrap(next,'b',newB,rawB,signal);return {vault:next,recovery:await recovery(next,rawA,rawB)};}finally{rawA.fill(0);rawB?.fill(0);}}
- async function recover(v,code,newA,newB,signal){validate(v);strong(newA,newB);if(!/^PV1-[a-f0-9]{64}$/.test(code))throw Error('Enter the complete recovery key.');const rawKey=Uint8Array.from(code.slice(4).match(/../g),x=>parseInt(x,16));let raw;try{raw=await decrypt(await key(rawKey),v.recovery,aad(v,'recovery'));const next=structuredClone(v);next.a=await wrap(next,'a',newA,raw.subarray(0,32),signal);next.b=await wrap(next,'b',newB,raw.subarray(32),signal);await readIndex(next,await key(raw.subarray(0,32)));return {vault:next,recovery:await recovery(next,raw.subarray(0,32),raw.subarray(32))};}catch(e){if(e.name==='OperationError')throw Error('Incorrect recovery key or damaged Vault.');throw e;}finally{rawKey.fill(0);raw?.fill(0);}}
+ // Password changes and recovery must revoke old data keys too. Rewrapping
+ // alone lets keys recovered from an old stolen export decrypt future entries.
+ async function rotate(v,oldA,oldB,newA,newB,signal){
+  const next={format:1,id:id(),kdf:{...kdf},entries:{}},rawA=bytes(32),rawB=bytes(32);
+  const check=()=>{if(signal?.aborted)throw Error('Vault locked.');};
+  try{
+   check();const list=await readIndex(v,oldA),a=await key(rawA),b=await key(rawB);
+   next.a=await wrap(next,'a',newA,rawA,signal);next.b=await wrap(next,'b',newB,rawB,signal);
+   for(const item of list.items){check();const plain=await decrypt(oldB,v.entries[item.id],aad(v,'entry-'+item.id));try{validSecret(JSON.parse(td.decode(plain)));next.entries[item.id]=await encrypt(b,plain,aad(next,'entry-'+item.id));}finally{plain.fill(0);}}
+   check();await writeIndex(next,a,list);const code=await recovery(next,rawA,rawB);check();return {vault:next,recovery:code};
+  }finally{rawA.fill(0);rawB.fill(0);}
+ }
+ async function rekey(v,a,b,newA,newB,signal){strong(newA,newB);const oldA=await unlock(v,'a',a,signal),oldB=await unlock(v,'b',b,signal);return rotate(v,oldA,oldB,newA,newB,signal);}
+ async function recover(v,code,newA,newB,signal){validate(v);strong(newA,newB);if(!/^PV1-[a-f0-9]{64}$/.test(code))throw Error('Enter the complete recovery key.');const rawKey=Uint8Array.from(code.slice(4).match(/../g),x=>parseInt(x,16));let raw;try{raw=await decrypt(await key(rawKey),v.recovery,aad(v,'recovery'));return await rotate(v,await key(raw.subarray(0,32)),await key(raw.subarray(32)),newA,newB,signal);}catch(e){if(e.name==='OperationError')throw Error('Incorrect recovery key or damaged Vault.');throw e;}finally{rawKey.fill(0);raw?.fill(0);}}
  window.PiVaultCrypto=Object.freeze({validate,strong,create,unlock,readIndex,writeIndex,readEntry,writeEntry,rekey,recover,id});
 })();

@@ -1,4 +1,5 @@
 """Private preferences and quota-accounted notes/editor drafts."""
+from request_security import body_chunks
 import hashlib
 import json
 import re
@@ -38,7 +39,7 @@ class PersonalStore:
             with self.files.mutation(),self.files.db() as db:db.execute('DELETE FROM personal_docs WHERE user_id=? AND key=?',(uid,key))
             return web.json_response({'ok':True})
         raw=bytearray()
-        async for chunk in request.content.iter_chunked(65536):
+        async for chunk in body_chunks(request):
             raw.extend(chunk)
             if len(raw)>2*1024**2:raise web.HTTPRequestEntityTooLarge(max_size=2*1024**2,actual_size=len(raw))
         if not self.files.valid(request):raise web.HTTPUnauthorized()

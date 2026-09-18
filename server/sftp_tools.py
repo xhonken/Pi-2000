@@ -1,4 +1,5 @@
 """Explicit per-request SFTP operations. Passwords are never persisted."""
+from request_security import body_chunks
 import asyncio
 import hashlib
 import json
@@ -15,7 +16,7 @@ class SFTPTools:
         a=self.app
         if request.path.endswith('/editor'):
             raw=bytearray()
-            async for chunk in request.content.iter_chunked(65536):
+            async for chunk in body_chunks(request):
                 raw.extend(chunk)
                 if len(raw)>7*1024**2:raise web.HTTPRequestEntityTooLarge(max_size=7*1024**2,actual_size=len(raw))
             a.require_current(request);data=json.loads(raw)
@@ -28,6 +29,7 @@ class SFTPTools:
         if action not in ('list','mkdir','send','receive','read','write','tail'):raise web.HTTPBadRequest()
         password=data.get('password','');path=data.get('path','.')
         if not isinstance(password,str) or len(password)>1024 or not isinstance(path,str) or len(path)>2048 or '\x00' in path:raise web.HTTPBadRequest()
+        if not isinstance(data.get('profile'),str): raise web.HTTPNotFound(text='The connection does not exist.')
         with a.db() as db:
             row=db.execute("SELECT * FROM items WHERE id=? AND user_id=? AND kind='profile'",(data.get('profile'),uid)).fetchone()
             if not row:raise web.HTTPNotFound(text='The connection does not exist.')

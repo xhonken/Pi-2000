@@ -188,7 +188,7 @@ Regular users and added administrators see only their own browser process detail
 
 The nightly backup timer creates verified local snapshots containing the SQLite database, file blobs and browser profiles. Seven backups are retained under `/var/backups/win2k`. Browser processes are briefly frozen for a consistent filesystem snapshot. Restores are staged and validated before replacing data. Backups on the same disk do not protect against disk failure; an off-device backup plan remains necessary.
 
-The desktop uses an authenticated Python API, secure session cookies, Origin checks, bounded login/password work, per-account access checks and a Content Security Policy. Caddy administration uses a private Unix socket. The reviewed browser sandbox still shares the host network namespace, and SSH profiles can reach internal hosts. The project is not yet intended as unrestricted hosting for untrusted tenants.
+The desktop uses an authenticated Python API, secure session cookies, Origin checks, bounded login/password work, per-account access checks and a Content Security Policy. Caddy administration uses a private Unix socket. The reviewed browser sandbox still shares the host network namespace, and SSH profiles can reach internal hosts. The project is not yet intended as unrestricted hosting for untrusted tenants. See [security boundaries, review findings and remaining requirements](docs/SECURITY.md). Browser refuses new sessions when Chromium is older than the reviewed security floor; see that document before troubleshooting a security-update message.
 
 Read the dated [security findings and verification](docs/security/review-2026-09-08.md). Dependency audit JSON files record checks at that time; they are not a continuing guarantee of package safety.
 

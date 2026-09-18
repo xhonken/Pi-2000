@@ -1,4 +1,5 @@
 """Authenticated phpMyAdmin gateway over a private PHP-FPM Unix socket."""
+from request_security import body_chunks
 import asyncio
 import base64
 import hashlib
@@ -33,6 +34,7 @@ class PhpMyAdmin:
     def __init__(self, app, databases):
         self.app, self.databases, self.sessions = app, databases, {}
         self.limit = asyncio.Semaphore(1)
+        self.connecting = 0
 
     async def lifecycle(self, app):
         async def clean():
@@ -65,14 +67,24 @@ class PhpMyAdmin:
         if not isinstance(password, str) or len(password) > 1024:
             raise web.HTTPBadRequest(text='Invalid database password.')
         # Verify credentials and TLS before creating the embedded session.
+        if self.connecting >= 2:
+            raise web.HTTPTooManyRequests(text='Database connections are busy. Try again shortly.')
+        self.connecting += 1
+        connection = None
         try:
-            connection = await self.databases.open_connection(profile, password)
-            connection.close()
+            async with asyncio.timeout(15):
+                connection = await self.databases.open_connection(profile, password)
+            self.app.require_current(request)
+            if self.databases.profile(request[self.app.USER]['id'], data['connection']) != (profile, secret):
+                raise web.HTTPConflict(text='Connection settings changed. Reconnect.')
         except Exception as exc:
             from pymysql import MySQLError
             if isinstance(exc, MySQLError):
                 raise web.HTTPBadRequest(text='MariaDB rejected the connection: '+str(exc)) from None
             raise
+        finally:
+            self.connecting -= 1
+            if connection: connection.close()
         token = request[self.app.TOKEN]
         for key, session in list(self.sessions.items()):
             if session['token'] == token:
@@ -127,11 +139,14 @@ class PhpMyAdmin:
         if request.method not in ('GET','HEAD','POST'):
             raise web.HTTPMethodNotAllowed(request.method, ['GET','HEAD','POST'])
         body = bytearray()
-        async for chunk in request.content.iter_chunked(65536):
+        async for chunk in body_chunks(request):
             body.extend(chunk)
             if len(body) > LIMIT:
                 raise web.HTTPRequestEntityTooLarge(max_size=LIMIT, actual_size=len(body))
         self.app.require_current(request)
+        # Reading a slow POST yields to disconnect/profile changes. Do not
+        # execute its SQL using an obsolete session or saved credential.
+        key, session = self.session(request)
         prefix = '/api/phpmyadmin/view/'+key+'/'
         settings = dict(session['profile'], password=session['password'], base=self.app.ORIGIN+prefix, sid=key)
         cookie = '; '.join(k+'='+v for k,v in request.cookies.items() if k.removeprefix('__Secure-').removesuffix('_https') in ('phpMyAdmin','pma_lang','pma_theme','pma_collation_connection'))
@@ -167,6 +182,8 @@ class PhpMyAdmin:
             finally:
                 session['running'] = False
                 writer.close(); await writer.wait_closed()
+        self.app.require_current(request)
+        self.session(request)
         head, separator, content = output.partition(b'\r\n\r\n')
         if not separator: raise web.HTTPBadGateway(text='phpMyAdmin returned an invalid response.')
         response = web.Response(body=bytes(content))

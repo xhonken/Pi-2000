@@ -24,7 +24,9 @@ async def maintenance(request):
     return web.json_response({'runtime': worker.process_state.report({
         'jobs': int(worker.busy), 'monitors': sum(m['state'] == 'open' for m in worker.monitors.values())})})
 
-application = web.Application(middlewares=[guard])
+application = web.Application(middlewares=[guard], handler_args={'auto_decompress':False})
+application[app.BUDGET] = app.RequestBudget()
+application.on_response_prepare.append(app.response_headers)
 application.router.add_post('/internal/control', maintenance)
 application.router.add_post('/api/development/arduino', worker.handle)
 application.cleanup_ctx.append(worker.lifecycle)

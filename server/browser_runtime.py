@@ -1,5 +1,6 @@
 """Private persistent browser processes, with no publicly reachable debug ports."""
 import asyncio
+import browser_security
 import logging
 import os
 from pathlib import Path
@@ -81,11 +82,20 @@ class BrowserRuntime:
             available = available_memory()
             if available is not None and available < BROWSER_START_RESERVE:
                 raise BrowserUnavailable('Not enough available server memory to start Browser safely. Close unused browser sessions or server applications and try again. Your saved browser profile is unchanged.')
+            try:
+                await asyncio.to_thread(browser_security.check)
+            except RuntimeError as exc:
+                raise BrowserUnavailable(str(exc)) from None
             self.root.mkdir(parents=True, exist_ok=True, mode=0o700)
             profile = self.root / str(int(user_id))
             profile.mkdir(exist_ok=True, mode=0o700)
             runtime = Path(tempfile.mkdtemp(prefix='win2k-browser-'))
-            log = open(profile / 'session.log', 'wb')
+            # The sandbox owns profile files. Following a profile log symlink
+            # here would let it overwrite files with the host service identity.
+            logs = self.root.parent / 'browser-logs'
+            logs.mkdir(exist_ok=True, mode=0o700)
+            log = tempfile.NamedTemporaryFile(dir=logs, prefix='log-', delete=False)
+            os.replace(log.name, logs / (str(int(user_id)) + '.log'))
             try:
                 command = self.command(profile, runtime)
                 group = self.resources.create(user_id)

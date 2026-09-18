@@ -17,6 +17,7 @@ class BrowserMemoryTests(unittest.IsolatedAsyncioTestCase):
             runtime=BrowserRuntime(tmp,venv=tmp)
             process=SimpleNamespace(returncode=None)
             with patch('browser_runtime.available_memory',return_value=BROWSER_START_RESERVE), \
+                    patch('browser_runtime.browser_security.check'), \
                     patch('browser_runtime.asyncio.create_subprocess_exec',new_callable=AsyncMock,return_value=process):
                 task=asyncio.create_task(runtime.start(1,account_version=7))
                 try:

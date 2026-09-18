@@ -37,6 +37,7 @@ current account's Vault. Export This Entry inside an unlocked entry is a separat
 explicitly confirmed **plaintext** download; protect or delete that file yourself.
 
 Security → Change Passwords requires the current A and B and two new passphrases.
+Both data keys are replaced and every entry is re-encrypted under a new Vault ID.
 A new recovery key is generated. Old encrypted exports/backups still require their
 old passwords or recovery key; a password change cannot revoke an existing copy.
 
@@ -84,7 +85,10 @@ Web Crypto performs encryption using non-extractable working CryptoKeys. Paramet
 and size bounds are validated before imported KDF work. No weaker fallback exists.
 
 The random 256-bit recovery key wraps both underlying keys. Password changes
-rewrap those keys. B provides the same authority over all entries, but the normal
+and recovery replace both data keys, salts and the Vault ID, authenticate every
+old entry and re-encrypt the complete snapshot before a single revision-checked
+write. Keys obtained from an older export cannot decrypt later rotated content.
+A damaged entry aborts the operation without replacing the saved Vault. B provides the same authority over all entries, but the normal
 client decrypts only the requested entry and releases its working content key when
 that operation closes. This is two-level password unlocking, **not MFA**.
 

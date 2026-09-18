@@ -37,7 +37,8 @@ async def proxy(request, socket):
                         await asyncio.gather(*tasks, return_exceptions=True)
                         await downstream.close()
                     return downstream
-            async with client.request(request.method, url, headers=headers, data=await request.read()) as upstream:
+            body = await asyncio.wait_for(request.read(), 30)
+            async with client.request(request.method, url, headers=headers, data=body) as upstream:
                 response = web.StreamResponse(status=upstream.status, headers={k:v for k,v in upstream.headers.items()
                     if k.lower() in ('content-type','content-encoding','content-length','content-range','accept-ranges','x-frame-options')})
                 response.headers['Cache-Control'] = 'no-store'

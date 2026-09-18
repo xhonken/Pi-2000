@@ -3,6 +3,7 @@
 No shell, SQLite browser, Unix sockets, option files or client-side file loading.
 MariaDB's own grants govern SQL operations on the selected database server.
 """
+from request_security import body_chunks
 import asyncio
 import base64
 import json
@@ -184,7 +185,7 @@ class DatabaseTools:
 
     async def handle(self, request):
         raw = bytearray()
-        async for chunk in request.content.iter_chunked(65536):
+        async for chunk in body_chunks(request):
             raw.extend(chunk)
             if len(raw) > 2 * 1024 * 1024:
                 raise web.HTTPRequestEntityTooLarge(max_size=2*1024*1024, actual_size=len(raw))

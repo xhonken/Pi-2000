@@ -1,3 +1,4 @@
+from request_security import body_chunks
 import asyncio
 import build_info
 from runtime_health import RuntimeIdentity, compare as compare_runtime
@@ -12,6 +13,7 @@ import secrets
 import sqlite3
 import time
 import logging
+from request_security import BUDGET, RequestBudget, response_headers, audit_response
 import local_terminal
 import accounts
 import sys
@@ -184,6 +186,8 @@ def maintenance_active():
 async def guard(request, handler):
     if WORKER_MODE and request.path == '/internal/control':
         return await handler(request)
+    if request.headers.get('Content-Encoding', 'identity').lower() != 'identity':
+        return error('Compressed request bodies are not supported.', 415)
     if request.method not in ('GET', 'HEAD') or request.path == '/api/terminal':
         if request.headers.get('Origin') != ORIGIN:
             return error('Origin not allowed.', 403)
@@ -203,15 +207,20 @@ async def guard(request, handler):
         if request.path.startswith('/api/users') and user['role'] != 'admin':
             return error('Only administrators can manage users.', 403)
     try:
-        response = await handler(request)
+        uid = request[USER]['id'] if USER in request else None
+        with request.app[BUDGET].slot(uid):
+            response = await handler(request)
     except web.HTTPException as exc:
         response = error(exc.text or exc.reason, exc.status)
-    except (ValueError, KeyError, TypeError, json.JSONDecodeError):
+        if 'Retry-After' in exc.headers: response.headers['Retry-After'] = exc.headers['Retry-After']
+    except (ValueError, KeyError, TypeError, RecursionError, OverflowError):
         response = error('Check the details and try again.')
     except (OSError, ClientError, asyncio.TimeoutError):
-        logging.exception('Service operation failed: %s', request.path)
+        resource = request.match_info.route.resource
+        logging.exception('Service operation failed: %s', resource.canonical if resource else 'unmatched route')
         response = error('The service is temporarily unavailable. Try again shortly.', 503)
     response.headers['Cache-Control'] = 'no-store'
+    audit_response(request, response, request[USER]['id'] if USER in request else None)
     return response
 
 
@@ -225,7 +234,11 @@ def require_current(request):
 
 
 async def read_json(request):
-    data=await request.json()
+    try:
+        async with asyncio.timeout(30):
+            data=await request.json()
+    except TimeoutError:
+        raise web.HTTPRequestTimeout(text='The request body stopped arriving.') from None
     if TOKEN in request: require_current(request)
     if not isinstance(data,dict): raise web.HTTPBadRequest(text='A JSON object is required.')
     return data
@@ -277,8 +290,13 @@ async def login(request):
     for token, session in list(SESSIONS.items()):
         if session['expires'] < now:
             await revoke(token)
+    own = sorted(((key, value) for key, value in SESSIONS.items()
+                  if value['user_id'] == user['id']), key=lambda item: item[1].get('created', 0))
+    evicted = [key for key, _ in own[:-11]]
+    for old_token in evicted: SESSIONS.pop(old_token, None)
     token = secrets.token_urlsafe(32)
     SESSIONS[token] = {'expires': now + 12 * 3600, 'user_id': user['id'], 'version': user['version'], 'created':now, 'agent':request.headers.get('User-Agent','')[:240]}
+    await asyncio.gather(*(revoke(old_token) for old_token in evicted))
     response = web.json_response(public_user(user))
     response.set_cookie(COOKIE, token, secure=True, httponly=True, samesite='Strict', path='/', max_age=43200)
     return response
@@ -486,7 +504,7 @@ async def desktop(request):
             data = json.loads(row['data']) if row else None
             return web.json_response(data, headers={'ETag':etag(data), 'Cache-Control':'no-store'})
     payload=bytearray()
-    async for chunk in request.content.iter_chunked(65536):
+    async for chunk in body_chunks(request):
         payload.extend(chunk)
         if len(payload)>1024**2:
             return error('Desktop settings are too large.',413)
@@ -512,15 +530,21 @@ async def save_item(request):
     data = await read_json(request)
     user_id = request[USER]['id']
     item_id = request.match_info.get('id') or secrets.token_hex(12)
-    name = data.get('name', '').strip()
+    name = data.get('name', '')
+    if not isinstance(name, str): return error('Enter a name.')
+    name = name.strip()
     kind = data.get('kind')
     parent = data.get('parent') or None
+    if parent is not None and (not isinstance(parent, str) or len(parent) > 128):
+        return error('Invalid parent folder.')
     if kind not in ('folder', 'profile') or not 1 <= len(name) <= 80:
         return error('Enter a name of up to 80 characters.')
     host, username, port = '', '', 22
     if kind == 'profile':
-        host = data.get('host', '').strip().lower()
-        username = data.get('username', '').strip()
+        host, username = data.get('host', ''), data.get('username', '')
+        if not isinstance(host, str) or not isinstance(username, str):
+            return error('Enter a hostname and username.')
+        host, username = host.strip().lower(), username.strip()
         port = int(data.get('port', 22))
         if not re.fullmatch(r'[a-zA-Z0-9_.:%-]{1,253}', host) or host.startswith('-') or not username or len(username) > 128 or any(ord(c) < 32 for c in username) or not 1 <= port <= 65535:
             return error('Enter a hostname/IP address, username and a port between 1 and 65535.')
@@ -652,7 +676,7 @@ async def workspace(request):
         data=json.loads(row['data']) if row else {'windows': []}
         return web.json_response(data,headers={'ETag':etag(data),'Cache-Control':'no-store'})
     payload=bytearray()
-    async for chunk in request.content.iter_chunked(65536):
+    async for chunk in body_chunks(request):
         payload.extend(chunk)
         if len(payload)>MAX_BYTES:return error('Workspace recovery data exceeds 4 MB.',413)
     require_current(request)
@@ -919,7 +943,7 @@ async def browser_proxy(request):
             headers = {key: value for key, value in request.headers.items()
                        if key.lower() in ('content-type', 'content-length', 'accept', 'range')}
             async with client.request(request.method, upstream_url, headers=headers,
-                                      data=request.content, allow_redirects=False) as upstream:
+                                      data=body_chunks(request), allow_redirects=False) as upstream:
                 response_headers = {key: value for key, value in upstream.headers.items()
                                     if key.lower() in ('content-type', 'content-length', 'content-encoding',
                                                        'content-disposition', 'content-range', 'accept-ranges', 'location')}
@@ -1072,7 +1096,10 @@ def make_app():
     if WORKER_MODE or WORKER_SOCKET:
         SESSIONS = SessionStore(STATE / 'admin.sqlite3')
     BROWSERS = None if WORKER_SOCKET else BrowserRuntime(STATE)
-    app = web.Application(middlewares=[guard], client_max_size=16384)
+    app = web.Application(middlewares=[guard], client_max_size=16384,
+                          handler_args={'auto_decompress': False})
+    app[BUDGET] = RequestBudget()
+    app.on_response_prepare.append(response_headers)
     app.router.add_post('/api/login', login)
     vault=Vault(sys.modules[__name__]);vault.initialize()
     app.router.add_get('/api/vault',vault.handle)
@@ -1173,7 +1200,14 @@ def make_app():
     app.router.add_patch('/api/users/{id}/storage', file_handler('quota'))
 
     if WORKER_SOCKET:
-        async def forward(request): return await session_proxy.proxy(request, WORKER_SOCKET)
+        async def forward(request):
+            # Enforce the engine floor even while an older worker is kept alive
+            # to preserve unrelated SSH jobs during a rolling API update.
+            if request.path == '/api/browser/start' or request.path.startswith('/api/browser/view/'):
+                import browser_security
+                try: await asyncio.to_thread(browser_security.check)
+                except RuntimeError as exc: raise web.HTTPServiceUnavailable(text=str(exc)) from None
+            return await session_proxy.proxy(request, WORKER_SOCKET)
         for path in ('/api/terminals', '/api/terminals/{id}', '/api/terminal', '/api/browser/start', '/api/browser/status', '/api/browser/stop', '/api/browser/view/{path:.*}', '/api/runtime'):
             app.router.add_route('*', path, forward)
     else:

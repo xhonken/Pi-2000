@@ -101,6 +101,11 @@ class SetupTests(unittest.TestCase):
         setup.check_caddy_ownership(':80 {\n root * /usr/share/caddy\n file_server\n}', False)
         config = self.parse()
         setup.check_caddy_ownership(setup.render(config)['Caddyfile'], False)
+        previous='\n'.join(line for line in setup.render(config)['Caddyfile'].splitlines()
+            if not any(marker in line for marker in ('Strict-Transport-Security','Permissions-Policy','@desktop path','header @desktop Content-Security-Policy')))
+        setup.check_caddy_ownership(previous, False)
+        with self.assertRaises(ValueError):
+            setup.check_caddy_ownership(previous+'\nother.example { respond "other" }', False)
         with self.assertRaises(ValueError):
             setup.check_caddy_ownership(setup.render(config)['Caddyfile'] + '\nother.example { respond \"other\" }', False)
         with patch.object(setup, 'existing_origin', return_value='https://192.0.2.25'):

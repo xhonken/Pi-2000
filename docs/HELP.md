@@ -8,6 +8,8 @@ for the test installer and remaining hardware checks.
 
 Log in with your Pi-2000Web account. The desktop, files, connections and browser profile belong to that account. Start → Programs groups your applications by purpose. Start → Settings contains personal settings and, if permitted, User Management.
 
+Up to twelve web logins can remain active for your account. A further login expires the oldest excess login; detached SSH jobs continue. If too many requests are active, let an operation finish and retry.
+
 Drag desktop icons to arrange them. Right-click empty desktop space to create a folder, upload files, create a shortcut or change desktop properties. Your icon positions and background are saved for your account.
 
 ## Windows and menus
@@ -52,6 +54,8 @@ Browser runs Chromium on the Pi with private tabs, cookies and site logins for y
 Closing the window preserves the session. End Session stops the browser. Up to three browser sessions run simultaneously across the server. Inactive browser sessions expire after 24 hours without a connected client. uBlock Origin Lite is enforced through the browser policy; no ad blocker can guarantee removal of every advertisement.
 
 If server memory is low, starting a new Browser may be refused. Status messages distinguish memory-limit stops, crashes, low disk space and idle timeouts. Use Connection → Reconnect after addressing the cause; saved profiles are retained, but unsaved page state may be lost.
+
+Browser also pauses when the installed Chromium engine is older than the reviewed security minimum. The Pi operator must install a security update before Browser can reconnect. Your saved profile is retained. See [Security](SECURITY.md) for the current minimum and its limitations.
 
 ## Pi++ and SFTP
 
@@ -172,6 +176,10 @@ Keep the recovery key outside the Pi. File and Security menus provide encrypted
 export/import, password changes and recovery. Other web users and administrators
 have no access to your Vault contents. Read the [Vault guide](VAULT.md) for clipboard,
 backup, plaintext export and trusted-browser boundaries. Development after Alpha 5.
+
+Changing Vault passphrases or using recovery also rotates the encryption keys and
+re-encrypts the saved entries. Keep the new recovery key; previous exports remain
+separate copies protected by their previous passphrases and recovery key.
 
 ## Personal desktop controls (development after Alpha 5)
 

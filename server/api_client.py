@@ -1,4 +1,5 @@
 """Private HTTP request collections and bounded requests from the development Pi."""
+from request_security import body_chunks
 import asyncio
 import ipaddress
 import json
@@ -64,7 +65,7 @@ class ApiClient:
 
     async def read(self,request):
         raw=bytearray()
-        async for chunk in request.content.iter_chunked(65536):
+        async for chunk in body_chunks(request):
             raw.extend(chunk)
             if len(raw)>2*1024*1024:raise web.HTTPRequestEntityTooLarge(max_size=2*1024*1024,actual_size=len(raw))
         self.app.require_current(request);return json.loads(raw)

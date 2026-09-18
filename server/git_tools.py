@@ -1,4 +1,5 @@
 """Git workspaces isolated from Pi-2000 code and private platform files."""
+from request_security import body_chunks
 import asyncio
 import base64
 import fcntl
@@ -88,7 +89,7 @@ class GitTools:
 
     async def handle(self,request):
         uid=request[self.app.USER]['id'];raw=bytearray()
-        async for chunk in request.content.iter_chunked(65536):
+        async for chunk in body_chunks(request):
             raw.extend(chunk)
             if len(raw)>2*1024*1024:raise web.HTTPRequestEntityTooLarge(max_size=2*1024*1024,actual_size=len(raw))
         data=json.loads(raw);self.app.require_current(request)

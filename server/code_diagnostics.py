@@ -1,4 +1,5 @@
 """Syntax diagnostics: parse user text without importing or executing it."""
+from request_security import body_chunks
 import asyncio
 import json
 import re
@@ -23,7 +24,7 @@ class Diagnostics:
         uid=request[self.app.USER]['id']
         if uid in self.running or len(self.running)>=2:raise web.HTTPTooManyRequests(text='A syntax check is already running. Try again shortly.')
         raw=bytearray()
-        async for chunk in request.content.iter_chunked(65536):
+        async for chunk in body_chunks(request):
             raw.extend(chunk)
             if len(raw)>1024*1024:raise web.HTTPRequestEntityTooLarge(max_size=1024*1024,actual_size=len(raw))
         data=json.loads(raw);self.app.require_current(request)

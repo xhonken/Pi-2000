@@ -1,4 +1,5 @@
 """Account-owned file metadata, streaming quota reservations and recoverable trash."""
+from request_security import body_chunks
 import asyncio
 from contextlib import contextmanager
 import fcntl
@@ -83,6 +84,8 @@ class FileStore:
         return value
 
     def row(self, conn, uid, key, state=None):
+        if not isinstance(key, str) or not re.fullmatch(r'[a-f0-9]{32}', key):
+            raise web.HTTPNotFound(text='The file or folder does not exist.')
         row=conn.execute('SELECT * FROM files WHERE id=? AND user_id=?',(key,uid)).fetchone()
         if not row or (state and row['state']!=state): raise web.HTTPNotFound(text='The file or folder does not exist.')
         return dict(row)
@@ -122,7 +125,10 @@ class FileStore:
         return [dict(row) for row in rows if row['id'] in selected]
 
     async def read_json(self,request):
-        data=await request.json()
+        try:
+            async with asyncio.timeout(30): data=await request.json()
+        except TimeoutError:
+            raise web.HTTPRequestTimeout(text='The request body stopped arriving.') from None
         actor=self.valid(request)
         if not actor: raise web.HTTPUnauthorized(text='The account or login changed. Log in again.')
         request[FILE_USER]=actor
@@ -164,7 +170,7 @@ class FileStore:
         try:
             written=0
             with part.open('xb') as handle:
-                async for chunk in request.content.iter_chunked(65536):
+                async for chunk in body_chunks(request):
                     written+=len(chunk)
                     if written>size: raise web.HTTPBadRequest(text='The file size does not match.')
                     if not self.valid(request): raise web.HTTPUnauthorized(text='Log in again.')
@@ -198,7 +204,7 @@ class FileStore:
         uid=request[FILE_USER]['id'];key=request.match_info['id'];limit=1024**2
         body=b''
         if request.method=='PUT':
-            async for chunk in request.content.iter_chunked(65536):
+            async for chunk in body_chunks(request):
                 body+=chunk
                 if len(body)>limit: raise web.HTTPRequestEntityTooLarge(max_size=limit,actual_size=len(body),text='Pi++ supports up to 1 MB per file.')
             try: body.decode('utf-8')

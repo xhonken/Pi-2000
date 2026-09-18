@@ -15,6 +15,7 @@ import time
 from datetime import datetime, timezone
 from session_proxy import control
 from deployment import backup_files
+from safe_archive import add_private_tree
 
 EXCLUDED = {'Cache','Code Cache','GPUCache','ShaderCache','GrShaderCache','DawnCache','session.log', 'SingletonLock','SingletonSocket','SingletonCookie'}
 
@@ -114,10 +115,8 @@ async def snapshot(state, target, socket, code, site=None):
             partial=archive.with_suffix('.partial')
             with tarfile.open(partial,'w:') as tar:
                 tar.add(staging/'state',arcname='state',filter=include)
-                if (state/'browsers').exists(): tar.add(state/'browsers',arcname='state/browsers',filter=include)
-                if (state/'database-credentials.key').exists(): tar.add(state/'database-credentials.key',arcname='state/database-credentials.key',filter=include)
-                if (state/'git-workspaces').exists(): tar.add(state/'git-workspaces',arcname='state/git-workspaces',filter=include)
-                if (state/'files').exists(): tar.add(state/'files',arcname='state/files',filter=include)
+                for name in ('browsers', 'database-credentials.key', 'git-workspaces', 'files'):
+                    add_private_tree(tar, state/name, 'state/'+name, include)
                 if (staging/'system-accounts').exists():
                     tar.add(staging/'system-accounts',arcname='system-accounts',filter=include)
                     for row in account_rows:
@@ -127,7 +126,7 @@ async def snapshot(state, target, socket, code, site=None):
                             identity=pwd.getpwnam(row['name'])
                             if identity.pw_uid!=row['uid'] or home!=Path('/home')/row['name'] or home.is_symlink():
                                 raise RuntimeError('System account binding mismatch during backup')
-                            tar.add(home,arcname='system-accounts/homes/'+row['name'],filter=include)
+                            add_private_tree(tar, home, 'system-accounts/homes/'+row['name'], include)
                 if site and site.exists():
                     for path in backup_files(site, 'web'):
                         tar.add(path,arcname='site/'+path.relative_to(site).as_posix(),filter=include)
