@@ -160,7 +160,10 @@ class Media:
         sandbox=['/usr/bin/bwrap','--unshare-all','--die-with-parent','--new-session','--ro-bind','/usr','/usr',
                  '--symlink','usr/bin','/bin','--symlink','usr/lib','/lib','--ro-bind-try','/lib64','/lib64','--proc','/proc','--dev','/dev','--tmpfs','/tmp','--dir','/etc','--ro-bind','/etc/alternatives','/etc/alternatives','--chdir','/tmp','--']
         codec=['-c:v','copy'] if session['mode']=='audio' else ['-c:v','libx264','-preset','ultrafast','-tune','zerolatency','-vf',r'scale=w=min(1280\,iw):h=min(720\,ih):force_original_aspect_ratio=decrease:force_divisible_by=2','-pix_fmt','yuv420p','-b:v','2500k','-maxrate','3000k','-bufsize','5000k','-g','50']
-        command=['/usr/bin/prlimit','--as=536870912','--cpu=14400','--nofile=64','--',*sandbox,'/usr/bin/ffmpeg','-hide_banner','-loglevel','error','-nostdin','-filter_threads','1','-filter_complex_threads','1','-threads','2','-max_alloc','33554432','-protocol_whitelist','pipe','-probesize','1048576','-analyzeduration','3000000','-i','pipe:0','-map','0:v:0?','-map','0:a:0?','-sn','-dn',*codec,'-threads','2','-c:a','aac','-b:a','160k','-ac','2','-max_muxing_queue_size','512','-f','mpegts','pipe:1']
+        # x86 Debian codec libraries need more virtual address space to initialize
+        # libx264. Keep the measured Pi/arm64 budget and a bounded x86 budget.
+        address_space=805306368 if os.uname().machine in ('x86_64','amd64') else 536870912
+        command=['/usr/bin/prlimit','--as='+str(address_space),'--cpu=14400','--nofile=64','--',*sandbox,'/usr/bin/ffmpeg','-hide_banner','-loglevel','error','-nostdin','-filter_threads','1','-filter_complex_threads','1','-threads','2','-max_alloc','33554432','-protocol_whitelist','pipe','-probesize','1048576','-analyzeduration','3000000','-i','pipe:0','-map','0:v:0?','-map','0:a:0?','-sn','-dn',*codec,'-threads','2','-c:a','aac','-b:a','160k','-ac','2','-max_muxing_queue_size','512','-f','mpegts','pipe:1']
         try:
             process=await asyncio.create_subprocess_exec(*command,stdin=asyncio.subprocess.PIPE,stdout=asyncio.subprocess.PIPE,stderr=asyncio.subprocess.DEVNULL,start_new_session=True,env={'PATH':'/usr/bin:/bin','HOME':'/tmp','LANG':'C','OPENBLAS_NUM_THREADS':'1','OMP_NUM_THREADS':'2','MALLOC_ARENA_MAX':'2'})
             async def feed():
