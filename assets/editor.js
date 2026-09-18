@@ -182,7 +182,6 @@
   newFile();recovery=loadSettings().catch(e=>shell.notify('Could not load Pi++ preferences: '+e.message)).then(recoverDrafts).catch(e=>shell.notify('Could not recover drafts: '+e.message));run(refresh);return win;
  }
  window.Win2kEditor={remoteContext:()=>({win,owner,active,tabs,addTab,select,refresh,status,renderTabs}),openFile:id=>run(()=>openFile(id)),openFolder:id=>{open();window.Win2kRemoteEditor?.local();selectParent(id);run(refresh);}};
- const logout=shell.actions.logout;shell.actions.logout=async()=>{try{await Promise.all(tabs.filter(dirty).map(persistDraft));}catch(error){if(!confirm('Drafts could not be saved. Log off anyway?'))return;}return logout();};
  shell.actions.editor=open;
  window.Win2kApps.register({type:'editor-window',singleton:true,restore:async entry=>{const w=open();parent=entry.folder||'files';w.fileParent=parent;for(const id of entry.editorFiles||[]){try{await openFile(id);}catch(e){shell.notify(e.message);}}return w;}});
  window.addEventListener('win2k-files-refresh',()=>{if(win)run(refresh);});

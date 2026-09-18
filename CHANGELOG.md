@@ -4,6 +4,9 @@ User-visible changes are recorded here for each numbered release. Development be
 
 ## Unreleased
 
+- Fix Log Off getting blocked by workspace save conflicts or failed recovery.
+  Offer an explicit choice to keep the last saved workspace and sign out,
+  retain application cancellation guards, and avoid duplicate logout attempts.
 - Make the isolated FFmpeg, Git and Arduino launchers usable on x86 test hosts by including their
   optional `/lib64` loader directory. Allow 768 MiB of virtual address space for
   x86 FFmpeg initialization while keeping the Pi limit at 512 MiB. The released

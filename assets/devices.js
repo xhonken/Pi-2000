@@ -4,7 +4,7 @@ const $ = s => document.querySelector(s), shell = window.Win2kShell;
 let account = null, usersWindow = null, browserWindow = null;
 let items = [], folder = null, explorer = null, selected = null, highest = 30;
 const windows = new Set();
-let restoring = false, workspaceTimer = null, workspaceQueue = null;
+let restoring = false, workspaceTimer = null, workspaceQueue = null, loggingOut = false;
 let workspaceReady=false,workspaceTag=null,workspaceSaved='',workspaceConflict=false,workspaceGeneration=0;
 const workspaceStatus=document.createElement('button');workspaceStatus.id='workspace-status';workspaceStatus.className='win2k-button';
 workspaceStatus.textContent='Workspace';workspaceStatus.title='Workspace recovery';$('#clock').before(workspaceStatus);
@@ -20,7 +20,7 @@ workspaceStatus.onclick=async()=>{
 async function workspaceRequest(method,data,keepalive=false){
  const user=account;if(!user)throw Error('Log in to restore your workspace.');
  const body=data===undefined?undefined:JSON.stringify(data);
- const response=await fetch('/api/workspace',{method,headers:{'Content-Type':'application/json','X-Workspace-Owner':String(user.id),...(method==='PUT'&&workspaceTag?{'If-Match':workspaceTag}:{})},body,keepalive:keepalive&&new Blob([body||'']).size<60000});
+ const response=await fetch('/api/workspace',{method,headers:{'Content-Type':'application/json','X-Workspace-Owner':String(user.id),...(method==='PUT'&&workspaceTag?{'If-Match':workspaceTag}:{})},body,keepalive:keepalive&&new Blob([body||'']).size<60000,signal:AbortSignal.timeout(15000)});
  const result=await response.json();
  if(!response.ok){const e=Error(result.error||'Workspace could not be saved.');e.status=response.status;throw e;}
  return {data:result,tag:response.headers.get('ETag')};
@@ -48,7 +48,31 @@ $('#login-form').onsubmit = async e => {
  catch (error) { $('#login-error').textContent = error.message; form.elements.password.value = ''; }
  finally { submit.disabled = false; }
 };
-shell.actions.logout = async () => { try { if(account&&(!workspaceReady||workspaceConflict)){shell.notify('Resolve workspace recovery or the save conflict using the taskbar indicator before logging off. Your windows are still open.');return;} for(const win of windows)if(win.beforelogout && !(await win.beforelogout()))return; await saveWorkspace(); await api('/logout','POST'); locked(); } catch (error) { shell.notify(error.message); } };
+shell.actions.logout = async () => {
+ shell.closeStart();
+ if(loggingOut||!account)return;
+ loggingOut=true;const user=account;
+ try{
+  for(const win of windows){
+   if(win.beforelogout && !(await win.beforelogout())){
+    win.focus();shell.notify('Log off cancelled. Finish or save your work in '+win.task.textContent+' and try again.');return;
+   }
+   if(account!==user)return;
+  }
+  shell.notify('Saving before log off…');
+  try{for(const win of windows){await win.flush?.();if(account!==user)return;}}
+  catch(error){if(account!==user||!confirm('Application drafts could not be saved. Log off anyway? Unsaved changes may be lost.'))return;}
+  if(account!==user)return;
+  let workspaceError=!workspaceReady?'Workspace recovery has not completed.':workspaceConflict?'Another tab changed the saved workspace.':'';
+  if(!workspaceError){try{await saveWorkspace();}catch(error){workspaceError='The workspace could not be saved.';}}
+  if(account!==user)return;
+  if(workspaceError&&!confirm(workspaceError+' Log off anyway? The last saved workspace will be kept, but recent changes in this tab may be lost. Cancel to stay signed in and retry using the taskbar save indicator.'))return;
+  shell.notify('Logging off…');
+  await api('/logout','POST');
+  if(account===user)locked();
+ }catch(error){shell.notify('Log off could not finish: '+error.message+' Please try again.');}
+ finally{loggingOut=false;}
+};
 shell.actions.password = () => {
  shell.show('Change My Password', '<form id="password-form"><label class="form-row">Current password:<input name="current" type="password" autocomplete="current-password" required></label><label class="form-row">New password:<input name="password" type="password" autocomplete="new-password" minlength="12" required></label><label class="form-row">Repeat new password:<input name="repeat" type="password" autocomplete="new-password" minlength="12" required></label><p id="password-error" class="error" role="alert"></p><div class="actions"><button class="win2k-button">Save</button></div></form>');
  $('#password-form').onsubmit = async e => { e.preventDefault(); const f=e.target.elements; if(f.password.value!==f.repeat.value){$('#password-error').textContent='The passwords do not match.';return;} try { const result=await api('/password','POST',{current:f.current.value,password:f.password.value}); $('#window').close(); if(result.login_required){location.reload();return;} shell.notify('Password changed.'); }catch(error){$('#password-error').textContent=error.message;} };

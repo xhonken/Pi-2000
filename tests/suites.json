@@ -11,6 +11,7 @@
     "utilities_ui.cjs",
     "development_ui.cjs",
     "stabilization_ui.cjs",
+    "logout_ui.cjs",
     "upload_picker_ui.cjs",
     "shortcut_ui.cjs",
     "icon_drag_ui.cjs",
