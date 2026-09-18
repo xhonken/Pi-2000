@@ -1,7 +1,6 @@
 import asyncio
 import json
 import unittest
-from unittest.mock import patch
 import test_server
 import app
 

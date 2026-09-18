@@ -339,7 +339,7 @@ class DatabaseTools:
             elif exc.args and exc.args[0] == 2003 and detail == str(exc)[:1500]:
                 detail = 'Could not connect to MariaDB. Check the server address, port, network access and TLS settings in Connection Properties.'
             return web.json_response({'error': detail, 'disconnected': disconnected}, status=400)
-        except (OSError, ssl.SSLError, asyncio.TimeoutError) as exc:
+        except (OSError, ssl.SSLError, asyncio.TimeoutError):
             return web.json_response({'error': 'The database connection failed. Check host, port, network and TLS certificate.'}, status=502)
 
     async def execute(self, conn, sql, parameters=None):

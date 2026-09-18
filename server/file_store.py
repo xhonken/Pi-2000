@@ -6,7 +6,6 @@ import fcntl
 import hashlib
 import io
 import zipfile
-import json
 import os
 from pathlib import Path
 import re
@@ -378,7 +377,6 @@ class FileStore:
         # Bound the archive and build without awaiting: metadata/blobs cannot change
         # halfway through the snapshot. Stored ZIP avoids CPU-heavy compression.
         with self.mutation(),self.db() as db:
-            allrows={r['id']:dict(r) for r in db.execute("SELECT * FROM files WHERE user_id=? AND state='live'",(uid,))}
             selected={};top=set(keys)
             for key in top:
                 self.row(db,uid,key,'live')

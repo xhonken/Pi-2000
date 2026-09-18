@@ -302,7 +302,7 @@ async def serve():
     Path(SOCKET).unlink(missing_ok=True)
     server=await asyncio.start_unix_server(handle,path=SOCKET,limit=16384)
     os.chown(SOCKET,0,pwd.getpwnam('pi2000-admin').pw_gid); os.chmod(SOCKET,0o660)
-    watcher=asyncio.create_task(monitor())
+    _watcher=asyncio.create_task(monitor())  # Keep a strong reference while serving.
     async with server: await server.serve_forever()
 
 if __name__=='__main__':

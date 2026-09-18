@@ -4,7 +4,6 @@ Uses a temporary web DB/registry and reserved disposable IDs above 900000.
 Requires installed pi2000 PAM policy, groups and private terminal listener.
 """
 import asyncio
-import json
 import os
 from pathlib import Path
 import pwd

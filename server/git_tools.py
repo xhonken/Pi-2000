@@ -43,7 +43,7 @@ class GitTools:
         return total
     def remote(self,value):
         if not isinstance(value,str) or len(value)>4096:raise web.HTTPBadRequest(text='Enter an HTTPS Git URL.')
-        try:url=urlsplit(value);port=url.port
+        try:url=urlsplit(value);url.port  # Access validates malformed/out-of-range ports.
         except ValueError:raise web.HTTPBadRequest(text='Invalid Git URL.')
         if url.scheme!='https' or not url.hostname or url.username is not None or url.password is not None or url.query or url.fragment or any(c in value for c in '\r\n\0'):raise web.HTTPBadRequest(text='Use an HTTPS repository URL without embedded credentials or query parameters.')
         return value

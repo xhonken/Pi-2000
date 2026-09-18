@@ -8,10 +8,8 @@ from pathlib import Path
 import pwd
 import re
 import secrets
-import subprocess
 import sys
 import pymysql
-from cryptography.fernet import Fernet
 
 
 def write_json(path, value, mode=0o600):

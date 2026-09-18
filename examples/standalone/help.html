@@ -6,7 +6,7 @@
     <meta name="description" content="Pi-2000 UI standalone and WordPress integration help.">
     <title>Pi-2000 UI Integration Help</title>
     <link rel="stylesheet" href="../../dist/win2k-ui.css">
-    <script src="../../dist/win2k-ui.js" defer></script>
+    <script src="ui.js" defer></script>
   </head>
   <body class="win2k">
     <div class="win2k-app" data-win2k-app data-help-enabled="true" data-help-url="help.html">
@@ -16,9 +16,9 @@
         <div class="win2k-content">
           <header class="win2k-page-heading"><p class="eyebrow">Framework help</p><h1>Choose an integration without lock-in</h1><p>The same core assets work with plain HTML, server-rendered WordPress templates or a separate frontend that reads WordPress over REST.</p></header>
           <section class="win2k-grid">
-            <fieldset class="win2k-group" id="standalone"><legend>Standalone</legend><p>Load <code>dist/win2k-ui.css</code> and <code>dist/win2k-ui.js</code>, then write semantic HTML using the Pi-2000 UI classes. Your application owns routing, content and persistence.</p><pre><code>&lt;link rel="stylesheet" href="win2k-ui.css"&gt;
+            <fieldset class="win2k-group" id="standalone"><legend>Standalone</legend><p>Load <code>dist/win2k-ui.css</code> and <code>examples/standalone/ui.js</code>, then write semantic HTML using the Pi-2000 UI classes. Your application owns routing, content and persistence.</p><pre><code>&lt;link rel="stylesheet" href="win2k-ui.css"&gt;
 &lt;div class="win2k-app" data-win2k-app&gt;…&lt;/div&gt;
-&lt;script src="win2k-ui.js" defer&gt;&lt;/script&gt;</code></pre></fieldset>
+&lt;script src="ui.js" defer&gt;&lt;/script&gt;</code></pre></fieldset>
             <fieldset class="win2k-group" id="wordpress"><legend>WordPress theme</legend><p>Install the optional block theme. It loads the same core and maps WordPress templates, navigation and editor patterns to Pi-2000 UI presentation.</p><p>Install the content plugin only if the website needs portable Project records.</p><p>WordPress adapters are not included in this design extraction. See the <a href="../../README.md">local design guide</a>.</p></fieldset>
             <fieldset class="win2k-group" id="headless"><legend>Headless WordPress</legend><p>Keep this standalone frontend and use the REST adapter to read public pages, posts or projects from WordPress. This is optional and requires additional production work for authentication, previews, cache and SEO.</p></fieldset>
             <fieldset class="win2k-group"><legend>Responsibility boundaries</legend><ul><li><strong>Core:</strong> visual system and generic interactions.</li><li><strong>Theme:</strong> presentation and WordPress templates.</li><li><strong>Plugin:</strong> durable content types and functionality.</li><li><strong>Host application:</strong> authentication, business rules and storage.</li></ul></fieldset>

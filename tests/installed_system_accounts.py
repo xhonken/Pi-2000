@@ -56,14 +56,14 @@ async def main():
                 print('PASS: root-only backup includes managed home/registry and excludes linked OS credentials; staging restore verified by backup service.')
             async with regular.ws_connect(origin+'/api/terminal') as ws:
                 await ws.send_json({'local':True,'password':secret,'cols':80,'rows':24})
-                connected=False; output=''; terminal_id=None
+                connected=False; output=''
                 for _ in range(20):
                     msg=await ws.receive(timeout=15)
                     if msg.type==WSMsgType.TEXT:
                         data=json.loads(msg.data)
                         assert data.get('type')!='error',data
                         if data.get('type')=='connected':
-                            connected=True; terminal_id=data.get('id') or data.get('terminal');break
+                            connected=True;break
                 assert connected,'Terminal did not connect'
                 await ws.send_bytes(b'id -un\r')
                 while profile['username'] not in output:

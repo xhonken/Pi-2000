@@ -1,5 +1,4 @@
 """Disposable packaged PHP runtime; no installed configuration or service writes."""
-import os
 from pathlib import Path
 import shutil
 import subprocess

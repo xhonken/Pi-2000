@@ -27,11 +27,14 @@ icons={
 'file':paper,'programs':folder+'<path d="M11 13h16v11H11z" fill="#eee" stroke="#333"/><path d="M12 14h14v3H12z" fill="#255591"/><path d="M13 20h3M18 20h6" stroke="#808080"/>',
 'save':'<path d="M3 2h24l3 3v25H3z" fill="#294f83" stroke="#25313d"/><path d="M7 3h16v10H7z" fill="#c2c7c9"/><path d="M18 4h3v7h-3z" fill="#596775"/><path d="M7 18h19v11H7z" fill="#fff"/><path d="M10 21h13M10 24h13" stroke="#999"/>',
 }
+icons['piplus']='<path d="M6 2h15l6 6v22H6z" fill="#fff" stroke="#303030"/><path d="M21 2v7h6" fill="#c7ddc5" stroke="#303030"/><path d="M9 12h15M9 15h10M9 26h15" stroke="#a4a4a4"/><path d="M3 17h27v8H3z" fill="#326f32" stroke="#224c22"/><text x="5" y="23" fill="white" font-family="monospace" font-weight="bold" font-size="8">Pi++</text>'
 alias={'forms':'file','content':'file','home':'computer','network':'devices','controls':'settings','preferences':'settings','analysis':'status','details':'file','profile':'users','messages':'notes','lock':'users','shutdown':'computer','add':'link','password':'users'}
 css=['/* Original classic icons, authored for this project. */',':root {']
 for key,value in icons.items():
  svg='<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">'+value+'</svg>'
  css.append('--icon-'+key+':url("data:image/svg+xml,'+quote(svg,safe='')+'");')
-css+=['}', '.win2k-pixel-icon { width:32px!important;height:32px!important;min-width:32px!important;flex-shrink:0;filter:none!important;background:var(--icon-file) center/contain no-repeat!important; }','.win2k-pixel-icon::before,.win2k-pixel-icon::after,.win2k-pixel-icon i { display:none!important; }']
+css+=['}', '.win2k-pixel-icon { position:relative;display:block!important;border:0!important;color:#000!important;box-shadow:none!important;font-size:0!important;width:32px!important;height:32px!important;min-width:32px!important;flex-shrink:0;filter:none!important;background:var(--icon-file) center/contain no-repeat!important; }','.win2k-pixel-icon::before,.win2k-pixel-icon::after,.win2k-pixel-icon i { display:none!important; }']
 for key in list(icons)+list(alias):css.append('.win2k-icon-'+key+' { background-image:var(--icon-'+alias.get(key,key)+')!important; }')
+
+css.append('\n:root{--icon-vault:url("vault.svg")}\n.win2k-icon-vault{background-image:var(--icon-vault)!important}')
 Path('assets/classic-icons.css').write_text('\n'.join(css)+'\n')

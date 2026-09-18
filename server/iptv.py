@@ -4,12 +4,11 @@ import base64
 from datetime import datetime, timezone
 import json
 import os
-import re
 import secrets
 import tempfile
 from pathlib import Path
 import time
-from urllib.parse import urlsplit, urlencode, quote
+from urllib.parse import urlsplit, quote
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 from aiohttp import web
 from request_security import body_chunks

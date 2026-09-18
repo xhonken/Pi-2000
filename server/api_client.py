@@ -53,7 +53,7 @@ class ApiClient:
         if not isinstance(data,dict):raise web.HTTPBadRequest(text='Enter request details.')
         url=data.get('url','');method=data.get('method','GET');headers=data.get('headers',{});body=data.get('body','');name=data.get('name','Untitled request')
         if not isinstance(url,str) or len(url)>8192 or not isinstance(body,str) or len(body.encode())>1024*1024 or not isinstance(name,str) or not 1<=len(name)<=100:raise web.HTTPBadRequest(text='Request name, URL or body is too large.')
-        try:parsed=urlsplit(url);port=parsed.port
+        try:parsed=urlsplit(url);parsed.port  # Access validates malformed/out-of-range ports.
         except ValueError:raise web.HTTPBadRequest(text='Enter a valid HTTP or HTTPS URL.')
         if parsed.scheme not in ('http','https') or not parsed.hostname or parsed.username is not None or parsed.password is not None or any(c in url for c in '\r\n\0'):raise web.HTTPBadRequest(text='Use HTTP or HTTPS. Put authentication in the Authorization header.')
         if method not in ('GET','HEAD','POST','PUT','PATCH','DELETE','OPTIONS'):raise web.HTTPBadRequest(text='Unsupported HTTP method.')

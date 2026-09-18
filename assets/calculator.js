@@ -1,6 +1,6 @@
 (() => {
 'use strict';
-const d=window.Win2kDesktop,s=window.Win2kShell,t=window.Win2kTools;
+const d=window.Win2kDesktop,s=window.Win2kShell;
 function open(){const existing=d.listWindows().find(w=>w.type==='calculator-window');if(existing){existing.focus();return existing;}const w=d.makeWindow('Pi-Calt','calculator-window');let memory=0,last=0,entries=[];
 w.body.innerHTML='<form class="calculator-form"><label>Expression<input name="expression" aria-label="Calculation" autocomplete="off" spellcheck="false" placeholder="0"></label><output aria-live="polite">0</output><div class="calculator-keys"></div><button type="submit" class="win2k-button calculator-equals">= Calculate</button></form><div class="calculator-help">Angles in degrees · decimal point or comma · Enter = calculate<br>Example: sqrt(300^2 + 400^2), sin(30), 2*pi*25</div><details open><summary>History</summary><div class="calculator-history"></div></details>';
 const input=w.body.querySelector('input'),out=w.body.querySelector('output'),keys=w.body.querySelector('.calculator-keys');

@@ -6,7 +6,7 @@ const defaults={sort:'manual',direction:'asc',autoArrange:false,snap:false,showI
 const catalog=new Map(),selected=new Set();
 // Resolve former default labels at display time; retain personal names and stored IDs.
 const formerNames={iptv:'IPTV Player',vault:'Vault',about:'About Pi-2000Web',arduino:'Arduino Workshop',calculator:'Calculator',database:'MariaDB Manager',apitester:'API Tester',git:'Git Projects'};
-let menu=null,anchor=null,selectionBox=null,cancelSelection=null,suppressClick=false;
+let menu=null,anchor=null,cancelSelection=null,suppressClick=false;
 const key=icon=>icon.dataset.fileId?'file:'+icon.dataset.fileId:icon.dataset.shortcutId?'link:'+icon.dataset.shortcutId:'app:'+icon.dataset.action;
 const options=()=>({...defaults,...shell.getView()});
 const visible=()=>[...root.querySelectorAll('.desktop-icon')].filter(el=>!el.hidden&&options().showIcons);
@@ -133,9 +133,9 @@ desktop.addEventListener('pointerdown',event=>{
  if(event.button!==0||event.target.closest('.desktop-icon,.app-window')||document.querySelector('#window').open)return;
  closeMenu();cancelSelection?.();desktop.focus({preventScroll:true});const start={x:event.clientX,y:event.clientY},before=new Set(event.ctrlKey||event.shiftKey?selected:[]);
  selected.clear();for(const id of before)selected.add(id);paint();
- const box=document.createElement('div');box.className='desktop-selection-box';document.body.append(box);selectionBox=box;
+ const box=document.createElement('div');box.className='desktop-selection-box';document.body.append(box);
  function move(e){const x=Math.min(start.x,e.clientX),y=Math.min(start.y,e.clientY),w=Math.abs(start.x-e.clientX),h=Math.abs(start.y-e.clientY);Object.assign(box.style,{left:x+'px',top:y+'px',width:w+'px',height:h+'px'});selected.clear();for(const id of before)selected.add(id);if(w+h>5)for(const icon of visible()){const r=icon.getBoundingClientRect();if(r.left<x+w&&r.right>x&&r.top<y+h&&r.bottom>y)selected.add(key(icon));}paint();}
- function end(){box.remove();selectionBox=null;cancelSelection=null;window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',end);window.removeEventListener('pointercancel',end);}
+ function end(){box.remove();cancelSelection=null;window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',end);window.removeEventListener('pointercancel',end);}
  cancelSelection=end;window.addEventListener('pointermove',move);window.addEventListener('pointerup',end);window.addEventListener('pointercancel',end);
 });
 

@@ -1,6 +1,5 @@
 """Opt-in real CLI + Unix-worker + cgroup test; uses no production accounts/devices."""
 import asyncio
-import json
 import os
 from pathlib import Path
 import secrets

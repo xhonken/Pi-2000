@@ -32,4 +32,4 @@ Do not translate user-authored file names, notes, shortcut names, connection nam
 
 Check actual menu actions, keyboard access, file operations, editor saves, SFTP operations, drawing, ordinary-user permissions, large fonts and small viewports. Inspect screenshots, then compare deployed assets over HTTPS. A successful file copy alone is not deployment verification.
 
-See [the visual reference record](design/windows-2000-ui.md). The archived upstream gallery under `reference/` is not part of the installed desktop.
+See [the visual reference record](design/windows-2000-ui.md). The superseded upstream gallery is available in Git history; its provenance remains in `docs/source-manifest.json`.

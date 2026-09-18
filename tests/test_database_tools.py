@@ -8,7 +8,7 @@ from aiohttp.test_utils import TestClient, TestServer
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'server'))
 import app
 from mariadb_fixture import MariaDBFixture
-from database_tools import BoundedConnection, ResultLimit, identifier
+from database_tools import identifier
 
 
 class DatabaseTests(unittest.IsolatedAsyncioTestCase):

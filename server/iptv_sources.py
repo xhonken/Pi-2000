@@ -5,7 +5,7 @@ DNS is resolved and pinned anew for every redirect/request, including HLS childr
 """
 import asyncio
 from contextlib import asynccontextmanager
-from datetime import datetime, timezone
+from datetime import datetime
 import hashlib
 import ipaddress
 import json

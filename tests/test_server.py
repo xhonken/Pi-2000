@@ -319,7 +319,7 @@ class ServerTests(unittest.IsolatedAsyncioTestCase):
         self.assertNotIn(terminal_id, app.TERMINALS)
 
     async def test_terminal_privacy_expiry_and_workspace(self):
-        uid = await self.create_account()
+        await self.create_account()
         alice = await self.login_account()
         profile = await self.profile()
         with app.db() as conn:
@@ -364,7 +364,7 @@ class ServerTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual((await self.client.delete('/api/terminals/'+term.id, headers=self.headers)).status, 200)
 
     async def test_shared_content_migration(self):
-        uid = await self.create_account()
+        await self.create_account()
         with app.db() as conn:
             conn.execute('DROP TABLE items')
             conn.execute('DROP TABLE hostkeys')

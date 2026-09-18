@@ -1,5 +1,4 @@
 """Namespace changes rehearsed on disposable trees; never stop real services."""
-import asyncio
 import json
 import os
 from pathlib import Path

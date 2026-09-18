@@ -6,7 +6,6 @@ import asyncio
 import json
 import os
 import secrets
-import subprocess
 import time
 from session_proxy import control
 from runtime_health import compare

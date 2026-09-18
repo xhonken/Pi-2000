@@ -7,7 +7,6 @@ import json
 import os
 from pathlib import Path
 import pwd
-import shutil
 import sqlite3
 import ssl
 import subprocess

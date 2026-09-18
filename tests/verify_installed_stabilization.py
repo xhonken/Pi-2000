@@ -4,7 +4,6 @@ Run with the installed Python and sudo. --update first installs the reviewed
 checkout, preserving the SSH/Browser worker. Finish real database operations first.
 """
 import argparse
-import hashlib
 import http.cookiejar
 import json
 import os

@@ -4,8 +4,6 @@ import asyncio
 import base64
 import hashlib
 import json
-import mimetypes
-import os
 from pathlib import Path
 import secrets
 import struct

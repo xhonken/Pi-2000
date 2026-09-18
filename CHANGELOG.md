@@ -4,6 +4,12 @@ User-visible changes are recorded here for each numbered release. Development be
 
 ## Unreleased
 
+- Remove the superseded reference gallery, obsolete pixel-icon drawings, unused
+  imports/state and an unused development dependency. Keep standalone demo code
+  outside the deployed desktop. Avoid an unused full file-table read during ZIP
+  export and an unused periodic health request in My Activities. Preserve the
+  current SVG appearance and make icon regeneration reproducible.
+
 - Use `pi2000-*` service/account/process names and canonical installation paths.
   Add a guarded source-install migration with verified backup, preserved numeric
   ownership, busy-worker checks and rollback. Existing running jobs require an

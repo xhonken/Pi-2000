@@ -2,7 +2,6 @@
 """Pi-2000 deployment: validated data-only configuration, install and diagnostics."""
 import argparse
 import fcntl
-import hashlib
 import ipaddress
 import json
 import os

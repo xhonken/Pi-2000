@@ -1,7 +1,6 @@
 import asyncio
 import base64
 from contextlib import closing
-import copy
 import json
 from pathlib import Path
 import sqlite3

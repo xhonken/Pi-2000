@@ -45,7 +45,7 @@
  }
  function activities(){const existing=d.listWindows().find(x=>x.type==='activities-window');if(existing){existing.focus();return existing;}
   const w=app('activities-window','My Activities','<div class="tool-toolbar"></div><div class="activities-list"></div>');const current=owner;let busy=false;
-  async function refresh(){if(busy)return;busy=true;try{const [terms,health]=await Promise.all([api('/terminals'),api('/health')]);if(owner!==current||!w.element.isConnected)return;const area=w.body.querySelector('.activities-list');area.replaceChildren();
+  async function refresh(){if(busy)return;busy=true;try{const terms=await api('/terminals');if(owner!==current||!w.element.isConnected)return;const area=w.body.querySelector('.activities-list');area.replaceChildren();
    const title=t=>{const h=document.createElement('h3');h.textContent=t;area.append(h);};title('Terminals');for(const term of terms.terminals){const row=document.createElement('div');row.className='tool-row';button(row,term.profile.name+' · '+term.state,()=>d.resumeTerminal(term));button(row,'End…',async()=>{if(confirm('End the terminal and its running jobs?')){await api('/terminals/'+term.id,'DELETE');await refreshLater();}});area.append(row);}if(!terms.terminals.length)area.append('No terminals.');
    title('Browser');button(area,'Open / Reconnect',()=>s.actions.browser());button(area,'End Browser Session…',async()=>{if(confirm('End the browser and stop playback?')){await api('/browser/stop','POST',{});d.listWindows().find(x=>x.type==='browser-window')?.close();}});
    title('File Transfers on This Page');for(const transfer of transfers.values()){const row=document.createElement('div');row.className='tool-row';const text=document.createElement('span');text.textContent=transfer.label+' · '+transfer.state+(transfer.progress!==null?' · '+transfer.progress+' %':'');row.append(text);if(transfer.cancel)button(row,'Cancel',transfer.cancel);area.append(row);}if(!transfers.size)area.append('No file transfers.');
@@ -85,7 +85,7 @@
   w.onclose=()=>{controller?.abort();form.elements.password.value='';};w.status.textContent='The password is kept only in this open form. Maximum 50 MB per file.';return w;
  }
  const apps={search:['Search and Favourites','search-window',search],activities:['My Activities','activities-window',activities],notes:['Notes','notes-window',notes],preferences:['My Settings','preferences-window',preferences],sftp:['SFTP','sftp-window',sftp]};
- for(const [action,[title,type,open]] of Object.entries(apps)){s.actions[action]=open;window.Win2kApps.register({type,singleton:true,restore:()=>open()});}
+ for(const [action,[,type,open]] of Object.entries(apps)){s.actions[action]=open;window.Win2kApps.register({type,singleton:true,restore:()=>open()});}
  window.Win2kApps.register({type:'preview-window',restore:async entry=>{const result=await api('/files');const item=result.items.find(x=>x.id===entry.folder&&x.state==='live');return item?preview(item):null;}});
  window.Win2kTools={esc,run,req,button,download,openItem,recent,sftp,getPrefs:()=>prefs,savePrefs,track(id,label,progress,state,cancel){transfers.set(id,{label,progress,state,cancel});if(transfers.size>40)transfers.delete(transfers.keys().next().value);}};
  async function userChanged(next){owner=next;prefs={};transfers.clear();apply();const current=owner;if(current){try{const result=await api('/preferences');if(owner===current){prefs=result;apply();}}catch(error){s.notify(error.message);}}}

@@ -2,7 +2,6 @@
 """Build the arm64/Trixie package, with offline, pinned Python runtimes."""
 import argparse
 import hashlib
-import json
 import os
 from pathlib import Path
 import shutil

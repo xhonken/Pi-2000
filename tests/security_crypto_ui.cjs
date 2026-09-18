@@ -8,7 +8,7 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict');
    const original=await c.create(A,B),v=original.vault,a=await c.unlock(v,'a',A),b=await c.unlock(v,'b',B),entry=c.id();
    const content={username:'fixture',url:'',secret:'before rotation',notes:''};
    await c.writeEntry(v,b,entry,content);await c.writeIndex(v,a,{items:[{id:entry,title:'Fixture',category:'Password',created:1,updated:1}]});
-   const rotated=await c.rekey(v,A,B,N,M),ra=await c.unlock(rotated.vault,'a',N),rb=await c.unlock(rotated.vault,'b',M);
+   const rotated=await c.rekey(v,A,B,N,M);await c.unlock(rotated.vault,'a',N);const rb=await c.unlock(rotated.vault,'b',M);
    const retained=(await c.readEntry(rotated.vault,rb,entry)).secret==='before rotation';
    await c.writeEntry(rotated.vault,rb,entry,{...content,secret:'after rotation'});
    let oldContentKeyRejected=false,oldListKeyRejected=false;
