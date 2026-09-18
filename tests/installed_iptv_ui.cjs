@@ -13,7 +13,7 @@ let phase='startup';
   await w.getByLabel('IPTV country',{exact:true}).selectOption('SE');await page.waitForFunction(()=>document.querySelector('.iptv-window .app-status').textContent.includes('matching entries'));
   assert.ok(await w.locator('.iptv-row').count()>0);assert.equal(await w.locator('[aria-label="IPTV playlist"] option:checked').textContent(),'Free-TV');console.log('PASS installed PAM/HTTPS, new desktop app, public Free-TV import and Sweden filter');
   phase='public media test list';await w.getByRole('button',{name:'Add Playlist',exact:true}).click();await dialog.locator('[name=name]').fill('Public Playback Check');await dialog.locator('[name=kind]').selectOption('file');
-  const text='#EXTM3U\n#EXTINF:-1 group-title="Test",Public HLS Test\nhttps://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8\n#EXTINF:-1 group-title="Movies",Public MP4 Test\nhttps://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4\n';
+  const text='#EXTM3U\n#EXTINF:-1 group-title="Test",Public HLS Test\nhttps://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8\n#EXTINF:-1 group-title="Movies",Public MP4 Test\nhttps://media.w3.org/2010/05/sintel/trailer.mp4\n';
   await dialog.locator('[name=file]').setInputFiles({name:'playback-check.m3u',mimeType:'text/plain',buffer:Buffer.from(text)});await dialog.getByRole('button',{name:'Import Playlist'}).click();await dialog.waitFor({state:'hidden'});
   for(const [tab,title] of [['Live TV','Public HLS Test'],['Movies','Public MP4 Test']]){
    phase='public '+tab+' audio/video';await w.getByRole('tab',{name:tab,exact:true}).click();await w.getByRole('option',{name:new RegExp(title)}).dblclick();
