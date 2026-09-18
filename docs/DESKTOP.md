@@ -62,6 +62,53 @@ selection, object commands and menus; `icon-layout.js` owns layout and dragging.
 Real file operations continue through the account-scoped file manager. Appearance
 lives in `desktop-manager.css`; no third-party desktop framework was introduced.
 
+## Restore after restart or power loss
+
+The desktop continuously saves an account-private workspace checkpoint to the Pi.
+After login, it restores open application windows, their order, positions, sizes,
+minimized/maximized state, folders and supported application content. This also
+works from a different browser. Saving does not depend on a clean logout or a
+shutdown notification. The taskbar indicator shows **Saving…**, **Saved**,
+**Not saved**, **Recovery paused** or **Save conflict**; its tooltip provides
+more detail. Click it to retry a failed save or flush supported drafts now.
+
+Changes normally reach the server within about two seconds while connected;
+Pi++ and Notes have their own short draft timers. A sudden loss of power or
+network can lose edits that have not reached the server yet. An acknowledged
+checkpoint uses SQLite transactions and survives an application/server restart;
+this is not protection against failed storage hardware. Keep verified backups.
+
+| Application | Restored content and limits |
+| --- | --- |
+| Pi++ | Open saved files, server recovery drafts (including unsaved new text/SFTP drafts), active document, cursor and scroll. Drafts do not overwrite the original file. |
+| Notes | Autosaved notes and task list. |
+| Arduino Workshop | Open project, selected source tab, unsaved source/board changes and cursor. Original project revision is retained so a later Save still detects conflicts. Builds, uploads and serial monitoring are not restarted automatically. |
+| Display Studio | Composition, embedded images, unsaved changes, selected layer, grid and zoom. Saving the project file remains explicit. |
+| Dimension Drawing | Drawing, cutouts and control values, including changes not yet saved with Save Drawing. |
+| Calculator | Expression, output, memory and recent history. |
+| Terminal | Existing processes reconnect when available. After a reboot, the window returns with Reconnect; a new authenticated connection is required. Commands and terminal passwords are never checkpointed or replayed. |
+| Browser | The window reopens using the existing private Chromium profile. Live website state, unfinished forms and media playback are not guaranteed to recover. |
+| Vault | Window only; it always opens locked. Unlocked keys, passwords and unsaved secret forms are excluded. |
+| Database tools | Windows and the SQL workspace's existing saved drafts. Connections and transactions must be reopened; phpMyAdmin forms/unsent SQL are not checkpointed. |
+| Other applications | The window returns. Content is restored only where the app already saves it; unsaved API Tester credentials/requests, Git edits and open modal dialogs are not included. Use each app's Save command. |
+
+One failed application does not stop the others from restoring. Failed recovery
+retains its checkpoint rather than replacing it with a default window. A failed
+initial workspace read pauses automatic writes until Retry succeeds. A terminal
+service outage does not prevent ordinary windows and drafts from returning.
+
+Each account has its own checkpoint, including administrators. There is no
+administrator read override. New clients send an account guard and conditional
+ETag on writes. If two tabs diverge, saving pauses in the stale tab: reload to
+use the server's version, or click **Save conflict** and explicitly confirm
+replacing it with that tab's workspace. Only the confirmed version becomes the
+next recovery checkpoint. This is not a historical version browser.
+
+Recovery data is limited to 4 MB per workspace and counts toward account storage
+quota. Large Display Studio images may reach this limit; save project files and
+reduce embedded images if the taskbar reports that recovery data is too large.
+Existing file quotas and app-specific limits still apply.
+
 ## Architecture choice
 
 Pi-2000 remains an HTML/CSS/JavaScript desktop with its Python API. GNOME Remote

@@ -4,6 +4,12 @@ User-visible changes are recorded here for each numbered release. Development be
 
 ## Unreleased
 
+- Continuously checkpoint each account's workspace with save status, conditional
+  writes and recovery that survives failed reads, individual app errors and a
+  missing terminal service. Restore window order/layout and supported Pi++,
+  Arduino, drawing and calculator state; show reconnectable terminal windows
+  after reboot while keeping Vault locked and excluding credential forms.
+
 - Bind Browser sessions to their account version before waiting for startup, so
   account housekeeping does not stop a valid session during a slow cold start.
 

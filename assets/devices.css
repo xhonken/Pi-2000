@@ -1,4 +1,6 @@
 #tasks { display: flex; gap: 4px; overflow-x: auto; min-width: 0; padding-left: 5px; }
+#workspace-status { flex: none; max-width: 110px; padding: 2px 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 11px; }
+#workspace-status[data-state="pending"] { color: #7a2500; }
 .task-entry { min-width: 90px; max-width: 180px; flex: 0 1 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 2px 8px; text-align: left; }
 .task-entry.active { border-color: #000 #fff #fff #000; background: #e4e0d8; box-shadow: inset 1px 1px #808080; font-weight: bold; }
 .app-window { position: fixed; width: min(760px, calc(100vw - 12px)); height: min(510px, calc(100dvh - 100px)); min-width: 280px; min-height: 200px; max-width: calc(100vw - 8px); max-height: calc(100dvh - var(--shell-height) - 4px); display: flex; flex-direction: column; resize: both; overflow: hidden; }

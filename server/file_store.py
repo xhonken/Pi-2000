@@ -107,7 +107,10 @@ class FileStore:
         vault=0
         if conn.execute("SELECT 1 FROM sqlite_master WHERE name='vaults'").fetchone():
             vault=conn.execute('SELECT COALESCE(SUM(size),0) FROM vaults WHERE user_id=?',(uid,)).fetchone()[0]
-        return {'quota':row['storage_quota'],'reserved':sizes[0],'used':sizes[1]+documents+vault,'documents':documents,'vault':vault}
+        workspace=0
+        if conn.execute("SELECT 1 FROM sqlite_master WHERE name='workspaces'").fetchone():
+            workspace=conn.execute('SELECT COALESCE(SUM(length(CAST(data AS BLOB))),0) FROM workspaces WHERE user_id=?',(uid,)).fetchone()[0]
+        return {'quota':row['storage_quota'],'reserved':sizes[0],'used':sizes[1]+documents+vault+workspace,'documents':documents,'vault':vault}
 
     def descendants(self,conn,uid,key,state):
         rows=conn.execute('SELECT * FROM files WHERE user_id=? AND state=?',(uid,state)).fetchall()

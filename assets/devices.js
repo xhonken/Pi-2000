@@ -4,7 +4,27 @@ const $ = s => document.querySelector(s), shell = window.Win2kShell;
 let account = null, usersWindow = null, browserWindow = null;
 let items = [], folder = null, explorer = null, selected = null, highest = 30;
 const windows = new Set();
-let restoring = false, workspaceTimer = null, workspaceQueue = Promise.resolve();
+let restoring = false, workspaceTimer = null, workspaceQueue = null;
+let workspaceReady=false,workspaceTag=null,workspaceSaved='',workspaceConflict=false,workspaceGeneration=0;
+const workspaceStatus=document.createElement('button');workspaceStatus.id='workspace-status';workspaceStatus.className='win2k-button';
+workspaceStatus.textContent='Workspace';workspaceStatus.title='Workspace recovery';$('#clock').before(workspaceStatus);
+function checkpointStatus(text,detail=''){workspaceStatus.textContent=text;workspaceStatus.title=detail||text;workspaceStatus.dataset.state=text==='Saved'?'saved':'pending';}
+workspaceStatus.onclick=async()=>{
+ try{
+  if(workspaceConflict){if(!confirm('Another tab changed the saved workspace. Replace it with the windows and recovery data in this tab? Cancel keeps the saved copy.'))return;const user=account;const r=await workspaceRequest('GET');if(account!==user)return;workspaceTag=r.tag;workspaceConflict=false;workspaceSaved='';}
+  if(!workspaceReady){if(windows.size&&!confirm('Retry loading the saved workspace? Close any newly opened windows first if you need to keep their unsaved contents.'))return;await restoreWorkspace();return;}
+  for(const win of windows)await win.flush?.();
+  await saveWorkspace();
+ }catch(e){checkpointStatus('Not saved',e.message);shell.notify(e.message);}
+};
+async function workspaceRequest(method,data,keepalive=false){
+ const user=account;if(!user)throw Error('Log in to restore your workspace.');
+ const body=data===undefined?undefined:JSON.stringify(data);
+ const response=await fetch('/api/workspace',{method,headers:{'Content-Type':'application/json','X-Workspace-Owner':String(user.id),...(method==='PUT'&&workspaceTag?{'If-Match':workspaceTag}:{})},body,keepalive:keepalive&&new Blob([body||'']).size<60000});
+ const result=await response.json();
+ if(!response.ok){const e=Error(result.error||'Workspace could not be saved.');e.status=response.status;throw e;}
+ return {data:result,tag:response.headers.get('ETag')};
+}
 const escape = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 async function api(path, method = 'GET', data) {
  const response = await fetch('/api'+path, {method, headers: data ? {'Content-Type':'application/json'} : {}, body: data ? JSON.stringify(data) : undefined});
@@ -13,7 +33,7 @@ async function api(path, method = 'GET', data) {
  return result;
 }
 function locked() {
- account = null; window.dispatchEvent(new CustomEvent('win2k-user',{detail:null})); items = []; folder = null; selected = null; shell.setUser(null, api);
+ workspaceGeneration++;workspaceReady=false;workspaceTag=null;workspaceSaved='';workspaceConflict=false;workspaceQueue=null;restoring=false;account = null; window.dispatchEvent(new CustomEvent('win2k-user',{detail:null})); items = []; folder = null; selected = null; shell.setUser(null, api);
  clearTimeout(workspaceTimer);
  for (const win of [...windows]) win.close(true);
  $('#window').close(); shell.closeStart(); $('#session').hidden = true; $('#logon').hidden = false;
@@ -28,7 +48,7 @@ $('#login-form').onsubmit = async e => {
  catch (error) { $('#login-error').textContent = error.message; form.elements.password.value = ''; }
  finally { submit.disabled = false; }
 };
-shell.actions.logout = async () => { try { for(const win of windows)if(win.beforelogout && !(await win.beforelogout()))return; await saveWorkspace(); await api('/logout','POST'); locked(); } catch (error) { shell.notify(error.message); } };
+shell.actions.logout = async () => { try { if(account&&(!workspaceReady||workspaceConflict)){shell.notify('Resolve workspace recovery or the save conflict using the taskbar indicator before logging off. Your windows are still open.');return;} for(const win of windows)if(win.beforelogout && !(await win.beforelogout()))return; await saveWorkspace(); await api('/logout','POST'); locked(); } catch (error) { shell.notify(error.message); } };
 shell.actions.password = () => {
  shell.show('Change My Password', '<form id="password-form"><label class="form-row">Current password:<input name="current" type="password" autocomplete="current-password" required></label><label class="form-row">New password:<input name="password" type="password" autocomplete="new-password" minlength="12" required></label><label class="form-row">Repeat new password:<input name="repeat" type="password" autocomplete="new-password" minlength="12" required></label><p id="password-error" class="error" role="alert"></p><div class="actions"><button class="win2k-button">Save</button></div></form>');
  $('#password-form').onsubmit = async e => { e.preventDefault(); const f=e.target.elements; if(f.password.value!==f.repeat.value){$('#password-error').textContent='The passwords do not match.';return;} try { const result=await api('/password','POST',{current:f.current.value,password:f.password.value}); $('#window').close(); if(result.login_required){location.reload();return;} shell.notify('Password changed.'); }catch(error){$('#password-error').textContent=error.message;} };
@@ -105,17 +125,43 @@ shell.actions.users = async () => {
  try { await refreshUsers(); } catch(error) { if(usersWindow) usersWindow.status.textContent = error.message; }
 };
 function workspaceData() {
- return {windows:[...windows].map(win => ({type:win.type, ...(win.type==='editor-window'?{editorFiles:win.editorFiles||[]}:{}), terminal:win.terminalId || null, folder:win.fileParent ?? (win === explorer ? folder : null),
-  left:parseFloat(win.element.style.left)||0, top:parseFloat(win.element.style.top)||0,
-  width:parseFloat(win.element.style.width)||win.element.offsetWidth||760, height:parseFloat(win.element.style.height)||win.element.offsetHeight||510,
-  hidden:win.element.hidden, maximized:win.element.classList.contains('maximized')}))};
+ return {windows:[...windows].sort((a,b)=>(Number(a.element.style.zIndex)||0)-(Number(b.element.style.zIndex)||0)).map(win => {
+  if(win.recoveryEntry)return win.recoveryEntry;
+  const state=win.captureState?.();
+  return {type:win.type, ...(win.type==='editor-window'?{editorFiles:win.editorFiles||[]}:{}),...(state?{state}:{}),
+   ...(win.type==='terminal-window'?{profile:win.profileRef||null}:{}),terminal:win.terminalId || null, folder:win.fileParent ?? (win === explorer ? folder : null),
+   left:parseFloat(win.element.style.left)||0, top:parseFloat(win.element.style.top)||0,
+   width:parseFloat(win.element.style.width)||win.element.offsetWidth||760, height:parseFloat(win.element.style.height)||win.element.offsetHeight||510,
+   hidden:win.element.hidden, maximized:win.element.classList.contains('maximized')};
+ })};
 }
-function scheduleWorkspace() { if (!account || restoring) return; clearTimeout(workspaceTimer); workspaceTimer=setTimeout(()=>saveWorkspace().catch(error=>shell.notify(error.message)),150); }
-function saveWorkspace() {
- clearTimeout(workspaceTimer); if (!account || restoring) return Promise.resolve();
- const user=account, data=workspaceData();
- workspaceQueue=workspaceQueue.catch(()=>{}).then(()=>account===user ? api('/workspace','PUT',data) : undefined);
- return workspaceQueue;
+function scheduleWorkspace() {
+ if(!account||restoring||!workspaceReady||workspaceConflict)return;
+ if(!workspaceTimer)workspaceTimer=setTimeout(()=>{workspaceTimer=null;saveWorkspace().catch(()=>{});},500);
+}
+async function saveWorkspace(keepalive=false) {
+ clearTimeout(workspaceTimer);workspaceTimer=null;
+ if(!account||restoring||!workspaceReady||workspaceConflict)return;
+ const user=account,generation=workspaceGeneration;
+ if(workspaceQueue){const pending=workspaceQueue;await pending;if(account!==user||generation!==workspaceGeneration)return;if(workspaceQueue===pending)workspaceQueue=null;return saveWorkspace(keepalive);}
+ const operation=(async()=>{
+  try{
+   const data=workspaceData(),encoded=JSON.stringify(data);if(encoded===workspaceSaved)return;
+   checkpointStatus('Saving…','Saving windows and supported application recovery data on the Pi.');
+   const result=await workspaceRequest('PUT',data,keepalive);
+   if(account!==user||generation!==workspaceGeneration)return;
+   workspaceTag=result.tag;workspaceSaved=encoded;
+   checkpointStatus('Saved','Workspace saved on the Pi at '+new Date().toLocaleTimeString()+'. Click to save now.');
+  }catch(e){
+   if(account===user&&generation===workspaceGeneration){
+    workspaceConflict=e.status===409;
+    checkpointStatus(workspaceConflict?'Save conflict':'Not saved',e.message+' Your open windows are retained. Click to retry.');
+    if(e.status===401||e.status===403)locked();
+   }
+   throw e;
+  }
+ })();workspaceQueue=operation;
+ try{await operation;}finally{if(workspaceQueue===operation)workspaceQueue=null;}
 }
 function keepWindowVisible(element) {
  if(element.hidden||element.classList.contains('maximized'))return;
@@ -132,24 +178,38 @@ function applyLayout(win, layout) {
  el.classList.toggle('maximized',layout.maximized); el.hidden=layout.hidden; win.task.classList.toggle('active',!layout.hidden); keepWindowVisible(el); win.onresize?.();
 }
 async function restoreWorkspace() {
- const user=account; restoring=true;
- try {
-  const [layout, result]=await Promise.all([api('/workspace'),api('/terminals')]);
-  if(account!==user)return;
-  const remaining=new Map(result.terminals.map(term=>[term.id,term]));
-  for (const entry of layout.windows) {
-   if(account!==user)return;
-   const win=await window.Win2kApps.restore(entry,account,{remaining});
-   if(account!==user)return;
-   applyLayout(win,entry);
+ const user=account,generation=++workspaceGeneration;restoring=true;workspaceReady=false;workspaceConflict=false;
+ checkpointStatus('Restoring…');
+ try{
+  const saved=await workspaceRequest('GET');if(account!==user||generation!==workspaceGeneration)return;
+  workspaceTag=saved.tag;workspaceSaved=JSON.stringify(saved.data);
+  let terminals=[];
+  try{terminals=(await api('/terminals')).terminals;}catch(e){if(account!==user)return;shell.notify('Terminal service unavailable. Other windows will still be restored.');}
+  const remaining=new Map(terminals.map(term=>[term.id,term]));
+  for(const entry of saved.data.windows){
+   if(account!==user||generation!==workspaceGeneration)return;
+   try{
+    const win=await window.Win2kApps.restore(entry,user,{remaining});
+    if(account!==user||generation!==workspaceGeneration)return;
+    if(win&&entry.state)await win.restoreState?.(entry.state);
+    applyLayout(win,entry);
+   }catch(e){
+    if(account!==user||generation!==workspaceGeneration)return;
+    const descriptor=Win2kApps.get(entry.type);if(!descriptor||!descriptor.allowed(user))continue;
+    let win=[...windows].find(w=>w.type===entry.type);if(!win)win=makeWindow('Recovery – '+entry.type.replace('-window',''),entry.type);
+    win.recoveryEntry=entry;win.status.textContent='Recovery could not finish: '+e.message+'. Saved content is retained. Reload to retry, or close to remove this window.';
+    applyLayout(win,entry);
+   }
   }
-  for (const term of remaining.values()) startTerminal(term.profile,null,term.id);
- } catch(error) { shell.notify('Could not restore windows: '+error.message); }
- finally { restoring=false; }
+  for(const term of remaining.values()){if(windows.size<12)startTerminal(term.profile,null,term.id);}
+  workspaceReady=true;checkpointStatus('Saved','Previous workspace restored. Supported drafts are saved separately from their files.');
+ }catch(e){if(account===user&&generation===workspaceGeneration)checkpointStatus('Recovery paused',e.message+' Click to retry. The saved workspace has not been replaced.');}
+ finally{if(generation===workspaceGeneration)restoring=false;}
 }
-window.addEventListener('pagehide',()=>{
- if(account && !restoring) fetch('/api/workspace',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(workspaceData()),keepalive:true}).catch(()=>{});
-});
+setInterval(()=>{if(account&&!restoring&&workspaceReady)saveWorkspace().catch(()=>{});},2000);
+window.addEventListener('online',()=>saveWorkspace().catch(()=>{}));
+document.addEventListener('visibilitychange',()=>{if(document.hidden){for(const win of windows)win.flush?.().catch(()=>{});saveWorkspace(true).catch(()=>{});}});
+window.addEventListener('pagehide',()=>saveWorkspace(true).catch(()=>{}));
 shell.actions.browser=async(url)=>{
  shell.closeStart();
  if(browserWindow){browserWindow.focus();if(url)await browserWindow.openUrl(url);return;}
@@ -265,8 +325,8 @@ function connectDialog(profile){
  shell.show('Connect to '+profile.name,`<form id="ssh-form"><p>${escape(profile.username)}@${escape(profile.host)}:${profile.port}</p><label class="form-row">SSH Password:<input name="password" type="password" autocomplete="off"></label><p class="muted">The password is used only for this connection.</p><div class="actions"><button type="button" class="win2k-button" data-action="close">Cancel</button><button class="win2k-button default">Connect</button></div></form>`);
  $('#ssh-form input').focus();$('#ssh-form').onsubmit=e=>{e.preventDefault();const password=e.target.elements.password.value;e.target.reset();$('#window').close();startTerminal(profile,password);};
 }
-function startTerminal(profile,password,terminalId=null){
- const win=makeWindow(profile.local?'Local Terminal':profile.name+' – SSH','terminal-window'); win.terminalId=terminalId;
+function startTerminal(profile,password,terminalId=null,detached=false){
+ const win=makeWindow(profile.local?'Local Terminal':profile.name+' – SSH','terminal-window'); win.terminalId=terminalId;win.profileRef=profile.local?'local':profile.id;
  win.body.innerHTML='<div class="terminal-toolbar"><button class="win2k-button reconnect" disabled>Reconnect</button><span>The job continues when you disconnect or log off.</span></div><div class="host-confirm" hidden></div><div class="terminal-surface"></div>';
  const terminal=new Terminal({cursorBlink:true,fontFamily:'Consolas, "Liberation Mono", monospace',fontSize:14,scrollback:5000,theme:{background:'#000000',foreground:'#d8d8d8',cursor:'#ffffff'},convertEol:false});
  const fit=new FitAddon.FitAddon();terminal.loadAddon(fit);terminal.open(win.body.querySelector('.terminal-surface'));
@@ -312,7 +372,7 @@ function startTerminal(profile,password,terminalId=null){
  }
  win.body.querySelector('.reconnect').onclick=async()=>{
   if(win.terminalId&&!ended){attach();return;}
-  if(win.terminalId){try{await api('/terminals/'+win.terminalId,'DELETE');}catch(error){shell.notify(error.message);return;}}
+  if(win.terminalId){try{await api('/terminals/'+win.terminalId,'DELETE');}catch(error){if(error.status!==404){shell.notify(error.message);return;}}}
   win.beforeclose=null;await win.close();connectDialog(profile);
  };
  win.beforeclose=async()=>{
@@ -321,7 +381,7 @@ function startTerminal(profile,password,terminalId=null){
   try{await api('/terminals/'+win.terminalId,'DELETE');return true;}catch(error){if(error.status===404)return true;shell.notify(error.message);return false;}
  };
  win.onclose=()=>{disposed=true;password=null;clearTimeout(retry);socket?.close();terminal.dispose();};
- attach();scheduleWorkspace();return win;
+ if(detached){ended=true;win.status.textContent='The previous terminal process ended during a restart. Reconnect to start a new session; commands are never replayed.';win.body.querySelector('.reconnect').disabled=false;}else attach();scheduleWorkspace();return win;
 }
 let statusWindow=null;
 shell.actions.status=async()=>{
@@ -347,11 +407,21 @@ shell.actions.status=async()=>{
  await refreshStatus();
 };
 window.Win2kApps.register({type:'explorer-window',restore:async entry=>{folder=entry.folder;await shell.actions.devices();return explorer;}});
-window.Win2kApps.register({type:'browser-window',singleton:true,restore:async()=>{await shell.actions.browser();return browserWindow;}});
+window.Win2kApps.register({type:'browser-window',singleton:true,restore:()=>{shell.actions.browser();return browserWindow;}});
 window.Win2kApps.register({type:'users-window',singleton:true,allowed:user=>user?.role==='admin',restore:async()=>{await shell.actions.users();return usersWindow;}});
-window.Win2kApps.register({type:'terminal-window',restore:(entry,{remaining})=>{const term=remaining.get(entry.terminal);if(!term){shell.notify('A previous terminal ended or was lost when the session service restarted.');return null;}remaining.delete(entry.terminal);return startTerminal(term.profile,null,term.id);}});
+window.Win2kApps.register({type:'terminal-window',restore:async(entry,{remaining})=>{
+ const term=remaining.get(entry.terminal);if(term){remaining.delete(entry.terminal);return startTerminal(term.profile,null,term.id);}
+ let profile;
+ if(entry.profile==='local'&&account?.role==='admin')profile=await api('/local-terminal');
+ else if(entry.profile)profile=(await api('/items')).items.find(x=>x.id===entry.profile&&x.kind==='profile');
+ if(profile)return startTerminal(profile,null,null,true);
+ const win=makeWindow('Previous Terminal','terminal-window');win.profileRef=entry.profile||null;
+ win.status.textContent='The previous terminal ended. Its connection is no longer available; choose a connection in My Devices.';
+ const b=document.createElement('button');b.className='win2k-button';b.textContent='My Devices';b.onclick=()=>shell.actions.devices();win.body.append(b);return win;
+}});
 window.Win2kApps.register({type:'status-window',singleton:true,restore:async()=>{await shell.actions.status();return statusWindow;}});
 window.addEventListener('resize',()=>windows.forEach(win=>{keepWindowVisible(win.element);win.onresize?.();}));
-window.Win2kDesktop=Object.freeze({api,makeWindow,getUser:()=>account,scheduleWorkspace,listWindows:()=>[...windows],openConnection:profile=>connectDialog(profile),resumeTerminal:term=>startTerminal(term.profile,null,term.id)});
-api('/session').then(unlocked).catch(()=>{});
+window.Win2kDesktop=Object.freeze({api,makeWindow,saveWorkspace,getUser:()=>account,scheduleWorkspace,listWindows:()=>[...windows],openConnection:profile=>connectDialog(profile),resumeTerminal:term=>startTerminal(term.profile,null,term.id)});
+const boot=()=>api('/session').then(unlocked).catch(()=>{});
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 })();

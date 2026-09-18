@@ -91,7 +91,13 @@ SSH jobs run in the separate `win2k-sessions` service. Disconnecting your comput
 
 Use My Activities or Task Manager to end a terminal explicitly. A terminal window can also ask for confirmation before ending its SSH session. Browser windows preserve their browser session when closed; Connection → End Session stops it. A browser with no connected client is stopped after 24 hours.
 
-**Persistence depends on the Pi and the remote device continuing to run.** Restarting the session service, rebooting the Pi, losing power on the Pi or losing the remote SSH connection can end jobs. This is not a checkpoint/restart system. Frontend updates intentionally preserve the running session worker.
+Post-Alpha 5 development saves per-account workspace checkpoints continuously:
+window layout plus supported editor, Arduino, drawing and calculator recovery
+state returns after reboot or power loss. The taskbar shows whether the checkpoint
+was saved. Vault returns locked; terminals offer a new connection when their old
+process is gone. See [desktop recovery and its limits](docs/DESKTOP.md#restore-after-restart-or-power-loss).
+
+**Running processes depend on the Pi and the remote device continuing to run.** Restarting the session service, rebooting the Pi, losing power on the Pi or losing the remote SSH connection can end jobs. Workspace recovery does not checkpoint or restart running processes. Frontend updates intentionally preserve the running session worker.
 
 ## Install on Raspberry Pi
 

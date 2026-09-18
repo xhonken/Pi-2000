@@ -182,3 +182,22 @@ for multiple selection, F2 to rename and Delete to remove. Start-menu applicatio
 can be sent to the desktop. Removing a program icon keeps the application installed.
 Settings are private to your account; see [Desktop](DESKTOP.md) for all commands
 and how to choose single-click opening or resolve a two-tab save conflict.
+
+
+## Desktop recovery after a restart
+
+Your open windows and supported application recovery state are saved continuously
+for your account. Log in after the Pi restarts to restore them. Check the taskbar's
+**Saved** indicator; **Not saved** means recent changes have not been confirmed
+on the Pi. Click the indicator to retry or save supported drafts now. A save
+conflict means another tab changed the checkpoint: reload, or explicitly confirm
+replacing it with this tab's workspace. Do not assume a power failure can preserve
+edits made since the last successful save.
+
+Pi++, Notes, Arduino source, Display Studio, Dimension Drawing and Calculator have
+recovery support. Original files and projects still use their normal Save command.
+Terminal windows offer Reconnect after a reboot; previous commands/jobs are not
+replayed. Vault opens locked. Database transactions, phpMyAdmin forms, unsaved API
+Tester/Git edits, modal dialogs and arbitrary website state are not recovered.
+See [Desktop recovery](DESKTOP.md#restore-after-restart-or-power-loss) for exact
+coverage and the 4 MB per-account checkpoint limit.

@@ -46,3 +46,14 @@ locally is not evidence of a successful GitHub run. The container needs nested
 user namespaces for sandbox verification. The setup follows the official
 [GitHub container-job documentation](https://docs.github.com/en/actions/how-tos/write-workflows/choose-where-workflows-run/run-jobs-in-a-container)
 and [Playwright CI guidance](https://playwright.dev/docs/ci).
+
+## Workspace recovery
+
+`workspace_recovery_ui.cjs` owns a disposable persistent fixture. It creates four
+accounts, edits application content, kills that server with SIGKILL, starts it
+again on the same state directory, and signs in from fresh browser contexts.
+It checks private drafts, Arduino source, drawings, calculator/layout, terminal
+reconnect, locked Vault, failed reads/writes and stale-tab conflict handling.
+This verifies abrupt application-process death and durable state recovery; it
+is not a physical power-cut or filesystem-corruption test. No production server
+is killed.

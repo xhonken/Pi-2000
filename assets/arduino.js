@@ -17,7 +17,7 @@
   const snapshot=()=>JSON.stringify({name:project?.name,files:Object.fromEntries([...sessions].map(([n,v])=>[n,v.getValue()])),fqbn:project?.fqbn||'',board_name:project?.board_name||''});
   const dirty=()=>!!project&&snapshot()!==baseline;
   const discard=()=>!dirty()||confirm('Discard unsaved changes? Export Project can keep a copy before you reopen a saved version.');
-  function title(){w.title((project?project.name+(dirty()?' *':'')+' – ':'')+'Arduino Workshop');w.status.textContent=project?(dirty()?'Unsaved changes':'Saved')+' · Ctrl+S Save Project · Ctrl+R Verify · Ctrl+U Upload':'New Project starts a private sketch.';}
+  function title(){d.scheduleWorkspace();w.title((project?project.name+(dirty()?' *':'')+' – ':'')+'Arduino Workshop');w.status.textContent=project?(dirty()?'Unsaved changes':'Saved')+' · Ctrl+S Save Project · Ctrl+R Verify · Ctrl+U Upload':'New Project starts a private sketch.';}
   function target(){const fqbn=project?.fqbn||'';$('.arduino-board').textContent=fqbn?'Board: '+(project.board_name||fqbn.split(':')[2]):'No board selected';$('.arduino-board').title=fqbn;$('.arduino-port').textContent=w.arduinoPort||'No USB port selected';title();}
   function tabs(){const bar=$('.arduino-tabs');bar.replaceChildren();for(const [name] of sessions){const b=button(bar,name,()=>select(name));b.setAttribute('role','tab');b.setAttribute('aria-selected',String(name===active));b.tabIndex=name===active?0:-1;b.onkeydown=e=>{if(['ArrowLeft','ArrowRight','Home','End'].includes(e.key)){e.preventDefault();const keys=[...sessions.keys()],i=keys.indexOf(name);select(keys[e.key==='Home'?0:e.key==='End'?keys.length-1:(i+(e.key==='ArrowRight'?1:-1)+keys.length)%keys.length]);bar.querySelector('[aria-selected=true]').focus();}};}title();}
   function select(name){active=name;editor.setSession(sessions.get(name));editor.setReadOnly(false);tabs();editor.focus();}
@@ -83,7 +83,16 @@
   const timer=setInterval(poll,1200);const unload=e=>{if(dirty()||working){e.preventDefault();e.returnValue='';}};window.addEventListener('beforeunload',unload);
   w.beforeclose=w.beforelogout=()=>!working&&![...dialogs].some(x=>x.busy)&&discard();
   w.onclose=()=>{clearInterval(timer);window.removeEventListener('beforeunload',unload);if(monitor)request('monitor_close').catch(()=>{});closed=true;for(const el of dialogs)el.close();editor.destroy();for(const v of sessions.values())v.destroy();current=null;};
-  w.onresize=()=>{editor.setFontSize(getComputedStyle(w.body).fontSize);editor.resize();};const resize=new ResizeObserver(()=>editor.resize());resize.observe($('.arduino-editor'));const close=w.onclose;w.onclose=()=>{resize.disconnect();close();};target();run(refresh);return w;
+  w.captureState=()=>project?{project:{id:project.id,revision:project.revision,...JSON.parse(snapshot())},active,dirty:dirty(),cursor:editor.getCursorPosition()}:{};
+  w.restoreState=async state=>{
+   await w.ready;if(!alive()||!state.project)return;const p=state.project;
+   if(typeof p.id!=='string'||!Number.isInteger(p.revision)||typeof p.name!=='string'||!p.files||typeof p.files!=='object'||Array.isArray(p.files)||Object.keys(p.files).length>100||Object.values(p.files).some(v=>typeof v!=='string'))throw Error('Invalid Arduino recovery data.');
+   load({id:p.id,revision:p.revision,name:p.name,files:p.files,fqbn:typeof p.fqbn==='string'?p.fqbn:'',board_name:typeof p.board_name==='string'?p.board_name:''});
+   if(state.dirty)baseline='';if(sessions.has(state.active))select(state.active);
+   if(Number.isInteger(state.cursor?.row)&&Number.isInteger(state.cursor?.column))editor.moveCursorTo(state.cursor.row,state.cursor.column);
+   title();
+  };
+  w.onresize=()=>{editor.setFontSize(getComputedStyle(w.body).fontSize);editor.resize();};const resize=new ResizeObserver(()=>editor.resize());resize.observe($('.arduino-editor'));const close=w.onclose;w.onclose=()=>{resize.disconnect();close();};target();w.ready=run(refresh);return w;
  }
  s.actions.arduino=open;Win2kApps.register({type:'arduino-window',singleton:true,restore:open});
 })();

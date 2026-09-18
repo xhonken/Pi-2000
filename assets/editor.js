@@ -174,6 +174,10 @@
   editor.commands.addCommand({name:'savePrivateFile',bindKey:{win:'Ctrl-S',mac:'Command-S'},exec:()=>run(()=>save())});
   editor.commands.addCommand({name:'savePrivateFileAs',bindKey:{win:'Ctrl-Shift-S',mac:'Command-Shift-S'},exec:()=>run(()=>save(true))});
   win.onresize=()=>{if(editor){editor.setFontSize(Math.max(settings.fontSize,parseInt(getComputedStyle(win.body).fontSize)||13));editor.resize();}};resizeObserver=new ResizeObserver(()=>editor?.resize());resizeObserver.observe(win.body.querySelector('.editor-code'));win.beforeclose=async()=>{try{await Promise.all(tabs.filter(dirty).map(persistDraft));return true;}catch(error){return confirm('Drafts could not be saved. Close anyway and lose unsaved changes?');}};
+  const tabKey=tab=>tab.id||tab.draftKey;
+  win.captureState=()=>({active:active?tabKey(active):null,tabs:tabs.map(tab=>({key:tabKey(tab),cursor:tab.session.selection.getCursor(),scroll:tab.session.getScrollTop()}))});
+  win.restoreState=async state=>{await recovery;if(!win||!Array.isArray(state.tabs))return;for(const saved of state.tabs){const tab=tabs.find(t=>tabKey(t)===saved.key);if(!tab)continue;if(Number.isInteger(saved.cursor?.row)&&Number.isInteger(saved.cursor?.column))tab.session.selection.moveCursorTo(saved.cursor.row,saved.cursor.column);if(Number.isFinite(saved.scroll))tab.session.setScrollTop(saved.scroll);}const tab=tabs.find(t=>tabKey(t)===state.active);if(tab)select(tab);};
+  win.flush=()=>Promise.all(tabs.filter(dirty).map(persistDraft));
   win.onclose=()=>{resizeObserver?.disconnect();window.Win2kRemoteEditor?.close();for(const tab of tabs){clearTimeout(tab.draftTimer);for(const mark of tab.bookmarks)mark.detach();tab.session.destroy();}editor.destroy();win=null;editor=null;tabs=[];active=null;owner=null;items=[];parent='files';};
   newFile();recovery=loadSettings().catch(e=>shell.notify('Could not load Pi++ preferences: '+e.message)).then(recoverDrafts).catch(e=>shell.notify('Could not recover drafts: '+e.message));run(refresh);return win;
  }

@@ -640,25 +640,38 @@ async def terminal_delete(request):
 
 
 async def workspace(request):
+    from workspace_state import validate, MAX_BYTES
+    from desktop_settings import etag
     user_id = request[USER]['id']
+    owner = request.headers.get('X-Workspace-Owner')
+    if request.query or (owner is not None and owner != str(user_id)):
+        return error('Workspace belongs to a different account. Reload the page.',403)
     if request.method == 'GET':
         with db() as conn:
             row = conn.execute('SELECT data FROM workspaces WHERE user_id=?', (user_id,)).fetchone()
-        return web.json_response(json.loads(row['data']) if row else {'windows': []})
-    data = await read_json(request)
-    if not isinstance(data, dict) or set(data) != {'windows'} or not isinstance(data['windows'], list) or len(data['windows']) > 12:
-        return error('Invalid window layout.')
-    for window in data['windows']:
-        if (not isinstance(window, dict) or window.get('type') not in ('explorer-window', 'users-window', 'terminal-window', 'browser-window', 'status-window', 'files-window', 'trash-window', 'editor-window', 'preview-window', 'search-window', 'activities-window', 'notes-window', 'preferences-window', 'sftp-window', 'cad-window', 'calculator-window', 'taskmanager-window', 'phpmyadmin-window', 'database-window', 'api-window', 'git-window', 'arduino-window', 'network-window', 'display-window', 'archive-window', 'log-window', 'vault-window')
-                or any(type(window.get(key)) not in (int, float) or not -10000 <= window[key] <= 10000 for key in ('left', 'top', 'width', 'height'))
-                or any(type(window.get(key)) is not bool for key in ('hidden', 'maximized'))
-                or any(window.get(key) is not None and (not isinstance(window[key], str) or len(window[key]) > 128) for key in ('terminal', 'folder'))):
-            return error('Invalid window layout.')
-        if 'editorFiles' in window and (not isinstance(window['editorFiles'],list) or len(window['editorFiles'])>100 or any(not isinstance(key,str) or not re.fullmatch(r'[a-f0-9]{32}',key) for key in window['editorFiles'])):
-            return error('Invalid editor tabs.')
+        data=json.loads(row['data']) if row else {'windows': []}
+        return web.json_response(data,headers={'ETag':etag(data),'Cache-Control':'no-store'})
+    payload=bytearray()
+    async for chunk in request.content.iter_chunked(65536):
+        payload.extend(chunk)
+        if len(payload)>MAX_BYTES:return error('Workspace recovery data exceeds 4 MB.',413)
+    require_current(request)
+    try:
+        data=json.loads(payload)
+        encoded=validate(data)
+    except (ValueError,UnicodeDecodeError,RecursionError):return error('Invalid or oversized workspace recovery data.')
     with db() as conn:
-        conn.execute('INSERT INTO workspaces VALUES (?,?) ON CONFLICT(user_id) DO UPDATE SET data=excluded.data', (user_id, json.dumps(data)))
-    return web.json_response({'ok': True})
+        conn.execute('BEGIN IMMEDIATE')
+        row=conn.execute('SELECT data FROM workspaces WHERE user_id=?',(user_id,)).fetchone()
+        previous=json.loads(row['data']) if row else {'windows':[]}
+        expected=request.headers.get('If-Match')
+        if expected is not None and expected!=etag(previous):return error('Workspace changed in another tab. Reload to use the saved workspace.',409)
+        usage=FILES.usage(conn,user_id)
+        old_size=len(row['data'].encode()) if row else 0
+        if usage['used']+usage['reserved']-old_size+len(encoded.encode())>usage['quota']:
+            return error('Storage quota exceeded. Workspace recovery data was not saved.',413)
+        conn.execute('INSERT INTO workspaces VALUES (?,?) ON CONFLICT(user_id) DO UPDATE SET data=excluded.data', (user_id, encoded))
+    return web.json_response({'ok': True},headers={'ETag':etag(data),'Cache-Control':'no-store'})
 
 
 async def attach_terminal(ws, term, token):
