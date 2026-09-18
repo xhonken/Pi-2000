@@ -19,6 +19,7 @@ function locked() {
  $('#window').close(); shell.closeStart(); $('#session').hidden = true; $('#logon').hidden = false;
  $('#login-form').reset(); $('#login-form').elements.username.value = 'admin';
 }
+window.addEventListener('win2k-session-expired',locked);
 async function unlocked(user) { await shell.setUser(user, api); account = user; window.dispatchEvent(new CustomEvent('win2k-user',{detail:user})); document.querySelectorAll('[data-action=users]').forEach(button => button.hidden = user.role !== 'admin'); $('#logon').hidden = true; $('#session').hidden = false; $('#login-form').reset(); $('#start-button').focus(); await restoreWorkspace(); }
 $('#login-form').onsubmit = async e => {
  e.preventDefault(); const form = e.target, submit = form.querySelector('[type=submit]');

@@ -10,7 +10,7 @@ const {chromium}=require('playwright');const assert=require('node:assert/strict'
   const files=await page.evaluate(async()=>{
    const out=[];for(const [name,text] of [['display.cpp','#include <Arduino.h>\n#include <Adafruit_GC9A01A.h>\n\n// Pi++ display experiment\nconst int ledPin = 2;\n\nvoid setup() {\n    Serial.begin(115200);\n    pinMode(ledPin, OUTPUT);\n}\n\nvoid loop() {\n    digitalWrite(ledPin, HIGH);\n    Serial.println("Hello from Pi++!");\n    delay(500);\n    digitalWrite(ledPin, LOW);\n    delay(500);\n}\n'],['config.h','#pragma once\n// display configuration\nconst int screenWidth = 240;\n']]){const r=await fetch('/api/files/upload?'+new URLSearchParams({parent:'files',name}),{method:'POST',body:text});out.push({...await r.json(),name});}return out;
   });
-  await page.locator('#desktop-icons [data-action=editor]').click();const w=page.locator('.editor-window');await w.waitFor();
+  await page.locator('#desktop-icons [data-action=editor]').dblclick();const w=page.locator('.editor-window');await w.waitFor();
   assert.match(await w.locator('header').textContent(),/Pi\+\+/);assert.equal(await page.locator('#desktop-icons [data-action=editor] .icon-label').textContent(),'Pi++');
   await w.getByRole('button',{name:'Open…',exact:true}).click();let form=page.locator('.piplus-form');await form.locator('[name=filter]').fill('display.cpp');await form.getByRole('button',{name:'Open',exact:true}).click();
   await w.getByRole('tab',{name:'display.cpp',exact:true}).waitFor();await page.evaluate(id=>Win2kEditor.openFile(id),files[1].id);await w.getByRole('tab',{name:'config.h',exact:true}).waitFor();

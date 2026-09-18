@@ -75,7 +75,7 @@ def main():
     for name in ('README.md',):copy(ROOT/name,'/usr/share/doc/pi2000web/'+name)
     copy(ROOT/'docs/DEB-INSTALLATION.md','/usr/share/doc/pi2000web/DEB-INSTALLATION.md')
     copy(ROOT/'docs/SYSTEM-ACCOUNTS.md','/usr/share/doc/pi2000web/SYSTEM-ACCOUNTS.md')
-    for name in ('RECOVERY.md','MAINTENANCE.md','TESTING.md','VAULT.md'):
+    for name in ('RECOVERY.md','MAINTENANCE.md','TESTING.md','VAULT.md','DESKTOP.md'):
         copy(ROOT/'docs'/name,'/usr/share/doc/pi2000web/'+name)
     control=stage/'DEBIAN';control.mkdir()
     size=sum(f.stat().st_size for f in stage.rglob('*') if f.is_file())//1024

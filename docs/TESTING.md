@@ -15,7 +15,7 @@ npm ci --ignore-scripts
 ```
 
 The one-command default runs all backend tests, both geometry suites and the
-ordinary UI suite listed in `tests/suites.json`, including Vault, Pi++, Arduino and all
+ordinary UI suite listed in `tests/suites.json`, including desktop management, Vault, Pi++, Arduino and all
 five utility tools. Playwright is an exact development dependency in package.json
 and package-lock.json; no production Node dependencies or runtime framework are
 introduced. Chromium comes from the test host; `WIN2K_TEST_CHROMIUM` can select an

@@ -10,7 +10,7 @@ const {chromium,firefox}=require('playwright');const assert=require('node:assert
   HTMLInputElement.prototype.showPicker=function(){if(this.type==='file')pickerChecks.push({connected:this.isConnected,active:navigator.userActivation.isActive});return original.call(this);};
  });
  await page.locator('#desktop').click({button:'right',position:{x:1250,y:30}});
- let chooser=page.waitForEvent('filechooser');await page.locator('#desktop-menu [data-action=upload-desktop]').click();await(await chooser).setFiles({name:'picker-desktop.txt',mimeType:'text/plain',buffer:Buffer.from('desktop upload')});
+ let chooser=page.waitForEvent('filechooser');await page.locator('.desktop-context').getByRole('button',{name:'Upload Files…',exact:true}).click();await(await chooser).setFiles({name:'picker-desktop.txt',mimeType:'text/plain',buffer:Buffer.from('desktop upload')});
  await page.locator('#file-icons .desktop-icon').filter({hasText:'picker-desktop.txt'}).waitFor();
  await page.evaluate(()=>Win2kFiles.openFolder('files'));let w=page.locator('.files-window').last();
  chooser=page.waitForEvent('filechooser');await w.getByRole('button',{name:'Upload…',exact:true}).click();await(await chooser).setFiles({name:'picker-files.txt',mimeType:'text/plain',buffer:Buffer.from('files upload')});await w.getByRole('row').filter({hasText:'picker-files.txt'}).waitFor();

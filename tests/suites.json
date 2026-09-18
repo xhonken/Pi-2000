@@ -14,6 +14,7 @@
     "upload_picker_ui.cjs",
     "shortcut_ui.cjs",
     "icon_drag_ui.cjs",
+    "desktop_manager_ui.cjs",
     "classic_ui.cjs",
     "window_bounds_ui.cjs",
     "classic_accessibility.cjs",

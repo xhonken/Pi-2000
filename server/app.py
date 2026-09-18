@@ -475,40 +475,32 @@ async def reset_password(request):
 
 
 async def desktop(request):
+    from desktop_settings import validate, etag
     user_id = request[USER]['id']
+    owner = request.headers.get('X-Desktop-Owner')
+    if request.query or (owner is not None and owner != str(user_id)):
+        return error('Desktop belongs to a different account. Reload the page.', 403)
     with db() as conn:
+        row = conn.execute('SELECT data FROM desktops WHERE user_id=?', (user_id,)).fetchone()
         if request.method == 'GET':
-            row = conn.execute('SELECT data FROM desktops WHERE user_id=?', (user_id,)).fetchone()
-            return web.json_response(json.loads(row['data']) if row else None)
+            data = json.loads(row['data']) if row else None
+            return web.json_response(data, headers={'ETag':etag(data), 'Cache-Control':'no-store'})
     payload=bytearray()
     async for chunk in request.content.iter_chunked(65536):
         payload.extend(chunk)
         if len(payload)>1024**2:
             return error('Desktop settings are too large.',413)
     require_current(request)
-    try: data=json.loads(payload)
-    except (ValueError,UnicodeDecodeError): return error('Invalid desktop settings.')
-    if not isinstance(data, dict) or set(data) not in ({'shortcuts', 'color'}, {'shortcuts', 'color', 'positions'}):
-        return error('Invalid desktop settings.')
-    if data['color'] not in ('#3a6ea5', '#008080', '#2d4739') or not isinstance(data['shortcuts'], list):
-        return error('Invalid desktop settings.')
-    positions=data.get('positions',{})
-    if not isinstance(positions,dict) or len(positions)>5200:
-        return error('Invalid icon positions.')
-    for key,point in positions.items():
-        if (not isinstance(key,str) or len(key)>160 or not isinstance(point,list) or len(point)!=2
-                or any(type(v) is not int or not 0<=v<=10000 for v in point)):
-            return error('Invalid icon position.')
-    for item in data['shortcuts']:
-        if (not isinstance(item, dict) or set(item) != {'id', 'name', 'url', 'desktop', 'start', 'deleted'}
-                or any(not isinstance(item[key], str) for key in ('id', 'name', 'url'))
-                or not 1 <= len(item['name']) <= 80
-                or not item['url'].startswith(('http://', 'https://'))
-                or any(type(item[key]) is not bool for key in ('desktop', 'start', 'deleted'))):
-            return error('Invalid shortcut.')
+    try: data=validate(json.loads(payload))
+    except (ValueError,UnicodeDecodeError) as exc: return error(str(exc))
     with db() as conn:
+        conn.execute('BEGIN IMMEDIATE')
+        row = conn.execute('SELECT data FROM desktops WHERE user_id=?', (user_id,)).fetchone()
+        expected=request.headers.get('If-Match')
+        if expected is not None and expected != etag(json.loads(row['data']) if row else None):
+            return error('Desktop changed in another window. Use Refresh Desktop before editing again.',409)
         conn.execute('INSERT INTO desktops VALUES (?,?) ON CONFLICT(user_id) DO UPDATE SET data=excluded.data', (user_id, json.dumps(data)))
-    return web.json_response({'ok': True})
+    return web.json_response({'ok': True}, headers={'ETag':etag(data)})
 
 
 async def items(request):

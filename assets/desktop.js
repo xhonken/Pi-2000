@@ -2,26 +2,39 @@
 'use strict';
 const $ = (s) => document.querySelector(s);
 let desktopUser = null, desktopApi = null, saveQueue = Promise.resolve();
-let shortcuts = [], positions = {};
+let shortcuts = [], positions = {}, icons = {}, view = {};
+let desktopTag = null, saveBlocked = false;
+const documentState = () => ({shortcuts:structuredClone(shortcuts),color:currentColor,positions:structuredClone(positions),icons:structuredClone(icons),view:structuredClone(view)});
+async function requestDesktop(method='GET', data, owner=desktopUser) {
+ const headers={'X-Desktop-Owner':String(owner.id)};
+ if(data){headers['Content-Type']='application/json';if(desktopTag)headers['If-Match']=desktopTag;}
+ const response=await fetch('/api/desktop',{method,headers,cache:'no-store',...(data?{body:JSON.stringify(data)}:{})});
+ const result=await response.json();
+ if(!response.ok){if([401,403].includes(response.status)&&desktopUser===owner)window.dispatchEvent(new Event('win2k-session-expired'));if(response.status===409 && desktopUser===owner)saveBlocked=true;throw Error(result.error||'Could not save desktop.');}
+ if(desktopUser===owner)desktopTag=response.headers.get('ETag');
+ return result;
+}
 function safeUrl(value) {
  try { const url = new URL(value); return ['https:', 'http:'].includes(url.protocol) ? url.href : null; } catch { return null; }
 }
 function notify(message) { $('#notice').textContent = message; $('#notice').hidden = false; clearTimeout(notify.timer); notify.timer = setTimeout(() => $('#notice').hidden = true, 5000); }
 function save() {
- const user = desktopUser, data = {shortcuts: structuredClone(shortcuts), color: currentColor, positions:structuredClone(positions)};
- if (!user) return;
- saveQueue = saveQueue.then(async () => {
+ const user=desktopUser, data=documentState();
+ if (!user) return Promise.resolve();
+ saveQueue = saveQueue.catch(()=>{}).then(async () => {
   if (desktopUser !== user) return;
-  try { await desktopApi('/desktop', 'PUT', data); }
-  catch (error) { if (desktopUser === user) notify('Could not save: '+error.message); }
+  if(saveBlocked)throw Error('Desktop changed in another window. Use Refresh Desktop before editing again.');
+  await requestDesktop('PUT',data,user);
  });
+ saveQueue.catch(error=>{if(desktopUser===user)notify('Could not save: '+error.message);});
  render();
+ return saveQueue;
 }
 async function setUser(user, api) {
- desktopUser = user; desktopApi = api; shortcuts = []; positions = {}; currentColor = '#3a6ea5';
+ desktopUser = user; desktopApi = api; shortcuts = []; positions = {}; icons = {}; view = {}; desktopTag=null;saveBlocked=false; currentColor = '#3a6ea5';
  document.body.style.backgroundColor = currentColor; $('#notice').hidden = true; render();
  if (!user) return;
- let data = await api('/desktop');
+ let data = await requestDesktop('GET',undefined,user);
  if (desktopUser !== user) return;
  // Previous browser-wide settings belong only to the original owner.
  if (data === null && user.is_owner) {
@@ -30,11 +43,11 @@ async function setUser(user, api) {
    const color = localStorage.getItem('win2k.background');
    data = {shortcuts: Array.isArray(legacy) ? legacy.filter(x => x && typeof x.id === 'string' && typeof x.name === 'string' && safeUrl(x.url)).map(x => ({id:x.id, name:x.name, url:safeUrl(x.url), desktop:!!x.desktop, start:!!x.start, deleted:!!x.deleted})) : [], color: ['#3a6ea5','#008080','#2d4739'].includes(color) ? color : '#3a6ea5'};
   } catch { data = {shortcuts:[], color:'#3a6ea5'}; }
-  await api('/desktop', 'PUT', data);
+  await requestDesktop('PUT',data,user);
   if (desktopUser !== user) return;
   try { localStorage.removeItem('win2k.shortcuts.v1'); localStorage.removeItem('win2k.background'); } catch {}
  }
- if (data) { shortcuts = data.shortcuts; currentColor = data.color; positions = data.positions || {}; }
+ if (data) { shortcuts = data.shortcuts; currentColor = data.color; positions = data.positions || {}; icons=data.icons||{}; view=data.view||{}; }
  document.body.style.backgroundColor = currentColor; render();
 }
 function button(label, action) { const el = document.createElement('button'); el.textContent = label; el.dataset.action = action; return el; }
@@ -82,6 +95,7 @@ function render() {
  category('System Tools',[...(desktopUser?.role==='admin'?[button('Local Terminal','localterminal')]:[]),button('Task Manager','taskmanager'),button('Vault','vault'),button('Log Viewer','logviewer'),button('My Activities','activities'),button('System Status','status'),button('About Pi-2000Web','about'),button('My Settings','preferences')],'settings');
  category('My Shortcuts',[...shortcuts.filter(x=>x.start&&!x.deleted).map(x=>link(x)),button('Manage Shortcuts…','links'),button('New Shortcut…','add')]);
  bindStartMenus();window.Win2kUI?.decorate(document.querySelector('#start-menu'));
+ window.dispatchEvent(new Event('win2k-desktop-render'));
 
 }
 // Fixed positioning lets cascades extend beyond the scrollable Start list.
@@ -126,7 +140,7 @@ const actions = {
  computer() { show('My Computer', '<p>Find your shortcuts and desktop settings here.</p><div class="actions"><button class="win2k-button" data-action="links">My Shortcuts</button><button class="win2k-button" data-action="settings">Control Panel</button></div>'); },
  trash() { show('Recycle Bin', '<p>Restore deleted shortcuts here.</p>'); $('#window-content').append(listing(shortcuts.filter(x => x.deleted), true)); },
  search() { show('Search', '<label class="form-row">Search shortcuts:<input id="search-input" type="search" placeholder="Name or web address"></label><p id="search-count" role="status"></p><div id="search-results"></div>'); const search = () => { const q = $('#search-input').value.toLocaleLowerCase('en'); const found = shortcuts.filter(x => !x.deleted && `${x.name} ${x.url}`.toLocaleLowerCase('en').includes(q)); $('#search-count').textContent = `${found.length} shortcuts`; $('#search-results').replaceChildren(listing(found)); }; $('#search-input').oninput = search; search(); $('#search-input').focus(); },
- settings() { show('Control Panel – Display', '<form id="settings-form"><fieldset><legend>Desktop</legend><label class="form-row">Background:<select name="color"><option value="#3a6ea5">Windows 2000 Blue</option><option value="#008080">Classic Teal</option><option value="#2d4739">Dark Green</option></select></label></fieldset><p>Shortcuts and background are saved for your account.</p><button type="button" class="win2k-button" data-action="links">Manage Shortcuts…</button><div class="actions"><button class="win2k-button default">OK</button></div></form>'); $('#settings-form').elements.color.value = document.body.style.backgroundColor ? currentColor : '#3a6ea5'; $('#settings-form').onsubmit = e => { e.preventDefault(); currentColor = e.target.elements.color.value; document.body.style.backgroundColor = currentColor; save(); $('#window').close(); }; },
+ settings() { show('Control Panel – Display', '<form id="settings-form"><fieldset><legend>Desktop</legend><label class="form-row">Background:<select name="color"><option value="#3a6ea5">Windows 2000 Blue</option><option value="#008080">Classic Teal</option><option value="#2d4739">Dark Green</option></select></label></fieldset><p>Shortcuts and background are saved for your account.</p><button type="button" class="win2k-button" data-action="desktop-icons">Desktop Icons…</button> <button type="button" class="win2k-button" data-action="desktop-options">Desktop Options…</button> <button type="button" class="win2k-button" data-action="links">Manage Shortcuts…</button><div class="actions"><button class="win2k-button default">OK</button></div></form>'); $('#settings-form').elements.color.value = document.body.style.backgroundColor ? currentColor : '#3a6ea5'; $('#settings-form').onsubmit = e => { e.preventDefault(); currentColor = e.target.elements.color.value; document.body.style.backgroundColor = currentColor; save(); $('#window').close(); }; },
  async about() {
   show('About Pi-2000Web','<p>Loading installed version…</p>');
   try {const response=await fetch('/api/version',{cache:'no-store'});if(!response.ok)throw Error('Could not read the installed version. Sign in and try again.');const data=await response.json();if($('#window-title').textContent!=='About Pi-2000Web')return;
@@ -142,7 +156,7 @@ const actions = {
    $('[data-version]').textContent=data.version;$('[data-build]').textContent=data.build;$('[data-revision]').textContent=data.revision+(data.modified?' (local changes)':'');
   }catch(error){if($('#window-title').textContent==='About Pi-2000Web')$('#window-content').textContent=error.message;}
  },
- help() { show('Desktop Help', '<p><b>Start and Applications</b></p><p>Start → Programs contains Accessories, Development and Drawing, Internet and Connections, and System Tools. Your links are in My Shortcuts. Search finds your files, folders, applications and connections.</p><p><b>Application Menus</b></p><p>File contains commands to open, create and save. Edit contains actions for the content. View controls the display. Help explains the current application. Common actions are also available in the toolbar.</p><p><b>Files and Devices</b></p><p>Drag files from your computer to My Files or the desktop. Click Actions next to a file for more commands. Restore deleted items using the Recycle Bin. Create SSH profiles in My Devices and double-click to connect. The Connection menu in Pi++ opens remote files via SFTP.</p><p><b>Appearance and Keyboard</b></p><p>Change text size and background under Start → Settings. Icon positions are saved for your account. Ctrl+Esc opens Start. F10 focuses the application menu. Alt+F opens File, Alt+E Edit and Alt+V View. Use the arrow keys, Enter and Escape in menus.</p><p><b>Private Desktop</b></p><p>Files, connections and settings belong to your account. SSH jobs continue when the window is closed. Enter passwords when connecting; they are not stored permanently.</p>'); },
+ help() { show('Desktop Help', '<p><b>Start and Applications</b></p><p>Start → Programs contains Accessories, Development and Drawing, Internet and Connections, and System Tools. Your links are in My Shortcuts. Search finds your files, folders, applications and connections.</p><p><b>Application Menus</b></p><p>File contains commands to open, create and save. Edit contains actions for the content. View controls the display. Help explains the current application. Common actions are also available in the toolbar.</p><p><b>Files and Devices</b></p><p>Drag files from your computer to My Files or the desktop. Click Actions next to a file for more commands. Restore deleted items using the Recycle Bin. Create SSH profiles in My Devices and double-click to connect. The Connection menu in Pi++ opens remote files via SFTP.</p><p><b>Desktop Icons</b></p><p>Double-click to open. Right-click icons to rename, remove or view properties. Right-click the background to add program icons, sort by name or type, align to grid, or change desktop options. Ctrl-click selects several icons; F2 renames and Delete removes selected items. Program icons can be restored with Desktop Icons. Deleted files and web shortcuts go to the Recycle Bin.</p><p><b>Appearance and Keyboard</b></p><p>Change text size and background under Start → Settings. Icon positions are saved for your account. Ctrl+Esc opens Start. F10 focuses the application menu. Alt+F opens File, Alt+E Edit and Alt+V View. Use the arrow keys, Enter and Escape in menus.</p><p><b>Private Desktop</b></p><p>Files, connections and settings belong to your account. SSH jobs continue when the window is closed. Enter passwords when connecting; they are not stored permanently.</p>'); },
  run() { show('Run', '<form id="run-form"><p>Enter the web address you want to open.</p><label class="form-row">Open:<input name="url" type="url" required placeholder="https://"></label><p class="error" id="run-error" role="alert"></p><div class="actions"><button type="button" class="win2k-button" data-action="close">Cancel</button><button class="win2k-button default">OK</button></div></form>'); $('#run-form').onsubmit = e => { e.preventDefault(); const url = safeUrl(e.target.elements.url.value); if (!url) { $('#run-error').textContent = 'Enter an HTTP or HTTPS address.'; return; } openUrl(url); }; },
  logout() { /* Server logout is installed by devices.js. */ },
  shutdown() { show('Log off Pi-2000Web', '<p>Log off? Your SSH jobs will continue on the server and your windows will be restored when you log in again.</p><div class="actions"><button class="win2k-button" data-action="close">Cancel</button><button class="win2k-button" data-action="logout">Log Off</button></div>'); },
@@ -189,7 +203,10 @@ bindStartMenus();
 window.addEventListener('resize', positionOpenSubmenus);
 $('#start-menu .start-items').addEventListener('scroll', positionOpenSubmenus);
 function clock() { const now = new Date(); $('#clock').textContent = now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}); $('#clock').title = now.toLocaleDateString('en-GB',{dateStyle:'full'}); $('#clock').dateTime = now.toISOString(); }
-window.Win2kShell = {getPositions:()=>positions, setPosition(key,point){positions[key]=point;save();}, actions, show, notify, closeStart, setUser,
+window.Win2kShell = {getPositions:()=>positions, setPosition(key,point){positions[key]=point;return save();},
+ getDesktop:documentState, getView:()=>({...view}), getShortcut:id=>{const item=shortcuts.find(x=>x.id===id);return item?{...item}:null;}, getUser:()=>desktopUser, whenSaved:()=>saveQueue,
+ updateDesktop(change){const state=documentState();change(state);shortcuts=state.shortcuts;positions=state.positions;icons=state.icons;view=state.view;return save();},
+ async reloadDesktop(){await saveQueue.catch(()=>{});if(saveBlocked&&!confirm('Discard unsaved desktop changes and load the saved desktop?'))return;return setUser(desktopUser,desktopApi);}, actions, show, notify, closeStart, setUser,
  trashShortcuts:()=>shortcuts.filter(item=>item.deleted).map(item=>({...item})),
  async trashShortcut(id){
   await this.changeTrashShortcut(id,false,true);
@@ -201,7 +218,8 @@ window.Win2kShell = {getPositions:()=>positions, setPosition(key,point){position
   saveQueue=saveQueue.catch(()=>{}).then(async()=>{
    if(desktopUser!==user)return;
    const next=permanent?shortcuts.filter(item=>item.id!==id):shortcuts.map(item=>item.id===id?{...item,deleted}:item);
-   await desktopApi('/desktop','PUT',{shortcuts:next,color:currentColor,positions:structuredClone(positions)});
+   if(saveBlocked)throw Error('Use Refresh Desktop before editing again.');
+   await requestDesktop('PUT',{...documentState(),shortcuts:next},user);
    if(desktopUser===user){shortcuts=next;render();}
   });
   return saveQueue;

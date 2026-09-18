@@ -346,7 +346,12 @@ class FileStore:
                     name=root['name'];number=1
                     while True:
                         try:self.unique(db,uid,parent,name);break
-                        except web.HTTPConflict:number+=1;name=root['name'][:48]+f' (kopia {number})'
+                        except web.HTTPConflict:
+                            number+=1
+                            stem,suffix=os.path.splitext(root['name']) if root['kind']=='file' else (root['name'],'')
+                            if len(suffix)>32:stem,suffix=root['name'],''
+                            ending=f' (copy {number})'+suffix
+                            name=stem[:180-len(ending)]+ending
                     for row in group:
                         key=mapping[row['id']];target=parent if row['id']==root['id'] else mapping[row['parent']]
                         label=name if row['id']==root['id'] else row['name']

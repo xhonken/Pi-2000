@@ -4,6 +4,13 @@ User-visible changes are recorded here for each numbered release. Development be
 
 ## Unreleased
 
+- Add account-owned desktop application icons, personal labels, restore defaults,
+  Start-menu Send to Desktop, icon/background context menus, selection rectangles,
+  multiple selection/dragging and keyboard commands. Double-click opens by default;
+  single-click remains configurable. Add sorting, auto arrangement, grid alignment,
+  show/hide icons, file clipboard commands and ETag conflict protection between tabs.
+- Preserve file extensions when creating a renamed copy in the same folder.
+
 - Add a personal Vault application with client-encrypted titles/content, separate
   A/B passphrases, fresh B unlock per entry, automatic locking, password generation,
   encrypted export/import and a user-held recovery key. Account-bound APIs include

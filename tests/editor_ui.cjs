@@ -10,7 +10,7 @@ const assert=require('node:assert/strict');
   await page.mouse.move(before.x+40,before.y+20);await page.mouse.down();await page.mouse.move(640,320,{steps:20});await page.mouse.up();
   await page.waitForFunction(async()=>{const data=await (await fetch('/api/desktop')).json();return data?.positions?.['app:files']?.[0]>400;});
   const moved=await icon.boundingBox();assert.ok(moved.x>400);await page.reload();await page.locator('#session').waitFor({state:'visible'});await page.waitForFunction(()=>parseInt(document.querySelector('#desktop [data-action=files]').style.left)>400);assert.equal(Math.round((await icon.boundingBox()).x),Math.round(moved.x));
-  await page.locator('#desktop [data-action=editor]').click();const win=page.locator('.editor-window');await win.waitFor();
+  await page.locator('#desktop [data-action=editor]').dblclick();const win=page.locator('.editor-window');await win.waitFor();
   await command(page,win,'File','New Local Folder');await page.locator('#editor-save-form [name=name]').fill('Kodprojekt');await page.locator('#editor-save-form button').click();await page.locator('#editor-save-form').waitFor({state:'hidden'});
   await win.locator('.editor-location').filter({hasText:'Kodprojekt'}).waitFor();
   await page.evaluate(()=>ace.edit(document.querySelector('.editor-code')).setValue('function hello() {\n    return "hej";\n}\n',-1));

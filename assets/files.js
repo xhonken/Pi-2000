@@ -133,6 +133,7 @@
    button.innerHTML=`<span class="win2k-pixel-icon win2k-icon-${item.kind==='folder'?'folder':'forms'}" aria-hidden="true"><i></i></span><span class="icon-label">${esc(item.name)}</span>`;
    button.ondblclick=()=>item.kind==='folder'?openFolder(item.id):openItem(item);button.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();button.ondblclick();}if(e.key==='Delete')run(()=>trash(item));};button.oncontextmenu=e=>context(item,e);draggable(button,item);if(item.kind==='folder')acceptDrop(button,item.id);root.append(button);
   }
+  window.dispatchEvent(new Event('win2k-files-render'));
  }
  function openFolder(parent='files',inTrash=false){
   if(!inTrash&&parent!=='files'&&parent!=='desktop')window.Win2kTools?.recent(parent).catch(e=>shell.notify(e.message));
@@ -190,7 +191,26 @@
  document.addEventListener('click',event=>{if(!event.target.closest('.file-context'))document.querySelector('.file-context')?.remove();});
  document.addEventListener('dragover',event=>{if(user&&event.dataTransfer.types.includes('Files'))event.preventDefault();});
  document.addEventListener('drop',event=>{if(user&&event.dataTransfer.types.includes('Files')){event.preventDefault();run(()=>uploadFiles([...event.dataTransfer.files],'files'));}});
- window.Win2kFiles={openFolder,refresh,uploadFiles,path};
+ window.Win2kFiles={openFolder,refresh,uploadFiles,path,
+ getItem:id=>{const item=find(id);return item?{...item}:null;},
+ openDesktopItem:id=>{const item=find(id);if(item?.state==='live')return item.kind==='folder'?openFolder(id):openItem(item);},
+ renameDesktopItem:id=>{const item=find(id);if(item?.state==='live')return rename(item);},
+ trashDesktopItem:id=>{const item=find(id);if(item?.state==='live')return trash(item);},
+ copyDesktopItems(ids,cut=false){clipboard={ids:ids.filter(id=>find(id)?.state==='live'),cut};},
+ canPaste:()=>!!clipboard?.ids.length,
+ desktopActions(id){const item=find(id);if(!item||item.state!=='live')return [];return [
+  {label:item.kind==='folder'?'Download ZIP':'Download',run:()=>item.kind==='folder'?downloadZip([id]):download(item)},
+  {label:'Edit',run:()=>item.kind==='folder'?window.Win2kEditor.openFolder(id):window.Win2kEditor.openFile(id)},
+  {label:'Move…',run:()=>chooseMove(item)}];},
+ async pasteDesktopItems(parent='desktop'){
+  const owner=user,clip=clipboard;if(!clip?.ids.length)return;
+  if(clip.cut){for(const id of clip.ids){if(user!==owner)return;await api('/files/'+id,'PATCH',{parent});}if(clipboard===clip)clipboard=null;}
+  else await api('/files/copy','POST',{ids:clip.ids,parent});
+  if(user===owner)await refresh();
+ },
+ async moveDesktopItems(ids,parent){const owner=user;for(const id of ids){if(user!==owner)return;if(parent==='trash')await api('/files/'+id+'/trash','POST',{});else await api('/files/'+id,'PATCH',{parent});}if(user===owner)await refresh();}
+
+ };
  function changeUser(next){picker?.remove();picker=null;clipboard=null;for(const xhr of uploads)xhr.abort();uploads.clear();user=next;loaded=false;revision++;data={items:[],used:0,reserved:0,quota:next?.storage_quota||52428800};document.querySelector('.file-context')?.remove();renderDesktop();if(user)run(refresh);}
  window.addEventListener('win2k-user',event=>changeUser(event.detail));window.addEventListener('win2k-files-refresh',queueRefresh);
  window.addEventListener('focus',()=>{if(user)queueRefresh();});changeUser(desktop.getUser());

@@ -12,7 +12,7 @@ const assert=require('node:assert/strict');
   await page.locator('#login-form [name=password]').fill(cfg.password);
   await page.locator('#login-form [type=submit]').click();
   await page.locator('#session').waitFor({state:'visible'});
-  await page.locator('#desktop-icons > [data-action=localterminal]').click();
+  await page.locator('#desktop-icons > [data-action=localterminal]').dblclick();
   await page.locator('#ssh-form').waitFor();
   assert.ok((await page.locator('#ssh-form').innerText()).includes(cfg.linux_username+'@127.0.0.1:2222'));
   await page.locator('#ssh-form [name=password]').fill(cfg.password);

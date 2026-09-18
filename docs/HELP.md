@@ -172,3 +172,13 @@ Keep the recovery key outside the Pi. File and Security menus provide encrypted
 export/import, password changes and recovery. Other web users and administrators
 have no access to your Vault contents. Read the [Vault guide](VAULT.md) for clipboard,
 backup, plaintext export and trusted-browser boundaries. Development after Alpha 5.
+
+## Personal desktop controls (development after Alpha 5)
+
+Double-click icons to open; single-click selects. Right-click the desktop for
+Desktop Icons, sorting, grid alignment, new items and Desktop Options. Right-click
+an icon to rename, remove, copy/cut private files or view Properties. Use Ctrl-click
+for multiple selection, F2 to rename and Delete to remove. Start-menu applications
+can be sent to the desktop. Removing a program icon keeps the application installed.
+Settings are private to your account; see [Desktop](DESKTOP.md) for all commands
+and how to choose single-click opening or resolve a two-tab save conflict.

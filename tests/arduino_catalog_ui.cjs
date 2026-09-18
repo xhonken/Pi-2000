@@ -11,7 +11,7 @@ const assert=require('node:assert/strict');
   await page.goto((process.env.WIN2K_TEST_URL||'http://127.0.0.1:18765'));
   await page.locator('#login-form [name=password]').fill('browser-test-password');
   await page.locator('#login-form [type=submit]').click();await page.locator('#session').waitFor({state:'visible'});
-  await page.locator('#desktop-icons [data-action=arduino]').click();const w=page.locator('.arduino-window');
+  await page.locator('#desktop-icons [data-action=arduino]').dblclick();const w=page.locator('.arduino-window');
   async function menu(label){await w.getByRole('menuitem',{name:'Tools',exact:true}).click();await page.getByRole('menuitem',{name:label,exact:true}).click();}
   const d=page.locator('dialog.arduino-dialog');
   await menu('Library Manager');
