@@ -1,8 +1,9 @@
 # Pi-2000 User Guide
 
-Alpha 6 adds Pi-IPTV, Pi-Vault, personal desktop controls, workspace recovery,
-security hardening and maintenance tools. See the [release notes](releases/0.1.0-alpha.6.md)
-for the test installer and remaining acceptance checks.
+Alpha 7 standardizes Pi-2000 application and service names, fixes blocked logout,
+and removes unused code while retaining the classic desktop and private data.
+See the [release notes](releases/0.1.0-alpha.7.md) for installation and migration
+requirements. IPTV, Vault, personal desktop controls and workspace recovery remain included.
 
 ## Getting started
 

@@ -4,7 +4,7 @@ The maintained desktop UI, application dialogs, accessible names, status/error m
 
 File and Edit menu mnemonics changed to Alt+F and Alt+E. Menu definitions and their underlying toolbar commands were updated together. Generated ZIP, SVG and CSV download names and CSV headings use English. Locale formatting uses en-GB.
 
-Compatibility identifiers remain unchanged: installed `win2k` paths/services, `WIN2K_*` configuration, browser profiles, cookies, stored account/document keys and JavaScript namespaces. No data migration or user-content translation is performed. The original upstream gallery was subsequently removed during cleanup. Its historical files remain in Git history and its provenance in `docs/source-manifest.json`.
+At the branding-only stage, compatibility identifiers remained unchanged: installed `win2k` paths/services, `WIN2K_*` configuration, browser profiles, cookies, stored account/document keys and JavaScript namespaces. No data migration or user-content translation is performed. The original upstream gallery was subsequently removed during cleanup. Its historical files remain in Git history and its provenance in `docs/source-manifest.json`.
 
 ## 2026-09-18 product names
 
@@ -27,3 +27,6 @@ encryption format remain stable for existing installations and exports.
 The current session worker was deliberately not restarted. Already-running Chromium sessions retain their previous language until ended and relaunched; worker-held older error messages are replaced on the next scheduled worker restart. Such a restart ends its live jobs and must be planned accordingly.
 
 Screenshots: [production login](../screenshots/login.png), [English Start menu](../screenshots/desktop.png).
+
+Alpha 7 subsequently migrates system services and paths to `pi2000-*`; see
+[SYSTEM-NAMES.md](../SYSTEM-NAMES.md). Protocol identifiers and user data remain compatible.

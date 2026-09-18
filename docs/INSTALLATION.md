@@ -116,7 +116,12 @@ Open your configured `public_url` and log in as **`admin`**. Change the password
 
 ## Updates and network changes
 
-From the checkout:
+**Alpha 7 namespace migration:** if the existing installation still uses
+`win2k-admin` / `win2k-sessions`, follow [SYSTEM-NAMES.md](SYSTEM-NAMES.md)
+first. The updater refuses an unmigrated installation. This source migration
+requires a planned service interruption and does not support dpkg-managed hosts.
+
+From an already migrated source checkout:
 
 ```sh
 git pull --ff-only

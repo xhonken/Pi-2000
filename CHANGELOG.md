@@ -4,6 +4,15 @@ User-visible changes are recorded here for each numbered release. Development be
 
 ## Unreleased
 
+No changes yet.
+
+## 0.1.0-alpha.7 — 2026-09-18
+
+- Rebuild cached Debian runtimes when installation paths or Python change, so
+  packaged console scripts use the current namespace. Derive the default package
+  version from VERSION. Alpha 7 packages target fresh installations; upgrades
+  from packages with legacy system names are blocked pending package migration.
+
 - Remove the superseded reference gallery, obsolete pixel-icon drawings, unused
   imports/state and an unused development dependency. Keep standalone demo code
   outside the deployed desktop. Avoid an unused full file-table read during ZIP

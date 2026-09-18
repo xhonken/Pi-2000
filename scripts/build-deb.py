@@ -17,14 +17,17 @@ def run(*args,**kw):subprocess.run(list(map(str,args)),check=True,**kw)
 
 def runtime(name,requirements,wheels,work):
     cache=work/name
-    fingerprint=hashlib.sha256(requirements.read_bytes()).hexdigest()
+    installed='/opt/pi2000-admin/venv' if name=='api' else '/opt/pi2000-browser/venv'
+    # Cached console scripts contain absolute installed paths. A namespace or
+    # interpreter change must rebuild them even when dependencies are unchanged.
+    identity=f'{installed}\n{sys.version}\n{os.uname().machine}\n'.encode()
+    fingerprint=hashlib.sha256(identity+requirements.read_bytes()).hexdigest()
     if not (cache/'ready').exists() or (cache/'ready').read_text()!=fingerprint:
         shutil.rmtree(cache,ignore_errors=True);cache.mkdir(parents=True)
         run(sys.executable,'-m','venv','--without-pip',cache/'venv')
         run(ROOT/'.venv/bin/python','-m','pip','--python',cache/'venv/bin/python','install','--no-index','--find-links',wheels,'-r',requirements)
         run(ROOT/'.venv/bin/python','-m','pip','--python',cache/'venv/bin/python','check')
         # Console scripts must refer to the installed location, not the builder.
-        installed='/opt/pi2000-admin/venv' if name=='api' else '/opt/pi2000-browser/venv'
         for path in (cache/'venv/bin').iterdir():
             if path.is_symlink():continue
             if path.name.startswith('activate') or path.name=='Activate.ps1':path.unlink();continue
@@ -37,7 +40,8 @@ def runtime(name,requirements,wheels,work):
 
 
 def main():
-    p=argparse.ArgumentParser();p.add_argument('--version',default='0.1.0~alpha.6-1');a=p.parse_args()
+    default_version=(ROOT/'VERSION').read_text().strip().replace('-', '~', 1)+'-1'
+    p=argparse.ArgumentParser();p.add_argument('--version',default=default_version);a=p.parse_args()
     if os.uname().machine!='aarch64' or sys.version_info[:2]!=(3,13):p.error('Build on arm64 with Python 3.13.')
     run('dpkg','--validate-version',a.version)
     work=ROOT/'.deb-build';work.mkdir(exist_ok=True)
@@ -74,7 +78,7 @@ def main():
     for name in ('README.md',):copy(ROOT/name,'/usr/share/doc/pi2000web/'+name)
     copy(ROOT/'docs/DEB-INSTALLATION.md','/usr/share/doc/pi2000web/DEB-INSTALLATION.md')
     copy(ROOT/'docs/SYSTEM-ACCOUNTS.md','/usr/share/doc/pi2000web/SYSTEM-ACCOUNTS.md')
-    for name in ('RECOVERY.md','MAINTENANCE.md','TESTING.md','VAULT.md','DESKTOP.md','IPTV.md','SECURITY.md'):
+    for name in ('RECOVERY.md','MAINTENANCE.md','TESTING.md','VAULT.md','DESKTOP.md','IPTV.md','SECURITY.md','SYSTEM-NAMES.md','CODE-CLEANUP.md'):
         copy(ROOT/'docs'/name,'/usr/share/doc/pi2000web/'+name)
     control=stage/'DEBIAN';control.mkdir()
     size=sum(f.stat().st_size for f in stage.rglob('*') if f.is_file())//1024

@@ -8,26 +8,27 @@ This is an independent project, not a Microsoft product and not a Windows emulat
 
 ## Versions
 
-Current numbered release: **[0.1.0-alpha.6](https://github.com/xhonken/Pi-2000/releases/tag/v0.1.0-alpha.6)**. See [all releases](https://github.com/xhonken/Pi-2000/releases), the [changelog](CHANGELOG.md), and [versioning instructions](docs/VERSIONING.md) for previous versions, release downloads and installing a specific version. Run `./scripts/version.sh` to identify your source checkout.
+Current numbered release: **[0.1.0-alpha.7](https://github.com/xhonken/Pi-2000/releases/tag/v0.1.0-alpha.7)**. See [all releases](https://github.com/xhonken/Pi-2000/releases), the [changelog](CHANGELOG.md), and [versioning instructions](docs/VERSIONING.md) for previous versions, release downloads and installing a specific version. Run `./scripts/version.sh` to identify your source checkout.
 
-## New in Alpha 6
+## New in Alpha 7
 
-- **Pi-IPTV:** private M3U/Xtream sources, country/group filters, live TV,
-  movies, series, programme guides and provider archives. Buffered playback,
-  automatic quality and isolated compatibility conversion improve usability.
-- **Pi-Vault:** client-encrypted private entries, separate list/content passphrases,
-  automatic locking, recovery and encrypted import/export.
-- **Personal desktop and recovery:** choose and arrange app icons, use context
-  menus and multiple selection, and recover supported windows and unsaved drafts.
-- **Security and maintenance:** stronger file/account boundaries, Pi-Vault key
-  rotation, request limits, Browser version checks, guarded backup/recovery and
-  visibility into installed versus running worker builds.
-- **Test installer:** a new arm64 `.deb` with these additions and the existing
-  Pi++, Pi-Arduino, PAM identities and desktop applications.
+- **Consistent names:** Pi-2000, Pi-IPTV, Pi-Vault, Pi-Arduino, Pi-Calt,
+  Pi-DB Manager, Pi-API and Pi-Git Projects throughout the interface.
+- **System naming:** `pi2000-*` services, process names and installation paths,
+  with a guarded source-install migration that preserves numeric ownership.
+- **Reliable logout:** workspace conflicts and failed recovery no longer trap
+  users in a session; saved checkpoints and application cancellation remain safe.
+- **Code cleanup:** removed the obsolete gallery, replaced icon code, unused
+  imports/state and redundant ZIP/health work. Classic SVG appearance is preserved.
+- **Test installer:** a new arm64 `.deb` for fresh installations, with the existing
+  IPTV, Vault, personal desktop, recovery and development applications.
 
-Read the [Alpha 6 release notes](docs/releases/0.1.0-alpha.6.md).
-**Fresh installation on a reimaged Pi 4 and physical power-loss/recovery acceptance
-remain pending.** This is a prerelease intended for testing.
+Read the [Alpha 7 release notes](docs/releases/0.1.0-alpha.7.md).
+**Existing source installations with `win2k-*` names must use the
+[system-name migration](docs/SYSTEM-NAMES.md) before updating. Direct upgrades from
+Alpha 6 or older Debian packages are blocked pending a validated package migration.**
+Fresh installation of this exact package on a reimaged Pi 4 and physical
+power-loss/recovery acceptance remain pending. This is a testing prerelease.
 
 ## Pi-IPTV
 
@@ -114,7 +115,7 @@ process is gone. See [desktop recovery and its limits](docs/DESKTOP.md#restore-a
 
 ## Install on Raspberry Pi
 
-The Alpha 6 test release includes an arm64 `.deb` and SHA-256 checksum. It contains
+The Alpha 7 test release includes an arm64 `.deb` and SHA-256 checksum. It contains
 prebuilt Python runtimes and uses APT for system dependencies. See the
 **[Debian package guide](docs/DEB-INSTALLATION.md)** for Raspberry Pi OS 64-bit
 (Debian 13), first login and upgrades. Earlier package candidates passed physical
@@ -141,7 +142,7 @@ Read the complete **[Raspberry Pi installation guide](docs/INSTALLATION.md)**, i
 See **[Examples](Examples/README.md)** for named network configurations, complete Caddy examples, certificate export, installation/update scripts and backup maintenance examples.
 
 ```sh
-# Later, from your checkout:
+# After system-name migration, from your source checkout:
 git pull --ff-only
 sudo ./scripts/update.sh
 sudo ./scripts/doctor.sh
@@ -149,9 +150,9 @@ sudo ./scripts/doctor.sh
 
 Updates use `/etc/pi2000web/config.toml`. Normal updates preserve running SSH/Browser sessions. Finish active database work first: the updater restarts the API, and database sessions and transactions are not resumed. Reload the desktop after updating. Changing the HTTPS origin requires `--restart-sessions`, which ends live jobs.
 
-Configuration, generated Caddy settings, backend tests and the existing-installation upgrade path are verified. The Debian package also has physical Pi 4 installation and post-reboot functional coverage; see its guide for the tested scope.
+Configuration, generated Caddy settings, backend tests and the source-installation migration/update path are verified. Earlier Debian package candidates have physical Pi 4 coverage; this exact Alpha 7 package still needs a fresh physical installation test.
 
-Internal service names, environment variables, JavaScript namespaces and storage paths retain the legacy `win2k` identifier for compatibility. The product name is **Pi-2000**. The source checkout can be named or located differently; no local username or network address is required in source code.
+Services and installation paths use `pi2000-*`. Environment variables, JavaScript namespaces and stored protocol identifiers retain legacy names for compatibility; migrated source installations also retain required directory links. The product name is **Pi-2000**. The source checkout can be named or located differently; no local username or network address is required in source code.
 
 ## Browser and resource limits
 
