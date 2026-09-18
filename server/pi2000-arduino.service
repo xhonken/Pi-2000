@@ -4,13 +4,13 @@ After=network-online.target
 Wants=network-online.target
 
 [Service]
-User=win2k-admin
-Group=win2k-admin
+User=pi2000-admin
+Group=pi2000-admin
 SupplementaryGroups=dialout
-WorkingDirectory=/opt/win2k-admin
-ExecStart=/opt/win2k-admin/venv/bin/python /opt/win2k-admin/arduino_service.py
+WorkingDirectory=/opt/pi2000-admin
+ExecStart=/opt/pi2000-admin/venv/bin/python /opt/pi2000-admin/arduino_service.py
 EnvironmentFile=/etc/pi2000web/runtime.env
-Environment=WIN2K_STATE=/var/lib/win2k-admin
+Environment=WIN2K_STATE=/var/lib/pi2000-admin
 RuntimeDirectory=pi2000-arduino
 RuntimeDirectoryMode=0700
 MemoryHigh=1536M
@@ -25,7 +25,7 @@ NoNewPrivileges=true
 PrivateTmp=true
 ProtectSystem=strict
 ProtectHome=true
-ReadWritePaths=/var/lib/win2k-admin
+ReadWritePaths=/var/lib/pi2000-admin
 RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6 AF_NETLINK
 TimeoutStopSec=15
 

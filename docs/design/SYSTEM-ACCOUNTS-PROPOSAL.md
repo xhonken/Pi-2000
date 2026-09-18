@@ -12,7 +12,7 @@ Use one dedicated Linux identity per Pi-2000 user and Linux-PAM as the authority
 - Creator/owner checks and SQLite protection triggers currently depend on the literal username `admin`.
 - `server/local_terminal.py`: every web administrator receives the same OS-managed Linux username. Terminal objects have separate web owners, but their Linux processes share the configured UID.
 - `packaging/provision.py`: initial provisioning can create a Linux account, but it does not provision one for each subsequent web user.
-- `server/win2k-admin.service`: the API runs as `win2k-admin` with `NoNewPrivileges` and filesystem restrictions. Preserve this boundary.
+- `server/pi2000-admin.service`: the API runs as `pi2000-admin` with `NoNewPrivileges` and filesystem restrictions. Preserve this boundary.
 
 ## Authentication alternatives
 

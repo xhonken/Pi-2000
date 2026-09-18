@@ -109,7 +109,7 @@ Only export `root.crt`; never export `root.key` or the full Caddy state director
 Retrieve the generated first password on the Pi:
 
 ```sh
-sudo cat /var/lib/win2k-admin/initial-password.txt
+sudo cat /var/lib/pi2000-admin/initial-password.txt
 ```
 
 Open your configured `public_url` and log in as **`admin`**. Change the password through Start → Settings → Change Password. This removes the initial-password file. A missing file on an established installation is normal; rerunning the installer does not reset existing passwords.
@@ -172,15 +172,15 @@ File bytes are stored as private blobs alongside the database. Back up the datab
 | `/etc/pi2000web/config.toml` | Your installed deployment configuration |
 | `/etc/pi2000web/runtime.env` | Generated shared service settings |
 | `/etc/caddy/Caddyfile` | Generated dedicated Caddy configuration |
-| `/srv/win2k` | Published static desktop |
-| `/opt/win2k-admin` | Installed Python application and virtual environment |
-| `/opt/win2k-browser/venv` | Browser streaming environment |
-| `/var/lib/win2k-admin/admin.sqlite3` | Private SQLite database |
-| `/var/lib/win2k-admin` | Private user data and browser profiles |
+| `/srv/pi2000` | Published static desktop |
+| `/opt/pi2000-admin` | Installed Python application and virtual environment |
+| `/opt/pi2000-browser/venv` | Browser streaming environment |
+| `/var/lib/pi2000-admin/admin.sqlite3` | Private SQLite database |
+| `/var/lib/pi2000-admin` | Private user data and browser profiles |
 | `/var/cache/pi2000web/build` | Unprivileged browser build cache |
-| `/var/backups/win2k` | Verified local data backups |
+| `/var/backups/pi2000` | Verified local data backups |
 | `/var/backups/pi2000web-update-*` | Previous code/site/configuration snapshots |
-| `/run/win2k-sessions/worker.sock` | Private persistent-worker connection |
+| `/run/pi2000-sessions/worker.sock` | Private persistent-worker connection |
 
 The `win2k` service/storage names are stable internal compatibility identifiers, not network-specific settings. The checkout can live anywhere and can be named `Pi-2000`, `Pi-2000` or another name. Avoid moving installed storage directories manually.
 
@@ -188,10 +188,10 @@ The `win2k` service/storage names are stable internal compatibility identifiers,
 
 ```sh
 sudo ./scripts/doctor.sh
-systemctl status win2k-admin win2k-sessions caddy
-systemctl status win2k-backup.timer
-sudo journalctl -u win2k-admin -n 100 --no-pager
-sudo journalctl -u win2k-sessions -n 100 --no-pager
+systemctl status pi2000-admin pi2000-sessions caddy
+systemctl status pi2000-backup.timer
+sudo journalctl -u pi2000-admin -n 100 --no-pager
+sudo journalctl -u pi2000-sessions -n 100 --no-pager
 sudo journalctl -u caddy -n 100 --no-pager
 ```
 

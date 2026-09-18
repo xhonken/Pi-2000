@@ -2,7 +2,7 @@
 # Use the installer to keep Caddy and the application origin in sync.
 # Managed by Pi-2000. Edit /etc/pi2000web/config.toml, then run update.sh.
 {
-    admin unix//var/lib/caddy/win2k-admin/control.sock
+    admin unix//var/lib/caddy/pi2000-admin/control.sock
 }
 
 https://pi2000.local {
@@ -16,7 +16,7 @@ https://pi2000.local {
         reverse_proxy 127.0.0.1:8765
     }
     handle {
-        root * /srv/win2k
+        root * /srv/pi2000
         file_server
     }
 }

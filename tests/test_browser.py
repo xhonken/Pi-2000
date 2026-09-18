@@ -208,7 +208,7 @@ class BrowserTests(unittest.IsolatedAsyncioTestCase):
             "policy=Path('/etc/chromium/policies/managed/adblock.json'); "
             "assert json.loads(policy.read_text())['ExtensionSettings']['ddkjiahejlhfcafbddmgiahcphecmpfh']['installation_mode']=='force_installed'; "
             "assert not os.access(policy,os.W_OK); assert Path('/home/browser/mine.txt').read_text()=='own-data'; "
-            "assert not Path('/var/lib/win2k-admin').exists(); assert not Path('/root').exists(); "
+            "assert not Path('/var/lib/pi2000-admin').exists(); assert not Path('/root').exists(); "
             f"assert not Path({str(Path.home())!r}).exists(); "
             f"assert not Path({str(other)!r}).exists(); print('isolated')"]
         process = await asyncio.create_subprocess_exec(*command, stdout=asyncio.subprocess.PIPE,stderr=asyncio.subprocess.PIPE)

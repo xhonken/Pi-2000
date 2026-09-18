@@ -80,7 +80,7 @@ Do not run destructive exploit probes against installed accounts to obtain a
 passing test. Installed validation uses newly created disposable accounts only.
 
 After installation, the operator can run
-`sudo /opt/win2k-admin/venv/bin/python tests/verify_installed_security.py` from the
+`sudo /opt/pi2000-admin/venv/bin/python tests/verify_installed_security.py` from the
 checkout. It creates and removes four real PAM test accounts, checks HTTPS headers,
 anonymous/compressed requests, cross-account file/Pi-Vault boundaries and the installed
 Browser version gate. Generated passwords and the temporary operator token stay in

@@ -38,7 +38,7 @@ class TaskMonitor:
                 old=previous_processes.get((pid,start))
                 if old is not None and elapsed and elapsed>0:cpu=round(max(0,min(100,100*(ticks-old)/self.ticks/elapsed/cores)),2)
                 group=(directory/'cgroup').read_text()
-                match=re.search(r'(?:^|/)win2k-sessions\.service/browser-(\d+)(?:/|\s|$)',group)
+                match=re.search(r'(?:^|/)pi2000-sessions\.service/browser-(\d+)(?:/|\s|$)',group)
                 uid=int(match[1]) if match else None
                 # Detect exit/reuse between metadata and cgroup reads.
                 check=(directory/'stat').read_text();check_fields=check[check.rfind(')')+2:].split()

@@ -4,7 +4,7 @@ After=network.target
 [Service]
 User=pi2000-phpmyadmin
 Group=pi2000-phpmyadmin
-ExecStart=/usr/sbin/php-fpm8.4 --fpm-config /opt/win2k-admin/phpmyadmin/php-fpm.conf --nodaemonize
+ExecStart=/usr/sbin/php-fpm8.4 --fpm-config /opt/pi2000-admin/phpmyadmin/php-fpm.conf --nodaemonize
 RuntimeDirectory=pi2000-phpmyadmin
 RuntimeDirectoryMode=0750
 StateDirectory=pi2000-phpmyadmin
@@ -15,7 +15,7 @@ PrivateTmp=true
 PrivateDevices=true
 ProtectSystem=strict
 ProtectHome=true
-InaccessiblePaths=/var/lib/win2k-admin /etc/pi2000web /var/lib/caddy /srv/win2k /home /root
+InaccessiblePaths=/var/lib/pi2000-admin /etc/pi2000web /var/lib/caddy /srv/pi2000 /home /root
 ReadOnlyPaths=/usr/share/phpmyadmin
 ProtectKernelTunables=true
 ProtectKernelModules=true

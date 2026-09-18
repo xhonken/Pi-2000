@@ -12,7 +12,7 @@ from session_proxy import control
 from runtime_health import compare
 import build_info
 
-WORKERS = {'sessions': ('win2k-sessions', '/run/win2k-sessions/worker.sock'),
+WORKERS = {'sessions': ('pi2000-sessions', '/run/pi2000-sessions/worker.sock'),
            'arduino': ('pi2000-arduino', '/run/pi2000-arduino/worker.sock')}
 
 async def restart_idle(socket, restart, wait=0):

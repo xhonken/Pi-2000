@@ -46,9 +46,9 @@ Having a valid public certificate is not a security assessment of the applicatio
 
 ## Generated configuration
 
-The site serves `/srv/win2k` and proxies `/api/*` to `127.0.0.1:8765`. Caddy handles HTTP-to-HTTPS redirects automatically. The application uses the exact HTTPS origin from the same configuration to validate requests.
+The site serves `/srv/pi2000` and proxies `/api/*` to `127.0.0.1:8765`. Caddy handles HTTP-to-HTTPS redirects automatically. The application uses the exact HTTPS origin from the same configuration to validate requests.
 
-Caddy administration uses `unix//var/lib/caddy/win2k-admin/control.sock`, in a private mode-0700 directory owned by `caddy`. Do not expose TCP port 2019. Browser sandboxes share the host network namespace, so a loopback-only TCP admin port is not a suitable isolation boundary. See [Caddy administration](https://caddyserver.com/docs/api).
+Caddy administration uses `unix//var/lib/caddy/pi2000-admin/control.sock`, in a private mode-0700 directory owned by `caddy`. Do not expose TCP port 2019. Browser sandboxes share the host network namespace, so a loopback-only TCP admin port is not a suitable isolation boundary. See [Caddy administration](https://caddyserver.com/docs/api).
 
 The configured `bind_address` limits listening to a local IP. Leaving it empty allows all interfaces and does not restrict who can connect. No firewall rules are created automatically.
 

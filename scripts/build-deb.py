@@ -25,7 +25,7 @@ def runtime(name,requirements,wheels,work):
         run(ROOT/'.venv/bin/python','-m','pip','--python',cache/'venv/bin/python','install','--no-index','--find-links',wheels,'-r',requirements)
         run(ROOT/'.venv/bin/python','-m','pip','--python',cache/'venv/bin/python','check')
         # Console scripts must refer to the installed location, not the builder.
-        installed='/opt/win2k-admin/venv' if name=='api' else '/opt/win2k-browser/venv'
+        installed='/opt/pi2000-admin/venv' if name=='api' else '/opt/pi2000-browser/venv'
         for path in (cache/'venv/bin').iterdir():
             if path.is_symlink():continue
             if path.name.startswith('activate') or path.name=='Activate.ps1':path.unlink();continue
@@ -55,18 +55,18 @@ def main():
         if source.is_dir():shutil.copytree(source,dest,symlinks=True)
         else:shutil.copy2(source,dest)
     info=generate(ROOT);info['version']=a.version
-    stage_component(ROOT,stage/'opt/win2k-admin','server',info)
-    stage_component(ROOT,stage/'srv/win2k','web',info)
+    stage_component(ROOT,stage/'opt/pi2000-admin','server',info)
+    stage_component(ROOT,stage/'srv/pi2000','web',info)
     arduino_tools=work/'arduino-tools'
     run('python3',ROOT/'scripts/arduino-tools.py',arduino_tools)
     copy(arduino_tools,'/opt/pi2000-arduino')
-    copy(api_runtime,'/opt/win2k-admin/venv');copy(browser_runtime,'/opt/win2k-browser/venv')
-    for name in ('browser-requirements.txt','browser-source-revision.txt'):copy(ROOT/'server'/name,'/opt/win2k-browser/'+name)
+    copy(api_runtime,'/opt/pi2000-admin/venv');copy(browser_runtime,'/opt/pi2000-browser/venv')
+    for name in ('browser-requirements.txt','browser-source-revision.txt'):copy(ROOT/'server'/name,'/opt/pi2000-browser/'+name)
     for source in (ROOT/'server').glob('*.service'):copy(source,'/usr/lib/systemd/system/'+source.name)
-    copy(ROOT/'server/win2k-backup.timer','/usr/lib/systemd/system/win2k-backup.timer')
+    copy(ROOT/'server/pi2000-backup.timer','/usr/lib/systemd/system/pi2000-backup.timer')
     copy(ROOT/'server/phpmyadmin/pi2000-phpmyadmin.service','/usr/lib/systemd/system/pi2000-phpmyadmin.service')
     unit=stage/'usr/lib/systemd/system/pi2000-phpmyadmin.service'
-    unit.write_text(unit.read_text().replace('[Service]','[Service]\nBindReadOnlyPaths=/opt/win2k-admin/phpmyadmin/config.inc.php:/etc/phpmyadmin/config.inc.php'))
+    unit.write_text(unit.read_text().replace('[Service]','[Service]\nBindReadOnlyPaths=/opt/pi2000-admin/phpmyadmin/config.inc.php:/etc/phpmyadmin/config.inc.php'))
     copy(ROOT/'server/phpmyadmin/config.header.inc.php','/usr/share/phpmyadmin/config.header.inc.php')
     copy(ROOT/'packaging/pi2000-web.service','/usr/lib/systemd/system/pi2000-web.service')
     for name in ('package_setup.py','provision.py','Caddyfile.template'):copy(ROOT/'packaging'/name,'/usr/lib/pi2000web/'+name)

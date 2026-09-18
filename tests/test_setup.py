@@ -61,7 +61,7 @@ class SetupTests(unittest.TestCase):
         self.assertNotIn('tls internal', rendered['Caddyfile'])
         self.assertIn('bind 192.0.2.25', rendered['Caddyfile'])
         self.assertEqual(rendered['runtime.env'], 'WIN2K_ORIGIN=https://pi.example.com\n')
-        for name in ['win2k-admin.service', 'win2k-sessions.service']:
+        for name in ['pi2000-admin.service', 'pi2000-sessions.service']:
             unit = (ROOT / 'server' / name).read_text()
             self.assertIn('EnvironmentFile=/etc/pi2000web/runtime.env', unit)
             self.assertNotIn('Environment=WIN2K_ORIGIN=', unit)
@@ -114,7 +114,7 @@ class SetupTests(unittest.TestCase):
             setup.check_caddy_ownership(setup.render(config)['Caddyfile'] + '\nother.example { respond \"other\" }', False)
         with patch.object(setup, 'existing_origin', return_value='https://192.0.2.25'):
             for text in ['example.com { reverse_proxy localhost:3000 }',
-                         'example.com { root * /srv/win2k file_server }',
+                         'example.com { root * /srv/pi2000 file_server }',
                          ':80 { root * /usr/share/caddy file_server }\nother.example { respond "other" }']:
                 for adopt in (True, False):
                     with self.assertRaises(ValueError):
@@ -127,7 +127,7 @@ class SetupTests(unittest.TestCase):
                                      '--render-dir', tmp], capture_output=True, text=True)
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertTrue((Path(tmp) / 'Caddyfile').exists())
-            self.assertTrue((Path(tmp) / 'win2k-sessions.service').exists())
+            self.assertTrue((Path(tmp) / 'pi2000-sessions.service').exists())
             self.assertIn('Browser build: enabled', result.stdout)
 
     def test_actual_caddy_adapter_accepts_lan_domain_and_ipv6(self):
@@ -143,7 +143,7 @@ class SetupTests(unittest.TestCase):
                 self.assertEqual(result.returncode, 0, result.stderr)
                 import json
                 adapted = json.loads(result.stdout)
-                self.assertEqual(adapted['admin']['listen'], 'unix//var/lib/caddy/win2k-admin/control.sock')
+                self.assertEqual(adapted['admin']['listen'], 'unix//var/lib/caddy/pi2000-admin/control.sock')
                 self.assertIn('127.0.0.1:8765', result.stdout)
 
     def test_untrusted_config_not_executed(self):

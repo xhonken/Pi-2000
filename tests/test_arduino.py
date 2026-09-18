@@ -198,7 +198,7 @@ class ArduinoTests(unittest.IsolatedAsyncioTestCase):
         root=self.worker.runtime(1);self.worker.runtime(2)
         cmd,env=self.worker.command(1,['version'])
         cut=cmd.index('--',cmd.index('/usr/bin/bwrap'))
-        cmd=cmd[:cut+1]+['/usr/bin/python3','-c',"from pathlib import Path; assert not Path('/home').exists(); assert not Path('/opt/win2k-admin').exists(); assert not Path('/var/lib/win2k-admin').exists(); assert not Path('/dev/ttyUSB0').exists(); Path('/arduino/probe').write_text('private')"]
+        cmd=cmd[:cut+1]+['/usr/bin/python3','-c',"from pathlib import Path; assert not Path('/home').exists(); assert not Path('/opt/pi2000-admin').exists(); assert not Path('/var/lib/pi2000-admin').exists(); assert not Path('/dev/ttyUSB0').exists(); Path('/arduino/probe').write_text('private')"]
         proc=await asyncio.create_subprocess_exec(*cmd,env=env,stdout=asyncio.subprocess.PIPE,stderr=asyncio.subprocess.PIPE)
         out,err=await proc.communicate();self.assertEqual(proc.returncode,0,err);self.assertEqual((root/'probe').read_text(),'private')
         self.assertFalse((self.worker.root/'2'/'probe').exists())

@@ -12,7 +12,7 @@ from recovery import Host, make_plan, apply_plan, replace_shadow
 
 class FakeHost(Host):
     def __init__(self,root):
-        self.root=root;self.users={'win2k-admin':{'name':'win2k-admin','uid':os.getuid(),'gid':os.getgid(),'home':'/var/lib/win2k-admin','shell':'/usr/sbin/nologin','groups':[]}}
+        self.root=root;self.users={'pi2000-admin':{'name':'pi2000-admin','uid':os.getuid(),'gid':os.getgid(),'home':'/var/lib/pi2000-admin','shell':'/usr/sbin/nologin','groups':[]}}
         self.groups={'pi2000-users':900,'pi2000-terminal':901};self.calls=[];self.busy=False;self.fail=False
         p=self.path('/etc/shadow');p.parent.mkdir(parents=True);p.write_text('unrelated:!:1:0:99999:7:::\n')
     def user(self,name):return dict(self.users[name]) if name in self.users else None
@@ -54,7 +54,7 @@ class RecoveryTests(unittest.TestCase):
         (account/'identities.json').write_text(json.dumps([{'name':'pi2k_1','uid':21001,'gid':21001,'group':'pi2k_1'}]))
         home=account/'homes/pi2k_1';home.mkdir(parents=True);(home/'run.sh').write_text('#!/bin/sh\necho fixture\n')
         self.manifest={'format':2,'created':'fixture','metadata':{'system-accounts/homes/pi2k_1':{'uid':21001,'gid':21001,'mode':0o700},'system-accounts/homes/pi2k_1/run.sh':{'uid':21001,'gid':21001,'mode':0o750}}}
-        live=self.host.path('/var/lib/win2k-admin');live.mkdir(parents=True);(live/'old.txt').write_text('keep on rollback')
+        live=self.host.path('/var/lib/pi2000-admin');live.mkdir(parents=True);(live/'old.txt').write_text('keep on rollback')
         self.chown=patch('recovery.os.chown');self.chown.start();self.addCleanup(self.chown.stop)
     def plan(self):return make_plan(self.stage,self.manifest,self.host,'fixture-digest')
     def test_create_identity_restore_home_modes_and_preserve_unrelated_accounts(self):
@@ -77,7 +77,7 @@ class RecoveryTests(unittest.TestCase):
     def test_failure_rolls_back_state_homes_and_created_identity(self):
         self.host.fail=True
         with self.assertRaisesRegex(RuntimeError,'injected'):apply_plan(self.stage,self.manifest,self.plan(),self.host)
-        self.assertEqual(self.host.path('/var/lib/win2k-admin/old.txt').read_text(),'keep on rollback')
+        self.assertEqual(self.host.path('/var/lib/pi2000-admin/old.txt').read_text(),'keep on rollback')
         self.assertIsNone(self.host.user('pi2k_1'));self.assertFalse(self.host.path('/home/pi2k_1').exists())
     def test_active_services_and_changed_target_refuse_before_modification(self):
         plan=self.plan();self.host.busy=True

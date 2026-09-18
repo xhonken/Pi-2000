@@ -39,7 +39,7 @@ class DebconfPasswordTests(unittest.TestCase):
             if existing:
                 (root / 'admin.sqlite3').touch()
             source = (ROOT / 'packaging/config').read_text()
-            source = source.replace('/var/lib/win2k-admin/', folder + '/').replace('/var/lib/pi2000web/', folder + '/')
+            source = source.replace('/var/lib/pi2000-admin/', folder + '/').replace('/var/lib/pi2000web/', folder + '/')
             script = root / 'config'
             script.write_text(source)
             env = {**os.environ, 'DEBIAN_HAS_FRONTEND': '1', 'DEBCONF_REDIR': '1', 'DEBIAN_FRONTEND': 'noninteractive'}

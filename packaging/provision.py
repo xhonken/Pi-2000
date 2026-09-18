@@ -28,7 +28,7 @@ def validate_linux(mode, username, password, port, owned=None):
     if mode=='Disabled':return
     if mode not in ('Existing account','Create account with sudo') or not re.fullmatch(r'[a-z_][a-z0-9_-]{0,31}',username):
         raise ValueError('Choose a valid Linux username and terminal mode.')
-    if username in ('root','win2k-admin','pi2000-phpmyadmin') or not 1<=port<=65535:
+    if username in ('root','win2k-admin','pi2000-admin','pi2000-phpmyadmin') or not 1<=port<=65535:
         raise ValueError('Use a regular Linux login and a valid SSH port.')
     try:account=pwd.getpwnam(username)
     except KeyError:account=None
@@ -78,7 +78,7 @@ def main(payload):
     state=json.loads(state_file.read_text()) if state_file.exists() else {}
     save=lambda:write_json(state_file,state)
     if not state.get('complete'): write_json(pending,{'pending':True})
-    sys.path.insert(0,'/opt/win2k-admin')
+    sys.path.insert(0,'/opt/pi2000-admin')
     import app
     import account_service as broker
     import account_install
@@ -100,7 +100,7 @@ def main(payload):
         app.initialize(initial_password=password)
         save_connection(app,password,state,save)
     broker.provision(owner,password)
-    owner=pwd.getpwnam('win2k-admin')
+    owner=pwd.getpwnam('pi2000-admin')
     for path in app.STATE.iterdir():
         if path.is_file():os.chown(path,owner.pw_uid,owner.pw_gid)
     state['complete']=True;state.pop('password_hash',None);state.pop('password_salt',None);save();pending.unlink(missing_ok=True)

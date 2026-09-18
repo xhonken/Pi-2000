@@ -21,7 +21,7 @@ def profile(user):
         raise web.HTTPConflict(text='Local Terminal is not configured. Run sudo pi2000web setup on the Pi.')
     username = data.get('username', '')
     port = data.get('port', 22)
-    if not re.fullmatch(r'[a-z_][a-z0-9_-]{0,31}', username) or username in ('root', 'win2k-admin', 'pi2000-phpmyadmin') or type(port) is not int or not 1 <= port <= 65535:
+    if not re.fullmatch(r'[a-z_][a-z0-9_-]{0,31}', username) or username in ('root', 'win2k-admin', 'pi2000-admin', 'pi2000-phpmyadmin') or type(port) is not int or not 1 <= port <= 65535:
         raise web.HTTPConflict(text='The OS administrator must correct the Local Terminal configuration.')
     return {'id': 'local-terminal', 'name': 'Local Terminal', 'kind': 'profile',
             'host': '127.0.0.1', 'port': port, 'username': username, 'local': True}

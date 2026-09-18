@@ -117,7 +117,7 @@ Acceptance: close/logout/account-change tests cover late responses and active op
 
 **Priority: medium; begin before large refactors.**
 
-Evidence: `tests/run_classic_suite.py:7` defaults to eight selected browser tests. Pi++, Arduino and the new utility tests are not in that default list. Playwright is loaded from `/tmp/win2k-browser-check/node_modules`, and fixtures use fixed port 18765 and fixed temporary paths. There is no tracked Node package manifest or repository CI workflow at this baseline.
+Evidence: `tests/run_classic_suite.py:7` defaults to eight selected browser tests. Pi++, Arduino and the new utility tests are not in that default list. Playwright is loaded from `/tmp/pi2000-browser-check/node_modules`, and fixtures use fixed port 18765 and fixed temporary paths. There is no tracked Node package manifest or repository CI workflow at this baseline.
 
 Impact: a new checkout cannot recreate the frontend test environment from a tracked dependency declaration, and running the default suite can miss newer apps. Concurrent suite runs can collide. This does not invalidate the existing explicit test runs.
 

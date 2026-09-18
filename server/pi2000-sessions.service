@@ -5,15 +5,15 @@ Wants=network-online.target
 
 [Service]
 Environment=WIN2K_ACCOUNTS_SOCKET=/run/pi2000-accounts/control.sock
-User=win2k-admin
-Group=win2k-admin
-WorkingDirectory=/opt/win2k-admin
-ExecStart=/opt/win2k-admin/venv/bin/python /opt/win2k-admin/app.py
+User=pi2000-admin
+Group=pi2000-admin
+WorkingDirectory=/opt/pi2000-admin
+ExecStart=/opt/pi2000-admin/venv/bin/python /opt/pi2000-admin/app.py
 EnvironmentFile=/etc/pi2000web/runtime.env
-Environment=WIN2K_STATE=/var/lib/win2k-admin
+Environment=WIN2K_STATE=/var/lib/pi2000-admin
 Environment=WIN2K_SESSION_WORKER=1
 Environment=WIN2K_CGROUP_LIMITS=1
-RuntimeDirectory=win2k-sessions
+RuntimeDirectory=pi2000-sessions
 RuntimeDirectoryMode=0700
 Restart=on-failure
 RestartSec=3
@@ -22,7 +22,7 @@ NoNewPrivileges=true
 PrivateTmp=true
 ProtectSystem=strict
 ProtectHome=true
-ReadWritePaths=/var/lib/win2k-admin /sys/fs/cgroup
+ReadWritePaths=/var/lib/pi2000-admin /sys/fs/cgroup
 RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6 AF_NETLINK
 Delegate=memory pids cpu
 MemoryHigh=4G

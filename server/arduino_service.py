@@ -1,5 +1,7 @@
 """Arduino worker: separate memory budget, no OS-administration endpoint."""
 import os
+from process_identity import identify
+identify('pi2000-arduino')
 from aiohttp import web
 import app
 from arduino_workshop import ArduinoWorkshop

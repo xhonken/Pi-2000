@@ -27,10 +27,10 @@ def main():
     parser.add_argument('--child',action='store_true',help=argparse.SUPPRESS)
     args=parser.parse_args()
     if args.child:
-        subprocess.run(['node','tests/upload_picker_ui.cjs'],cwd=ROOT,env={**os.environ,'NODE_PATH':'/tmp/win2k-browser-check/node_modules'},check=True)
+        subprocess.run(['node','tests/upload_picker_ui.cjs'],cwd=ROOT,env={**os.environ,'NODE_PATH':'/tmp/pi2000-browser-check/node_modules'},check=True)
         from mariadb_fixture import MariaDBFixture
         with MariaDBFixture() as database:
-            subprocess.run(['node','tests/phpmyadmin_ui.cjs'],cwd=ROOT,env={**os.environ,'WIN2K_TEST_DB_PORT':str(database.port),'NODE_PATH':'/tmp/win2k-browser-check/node_modules'},check=True)
+            subprocess.run(['node','tests/phpmyadmin_ui.cjs'],cwd=ROOT,env={**os.environ,'WIN2K_TEST_DB_PORT':str(database.port),'NODE_PATH':'/tmp/pi2000-browser-check/node_modules'},check=True)
         return
     if os.geteuid()!=0:parser.error('Run with sudo for the installed CA, disposable account and cgroup verification.')
     if args.update:subprocess.run([str(ROOT/'scripts/update.sh')],cwd=ROOT,check=True)
@@ -39,9 +39,9 @@ def main():
     origin=config['network']['public_url']
     context=ssl.create_default_context(cafile='/var/lib/caddy/.local/share/caddy/pki/authorities/local/root.crt') if config['network']['tls']=='internal' else ssl.create_default_context()
     username='stability-'+secrets.token_hex(6);password=secrets.token_urlsafe(32);salt=secrets.token_hex(16)
-    sys.path.insert(0,'/opt/win2k-admin')
+    sys.path.insert(0,'/opt/pi2000-admin')
     import app
-    state=Path('/var/lib/win2k-admin');uid=None
+    state=Path('/var/lib/pi2000-admin');uid=None
     jar=http.cookiejar.CookieJar();opener=urllib.request.build_opener(urllib.request.HTTPSHandler(context=context),urllib.request.HTTPCookieProcessor(jar))
     def api(path,data=None):
         request=urllib.request.Request(origin+'/api'+path,data=json.dumps(data).encode() if data is not None else None,headers={'Origin':origin,'Content-Type':'application/json'})
@@ -53,10 +53,10 @@ def main():
             uid=conn.execute('INSERT INTO users(username,salt,hash) VALUES (?,?,?)',(username,salt,app.password_hash(password,salt))).lastrowid
         api('/login',{'username':username,'password':password})
         health=api('/health');assert health['web']=='ok' and health['sessions']=='ok'
-        info=api('/version');expected=json.loads(Path('/opt/win2k-admin/build-info.json').read_text());assert info==expected
+        info=api('/version');expected=json.loads(Path('/opt/pi2000-admin/build-info.json').read_text());assert info==expected
         api('/browser/start',{})
         status=api('/browser/status');assert status.get('memory_hard_limit') is True,status
-        group=Path('/sys/fs/cgroup/system.slice/win2k-sessions.service')/('browser-'+str(uid))
+        group=Path('/sys/fs/cgroup/system.slice/pi2000-sessions.service')/('browser-'+str(uid))
         for name,value in [('memory.max',1536*1024**2),('memory.high',1024**3),('memory.swap.max',256*1024**2)]:assert int((group/name).read_text())==value
         api('/browser/stop',{})
         print('PASS: trusted HTTPS, authenticated health/build and live Browser memory limits',flush=True)

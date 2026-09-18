@@ -18,9 +18,9 @@ import urllib.request
 import urllib.error
 
 CONFIG=Path('/etc/pi2000web')
-STATE=Path('/var/lib/win2k-admin')
+STATE=Path('/var/lib/pi2000-admin')
 MARKER=Path('/var/lib/pi2000web')
-UNITS=('pi2000-arduino','pi2000-accounts','pi2000-terminal','win2k-sessions','pi2000-phpmyadmin','win2k-admin','pi2000-web','win2k-backup.timer')
+UNITS=('pi2000-arduino','pi2000-accounts','pi2000-terminal','pi2000-sessions','pi2000-phpmyadmin','pi2000-admin','pi2000-web','pi2000-backup.timer')
 
 def run(*args,capture=False):
     r=subprocess.run(list(map(str,args)),check=True,text=True,stdout=subprocess.PIPE if capture else None)
@@ -62,16 +62,16 @@ def configure(args):
     with tempfile.TemporaryDirectory() as temp:
         candidate=Path(temp)/'config.toml';candidate.write_text(config_text(data));data=read_config(candidate)
     url=data['network']['public_url'];tls=data['network']['tls']
-    if old and previous_url!=url and active('win2k-sessions') and not args.restart_sessions:
+    if old and previous_url!=url and active('pi2000-sessions') and not args.restart_sessions:
         raise RuntimeError('Changing the URL requires --restart-sessions after finishing live jobs.')
     atomic(path,config_text(data))
-    owner=account('win2k-admin',STATE);account('pi2000-phpmyadmin','/var/lib/pi2000-phpmyadmin')
-    directory(STATE,owner=owner);directory('/var/backups/win2k');directory('/var/lib/caddy/win2k-admin',owner=pwd.getpwnam('caddy'))
+    owner=account('pi2000-admin',STATE);account('pi2000-phpmyadmin','/var/lib/pi2000-phpmyadmin')
+    directory(STATE,owner=owner);directory('/var/backups/pi2000');directory('/var/lib/caddy/pi2000-admin',owner=pwd.getpwnam('caddy'))
     runtime='WIN2K_ORIGIN='+url+'\n'
     total=int(next(line.split()[1] for line in Path('/proc/meminfo').read_text().splitlines() if line.startswith('MemTotal:')))//1024
     if total<3072:
         runtime+='WIN2K_BROWSER_MEMORY_MIB=1024\nWIN2K_BROWSER_RESERVE_MIB=128\n'
-        atomic('/etc/systemd/system/win2k-sessions.service.d/pi2000-memory.conf','[Service]\nMemoryHigh=1152M\nMemoryMax=1280M\nTasksMax=500\nCPUQuota=200%\n',0o644)
+        atomic('/etc/systemd/system/pi2000-sessions.service.d/pi2000-memory.conf','[Service]\nMemoryHigh=1152M\nMemoryMax=1280M\nTasksMax=500\nCPUQuota=200%\n',0o644)
     atomic(CONFIG/'runtime.env',runtime)
     caddy=(Path(__file__).with_name('Caddyfile.template')).read_text().replace('@PUBLIC_URL@',url).replace('@TLS@','tls internal' if tls=='internal' else '# Automatic public HTTPS').replace('@BIND@','    bind '+data['network']['bind_address']+'\n' if data['network']['bind_address'] else '')
     atomic(CONFIG/'Caddyfile',caddy,0o644)
@@ -91,16 +91,16 @@ def configure(args):
         payload=dict(zip(('admin_password','creator_username'),(part.decode() for part in parts)))
         if payload['admin_password']:
             run('systemctl','enable','--now','mariadb')
-            subprocess.run(['/opt/win2k-admin/venv/bin/python',str(Path(__file__).with_name('provision.py'))],input=json.dumps(payload).encode(),check=True)
+            subprocess.run(['/opt/pi2000-admin/venv/bin/python',str(Path(__file__).with_name('provision.py'))],input=json.dumps(payload).encode(),check=True)
         elif not (STATE/'admin.sqlite3').exists() or (MARKER/'bootstrap-pending.json').exists():
             raise RuntimeError('Complete account setup with sudo pi2000web setup before starting services.')
-    run('/opt/win2k-admin/venv/bin/python','-c',"import sys;sys.path.insert(0,'/opt/win2k-admin');import app;app.initialize()")
-    run('/opt/win2k-admin/venv/bin/python','/opt/win2k-admin/account_install.py')
+    run('/opt/pi2000-admin/venv/bin/python','-c',"import sys;sys.path.insert(0,'/opt/pi2000-admin');import app;app.initialize()")
+    run('/opt/pi2000-admin/venv/bin/python','/opt/pi2000-admin/account_install.py')
     run('systemctl','daemon-reload')
-    run('systemctl','enable','--now','win2k-sessions','pi2000-phpmyadmin','pi2000-arduino')
-    if args.restart_sessions:run('systemctl','restart','win2k-sessions')
-    run('systemctl','restart','pi2000-phpmyadmin','win2k-admin')
-    run('systemctl','enable','--now','win2k-admin','pi2000-web','win2k-backup.timer')
+    run('systemctl','enable','--now','pi2000-sessions','pi2000-phpmyadmin','pi2000-arduino')
+    if args.restart_sessions:run('systemctl','restart','pi2000-sessions')
+    run('systemctl','restart','pi2000-phpmyadmin','pi2000-admin')
+    run('systemctl','enable','--now','pi2000-admin','pi2000-web','pi2000-backup.timer')
     run('systemctl','reload-or-restart','pi2000-web')
     context=ssl.create_default_context(cafile='/var/lib/caddy/.local/share/caddy/pki/authorities/local/root.crt') if tls=='internal' else ssl.create_default_context()
     deadline=time.monotonic()+45
@@ -113,7 +113,7 @@ def configure(args):
         if time.monotonic()>=deadline:raise RuntimeError('The HTTPS/API service did not become ready. Run pi2000web doctor after checking its service log.')
         time.sleep(.5)
     print('Pi-2000 installed at '+url,flush=True)
-    if (STATE/'initial-password.txt').exists():print('First login: admin. Read the existing generated password locally with sudo cat /var/lib/win2k-admin/initial-password.txt.',flush=True)
+    if (STATE/'initial-password.txt').exists():print('First login: admin. Read the existing generated password locally with sudo cat /var/lib/pi2000-admin/initial-password.txt.',flush=True)
     else:print('Sign in with the creator username and password chosen during installation.',flush=True)
     if 'memory' not in Path('/sys/fs/cgroup/cgroup.controllers').read_text().split():print('Browser requires the memory controller: run sudo pi2000web enable-memory-controller and reboot when convenient.',flush=True)
     print('Account data is retained on remove/purge. Package upgrades preserve the session worker; restart sessions separately when worker code changes.',flush=True)
@@ -125,17 +125,17 @@ def doctor():
     ca='/var/lib/caddy/.local/share/caddy/pki/authorities/local/root.crt'
     context=ssl.create_default_context(cafile=ca) if data['network']['tls']=='internal' else ssl.create_default_context()
     with urllib.request.urlopen(url,context=context,timeout=10) as response:page=response.read()
-    if page!=Path('/srv/win2k/index.html').read_bytes():raise RuntimeError('HTTPS entry page differs from installed files.')
+    if page!=Path('/srv/pi2000/index.html').read_bytes():raise RuntimeError('HTTPS entry page differs from installed files.')
     import re
     for asset in re.findall(r'(?:src|href)="((?:assets|dist)/[^"#]+)"',page.decode()):
         with urllib.request.urlopen(url+'/'+asset,context=context,timeout=10) as response:
-            if response.read()!=(Path('/srv/win2k')/asset.split('?')[0]).read_bytes():raise RuntimeError('Asset mismatch: '+asset)
+            if response.read()!=(Path('/srv/pi2000')/asset.split('?')[0]).read_bytes():raise RuntimeError('Asset mismatch: '+asset)
     with sqlite3.connect('file:'+str(STATE/'admin.sqlite3')+'?mode=ro',uri=True) as db:
         if db.execute('PRAGMA integrity_check').fetchone()[0]!='ok' or db.execute('PRAGMA foreign_key_check').fetchall():raise RuntimeError('Database integrity check failed.')
-    sys.path.insert(0,'/opt/win2k-admin')
+    sys.path.insert(0,'/opt/pi2000-admin')
     from deployment import verify as verify_component
-    verify_component(Path('/opt/win2k-admin'),'server')
-    verify_component(Path('/srv/win2k'),'web')
+    verify_component(Path('/opt/pi2000-admin'),'server')
+    verify_component(Path('/srv/pi2000'),'web')
     if run('dpkg','--verify','pi2000web',capture=True):raise RuntimeError('Package files differ from the installed checksums.')
     print('PASS: installed package, services, trusted HTTPS assets and SQLite integrity.')
 
@@ -153,7 +153,7 @@ def main():
     elif args.command=='doctor':doctor()
     elif args.command=='enable-memory-controller':memory()
     elif args.command=='setup':run('env','DEBIAN_FRONTEND=dialog','dpkg-reconfigure','-p','critical','pi2000web')
-    else:run('systemctl','restart','win2k-sessions');print('Session worker restarted; previous live jobs ended.')
+    else:run('systemctl','restart','pi2000-sessions');print('Session worker restarted; previous live jobs ended.')
 if __name__=='__main__':
     try:main()
     except Exception as exc:print('Pi-2000 configuration failed: '+str(exc),file=sys.stderr);sys.exit(1)

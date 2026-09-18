@@ -4,6 +4,11 @@ User-visible changes are recorded here for each numbered release. Development be
 
 ## Unreleased
 
+- Use `pi2000-*` service/account/process names and canonical installation paths.
+  Add a guarded source-install migration with verified backup, preserved numeric
+  ownership, busy-worker checks and rollback. Existing running jobs require an
+  explicitly planned interruption; published packages remain unchanged.
+
 - Rename Arduino Workshop to Pi-Arduino, Calculator to Pi-Calt, MariaDB Manager
   to Pi-DB Manager, API Tester to Pi-API and Git Projects to Pi-Git Projects.
   Preserve familiar Windows-style tool names and personal desktop labels.

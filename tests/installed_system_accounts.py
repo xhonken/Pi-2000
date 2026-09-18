@@ -10,7 +10,7 @@ import sys
 import time
 import tomllib
 from aiohttp import ClientSession, CookieJar, TCPConnector, WSMsgType
-sys.path.insert(0,'/opt/win2k-admin')
+sys.path.insert(0,'/opt/pi2000-admin')
 import app
 import account_service as broker
 from session_store import SessionStore
@@ -42,12 +42,12 @@ async def main():
             await request(regular,'POST','/login',{'username':name,'password':secret})
             profile=await request(regular,'GET','/local-terminal')
             payload=json.dumps({'origin':origin,'username':name,'password':secret,'linux_username':profile['username']}).encode()
-            await asyncio.to_thread(subprocess.run,['runuser','-u','honken','--','env','NODE_PATH=/tmp/win2k-browser-check/node_modules','/usr/local/bin/node',str(Path(__file__).with_name('installed_accounts_ui.cjs'))],input=payload,check=True)
+            await asyncio.to_thread(subprocess.run,['runuser','-u','honken','--','env','NODE_PATH=/tmp/pi2000-browser-check/node_modules','/usr/local/bin/node',str(Path(__file__).with_name('installed_accounts_ui.cjs'))],input=payload,check=True)
             assert profile['username']=='pi2k_'+str(uid) and profile['port']==2222
             if os.environ.get('PI2000_TEST_BACKUP')=='1':
-                await asyncio.to_thread(subprocess.run,['systemctl','start','win2k-backup.service'],check=True)
+                await asyncio.to_thread(subprocess.run,['systemctl','start','pi2000-backup.service'],check=True)
                 import tarfile
-                archive=sorted(Path('/var/backups/win2k').glob('win2k-*.tar'))[-1]
+                archive=sorted(Path('/var/backups/pi2000').glob('win2k-*.tar'))[-1]
                 with tarfile.open(archive) as tar:
                     assert 'system-accounts/accounts.sqlite3' in tar.getnames()
                     assert 'system-accounts/homes/'+profile['username']+'/.profile' in tar.getnames()

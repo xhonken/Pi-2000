@@ -69,7 +69,7 @@ class DevelopmentTests(unittest.IsolatedAsyncioTestCase):
         hook=root/'.git/hooks/pre-commit';hook.write_text('#!/bin/sh\ntouch '+str(marker)+'\n');hook.chmod(0o700)
         await git('write',project=project,path='second.txt',text='second',version=None);await git('stage',project=project,paths=['second.txt']);await git('commit',project=project,message='No hooks',author='Fixture',email='fixture@example.test');self.assertFalse(marker.exists())
         manager=GitTools(app)
-        output=await manager.git(root,['-c','alias.probe=!test ! -e '+str(app.STATE/'admin.sqlite3')+' && test ! -e /opt/win2k-admin/app.py && echo isolated','probe']);self.assertIn('isolated',output)
+        output=await manager.git(root,['-c','alias.probe=!test ! -e '+str(app.STATE/'admin.sqlite3')+' && test ! -e /opt/pi2000-admin/app.py && echo isolated','probe']);self.assertIn('isolated',output)
         self.token='other';self.assertEqual((await git('list'))['projects'],[]);await git('status',project=project,status=404);self.token='owner'
         await git('remote',project=project,url='file:///home/honken/Documents/win2k',status=400)
         await git('delete',project=project);self.assertFalse(root.exists())

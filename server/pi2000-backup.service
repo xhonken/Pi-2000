@@ -1,0 +1,16 @@
+[Unit]
+Description=Pi-2000 verified local backup
+After=pi2000-sessions.service
+Requires=pi2000-sessions.service
+
+[Service]
+Type=oneshot
+UMask=0077
+ExecStart=/opt/pi2000-admin/venv/bin/python /opt/pi2000-admin/backup.py create
+ExecStopPost=-/opt/pi2000-admin/venv/bin/python /opt/pi2000-admin/backup.py thaw
+TimeoutStartSec=240
+Nice=15
+IOSchedulingClass=idle
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/var/lib/pi2000-admin /var/backups/pi2000

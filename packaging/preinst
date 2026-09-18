@@ -1,10 +1,14 @@
 #!/bin/sh
 set -eu
-if [ "$1" = install ] && [ -d /opt/win2k-admin ] && [ ! -f /var/lib/pi2000web/package-managed ]; then
+if [ -d /var/lib/win2k-admin ] && [ ! -L /var/lib/win2k-admin ]; then
+ echo "Legacy system names require a planned migration before this package can be installed. See docs/SYSTEM-NAMES.md." >&2
+ exit 1
+fi
+if [ "$1" = install ] && [ -d /opt/pi2000-admin ] && [ ! -f /var/lib/pi2000web/package-managed ]; then
  echo 'An unmanaged Pi-2000 installation exists. Back up and migrate it before installing this package.' >&2
  exit 1
 fi
 
-if [ "$1" = upgrade ] && [ -f /var/lib/win2k-admin/admin.sqlite3 ] && [ -d /run/systemd/system ]; then
- systemctl start win2k-backup.service
+if [ "$1" = upgrade ] && [ -f /var/lib/pi2000-admin/admin.sqlite3 ] && [ -d /run/systemd/system ]; then
+ systemctl start pi2000-backup.service
 fi

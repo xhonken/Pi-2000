@@ -16,8 +16,8 @@ import time
 import tomllib
 
 if os.geteuid() != 0:
-    raise SystemExit('Run with sudo and /opt/win2k-admin/venv/bin/python.')
-sys.path.insert(0, '/opt/win2k-admin')
+    raise SystemExit('Run with sudo and /opt/pi2000-admin/venv/bin/python.')
+sys.path.insert(0, '/opt/pi2000-admin')
 import app
 import browser_security
 from session_store import SessionStore

@@ -1,19 +1,19 @@
 [Unit]
 Description=Pi-2000 administration and SSH terminal
-After=network-online.target win2k-sessions.service
-Wants=network-online.target win2k-sessions.service
+After=network-online.target pi2000-sessions.service
+Wants=network-online.target pi2000-sessions.service
 
 [Service]
 Environment=WIN2K_ACCOUNTS_SOCKET=/run/pi2000-accounts/control.sock
-User=win2k-admin
-Group=win2k-admin
+User=pi2000-admin
+Group=pi2000-admin
 SupplementaryGroups=pi2000-phpmyadmin
-WorkingDirectory=/opt/win2k-admin
-ExecStart=/opt/win2k-admin/venv/bin/python /opt/win2k-admin/app.py
+WorkingDirectory=/opt/pi2000-admin
+ExecStart=/opt/pi2000-admin/venv/bin/python /opt/pi2000-admin/app.py
 EnvironmentFile=/etc/pi2000web/runtime.env
-Environment=WIN2K_STATE=/var/lib/win2k-admin
+Environment=WIN2K_STATE=/var/lib/pi2000-admin
 Environment=WIN2K_ARDUINO_SOCKET=/run/pi2000-arduino/worker.sock
-Environment=WIN2K_WORKER_SOCKET=/run/win2k-sessions/worker.sock
+Environment=WIN2K_WORKER_SOCKET=/run/pi2000-sessions/worker.sock
 MemoryMax=512M
 TasksMax=128
 Restart=on-failure
@@ -23,7 +23,7 @@ NoNewPrivileges=true
 PrivateTmp=true
 ProtectSystem=strict
 ProtectHome=true
-ReadWritePaths=/var/lib/win2k-admin
+ReadWritePaths=/var/lib/pi2000-admin
 RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6 AF_NETLINK
 TimeoutStopSec=15
 

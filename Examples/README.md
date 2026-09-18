@@ -65,17 +65,17 @@ sudo ./scripts/doctor.sh
 sudo ./Examples/maintenance/create-verified-backup.sh
 
 # Inspect recent service logs locally.
-sudo journalctl -u win2k-admin -u win2k-sessions -u caddy --since '1 hour ago' --no-pager
+sudo journalctl -u pi2000-admin -u pi2000-sessions -u caddy --since '1 hour ago' --no-pager
 ```
 
 Normal updates preserve running sessions. For an origin change, legacy installation migration, or a planned session-worker restart, use the options on the canonical [installer](../scripts/install.sh) and [updater](../scripts/update.sh) described in the installation guide.
 
-Backups contain private user information. The installed policy retains seven local archives in `/var/backups/win2k`; running extra backups also applies that retention policy. Store an additional protected copy on another device for disk-failure recovery. Do not commit archives to GitHub or publish service logs without checking their contents.
+Backups contain private user information. The installed policy retains seven local archives in `/var/backups/pi2000`; running extra backups also applies that retention policy. Store an additional protected copy on another device for disk-failure recovery. Do not commit archives to GitHub or publish service logs without checking their contents.
 
 Restoring is an operation for recovery, not a routine installation step. Read the [recovery instructions](../docs/INSTALLATION.md), select a compatible archive and application version, and then run:
 
 ```sh
-sudo ./Examples/maintenance/restore-user-data.sh --end-running-sessions /var/backups/win2k/YOUR-BACKUP.tar
+sudo ./Examples/maintenance/restore-user-data.sh --end-running-sessions /var/backups/pi2000/YOUR-BACKUP.tar
 ```
 
 The underlying restore script validates the archive before replacing state and keeps the previous state on disk. It restores user data; code and system configuration recovery are separate steps in the installation guide.
@@ -85,17 +85,17 @@ The underlying restore script validates the archive before replacing state and k
 [systemd/backup-at-0200.conf](systemd/backup-at-0200.conf) moves the nightly backup to 02:00 in the Pi's local timezone, plus a random delay of up to 15 minutes. It replaces the original 03:15 schedule.
 
 ```sh
-sudo install -d -m 755 /etc/systemd/system/win2k-backup.timer.d
-sudo install -m 644 Examples/systemd/backup-at-0200.conf /etc/systemd/system/win2k-backup.timer.d/schedule.conf
+sudo install -d -m 755 /etc/systemd/system/pi2000-backup.timer.d
+sudo install -m 644 Examples/systemd/backup-at-0200.conf /etc/systemd/system/pi2000-backup.timer.d/schedule.conf
 sudo systemctl daemon-reload
-sudo systemctl restart win2k-backup.timer
-systemctl list-timers win2k-backup.timer
+sudo systemctl restart pi2000-backup.timer
+systemctl list-timers pi2000-backup.timer
 ```
 
 This overwrites `schedule.conf` if it exists; inspect any existing drop-ins first. To return to the packaged schedule, remove that drop-in, reload systemd and restart the timer. Restarting this timer does not restart the session worker.
 
 ## Existing templates and UI demo
 
-The canonical [configuration template](../config/config.example.toml), [Caddy template](../server/Caddyfile.template), [frontend service](../server/win2k-admin.service), [session service](../server/win2k-sessions.service), [backup service](../server/win2k-backup.service) and [backup timer](../server/win2k-backup.timer) remain in their installer locations. They define the actual deployed paths and services; examples do not introduce a second deployment implementation.
+The canonical [configuration template](../config/config.example.toml), [Caddy template](../server/Caddyfile.template), [frontend service](../server/pi2000-admin.service), [session service](../server/pi2000-sessions.service), [backup service](../server/pi2000-backup.service) and [backup timer](../server/pi2000-backup.timer) remain in their installer locations. They define the actual deployed paths and services; examples do not introduce a second deployment implementation.
 
 The older lowercase [examples/standalone](../examples/standalone) directory contains a standalone UI demo. This capital-`Examples` directory contains installation and operations examples.

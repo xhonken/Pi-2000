@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 set -euo pipefail
-exec /opt/win2k-admin/venv/bin/python /opt/win2k-admin/maintenance.py "$@"
+exec /opt/pi2000-admin/venv/bin/python /opt/pi2000-admin/maintenance.py "$@"

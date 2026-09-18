@@ -52,7 +52,7 @@ def restore(archive, destination):
 async def snapshot(state, target, socket, code, site=None):
     target.mkdir(parents=True, exist_ok=True, mode=0o700)
     stamp=datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S%fZ')
-    archive=target/f'win2k-{stamp}.tar'
+    archive=target/f'pi2000-{stamp}.tar'
     maintenance=state/'maintenance.json'
     frozen=False
     def status(value):
@@ -80,7 +80,7 @@ async def snapshot(state, target, socket, code, site=None):
             check_database(staging/'state/admin.sqlite3')
             account_root=Path('/var/lib/pi2000-accounts')
             account_rows=[]
-            if os.geteuid()==0 and state==Path('/var/lib/win2k-admin') and (account_root/'accounts.sqlite3').exists():
+            if os.geteuid()==0 and state==Path('/var/lib/pi2000-admin') and (account_root/'accounts.sqlite3').exists():
                 (staging/'system-accounts').mkdir(mode=0o700)
                 with closing(sqlite3.connect(account_root/'accounts.sqlite3')) as source, closing(sqlite3.connect(staging/'system-accounts/accounts.sqlite3')) as dest:
                     source.backup(dest)
@@ -147,7 +147,7 @@ async def snapshot(state, target, socket, code, site=None):
             restore(archive,Path(restored))
         status({'state':'ok','created':manifest['created'],'verified_restore':True,'bytes':archive.stat().st_size,'location':'local'})
         # Only prune after a complete snapshot has been restored and verified.
-        for old in sorted(target.glob('win2k-*.tar'))[:-7]:
+        for old in sorted([*target.glob('win2k-*.tar'), *target.glob('pi2000-*.tar')], key=lambda p:p.name.split('-',1)[1])[:-7]:
             old.unlink();old.with_suffix('.tar.sha256').unlink(missing_ok=True)
         return archive
     except Exception:
@@ -165,11 +165,11 @@ def main():
     os.umask(0o077)
     parser=argparse.ArgumentParser()
     parser.add_argument('action',choices=['create','restore','thaw'])
-    parser.add_argument('--state',type=Path,default=Path('/var/lib/win2k-admin'))
-    parser.add_argument('--target',type=Path,default=Path('/var/backups/win2k'))
-    parser.add_argument('--socket',default='/run/win2k-sessions/worker.sock')
-    parser.add_argument('--code',type=Path,default=Path('/opt/win2k-admin'))
-    parser.add_argument('--site',type=Path,default=Path('/srv/win2k'))
+    parser.add_argument('--state',type=Path,default=Path('/var/lib/pi2000-admin'))
+    parser.add_argument('--target',type=Path,default=Path('/var/backups/pi2000'))
+    parser.add_argument('--socket',default='/run/pi2000-sessions/worker.sock')
+    parser.add_argument('--code',type=Path,default=Path('/opt/pi2000-admin'))
+    parser.add_argument('--site',type=Path,default=Path('/srv/pi2000'))
     parser.add_argument('--archive',type=Path)
     parser.add_argument('--destination',type=Path)
     args=parser.parse_args()

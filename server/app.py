@@ -39,7 +39,7 @@ from utility_tools import UtilityTools
 from git_tools import GitTools
 import arduino_workshop
 
-STATE = Path(os.environ.get('WIN2K_STATE', '/var/lib/win2k-admin'))
+STATE = Path(os.environ.get('WIN2K_STATE', '/var/lib/pi2000-admin'))
 ORIGIN = os.environ.get('WIN2K_ORIGIN', 'https://localhost')
 COOKIE = '__Host-win2k'
 TOKEN = web.RequestKey('token', str)
@@ -1229,8 +1229,10 @@ def make_app():
 
 
 if __name__ == '__main__':
+    from process_identity import identify
+    identify('pi2000-sessions' if WORKER_MODE else 'pi2000-api')
     os.umask(0o077)
     if WORKER_MODE:
-        web.run_app(make_app(), path=os.environ.get('WIN2K_LISTEN_SOCKET', '/run/win2k-sessions/worker.sock'), access_log=None)
+        web.run_app(make_app(), path=os.environ.get('WIN2K_LISTEN_SOCKET', '/run/pi2000-sessions/worker.sock'), access_log=None)
     else:
         web.run_app(make_app(), host='127.0.0.1', port=int(os.environ.get('WIN2K_PORT', 8765)), access_log=None)

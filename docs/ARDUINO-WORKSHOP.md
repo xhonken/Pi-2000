@@ -50,7 +50,7 @@ Jobs continue when the app window closes and can be inspected after reopening it
 
 The source updater installs the checksum-pinned official **Arduino CLI 1.5.1 for Linux ARM64**, its license, pyserial 3.5 and the new worker. Run the normal `sudo ./scripts/update.sh`, followed by `sudo ./scripts/doctor.sh`, on the installation Pi. Source publication and the Debian package builder include the frontend, backend, CLI and service. A previously running Arduino worker is preserved by updates; restart it only after its active jobs have finished when deploying changed worker code. Existing SSH/Browser workers are not restarted by this feature.
 
-CLI binaries live in `/opt/pi2000-arduino`. The worker's private Unix socket is `/run/pi2000-arduino/worker.sock`. Its OS account is `win2k-admin` with the supplementary `dialout` group; only the Arduino worker receives that additional group. The web API proxies authenticated requests and the worker independently validates them against the shared session database.
+CLI binaries live in `/opt/pi2000-arduino`. The worker's private Unix socket is `/run/pi2000-arduino/worker.sock`. Its OS account is `pi2000-admin` with the supplementary `dialout` group; only the Arduino worker receives that additional group. The web API proxies authenticated requests and the worker independently validates them against the shared session database.
 
 Project source, board configuration and the last job log are included in the normal SQLite backup. Downloaded board tools, libraries and caches in `arduino-runtime` are **not** included; reinstall their versions after restoring. Export project JSON separately when moving a sketch to another installation. No release tag or GitHub publication is required for local installation.
 

@@ -23,9 +23,9 @@ import tempfile
 import time
 from backup import restore, checksum
 
-SERVICES = ('win2k-backup.timer','win2k-backup.service','win2k-admin','win2k-sessions',
+SERVICES = ('pi2000-backup.timer','pi2000-backup.service','pi2000-admin','pi2000-sessions',
             'pi2000-arduino','pi2000-accounts','pi2000-terminal','pi2000-phpmyadmin')
-STATE = Path('/var/lib/win2k-admin')
+STATE = Path('/var/lib/pi2000-admin')
 ACCOUNTS = Path('/var/lib/pi2000-accounts')
 
 
@@ -193,14 +193,14 @@ def apply_plan(stage, manifest, plan, host):
     fresh=make_plan(stage,manifest,host,plan['archive_sha256'])
     if any(plan.get(key)!=value for key,value in fresh.items()):
         raise RuntimeError('Target changed or plan modified; generate and review a new plan.')
-    owner=host.user('win2k-admin')
+    owner=host.user('pi2000-admin')
     if not owner:raise RuntimeError('Install the matching application and service account first.')
     if any(host.group(name) is None for name in ('pi2000-users','pi2000-terminal')) and accounts:
         raise RuntimeError('Install the account/SSH policy before recovery.')
-    installed=host.path('/opt/win2k-admin/build-info.json')
+    installed=host.path('/opt/pi2000-admin/build-info.json')
     if manifest.get('application') and (not installed.exists() or json.loads(installed.read_text()).get('build')!=manifest['application'].get('build')):
         raise RuntimeError('Install the matching application build before restoring its data.')
-    rollback=host.path('/var/backups/win2k')/('recovery-'+time.strftime('%Y%m%dT%H%M%S')+'-'+plan['id'][:8])
+    rollback=host.path('/var/backups/pi2000')/('recovery-'+time.strftime('%Y%m%dT%H%M%S')+'-'+plan['id'][:8])
     rollback.parent.mkdir(parents=True,mode=0o700,exist_ok=True)
     for destination in [STATE,ACCOUNTS,*[a['home'] for a in accounts]]:
         target=host.path(destination)

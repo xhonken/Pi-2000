@@ -31,7 +31,7 @@ class BrowserUnavailable(Exception):
 class BrowserRuntime:
     def __init__(self, state, venv=None, deps=None, limit=3):
         self.root = Path(state) / 'browsers'
-        self.venv = Path(venv or os.environ.get('WIN2K_BROWSER_VENV', '/opt/win2k-browser/venv'))
+        self.venv = Path(venv or os.environ.get('WIN2K_BROWSER_VENV', '/opt/pi2000-browser/venv'))
         self.deps = deps or os.environ.get('WIN2K_BROWSER_DEPS')
         self.limit = limit
         self.sessions = {}
@@ -89,7 +89,7 @@ class BrowserRuntime:
             self.root.mkdir(parents=True, exist_ok=True, mode=0o700)
             profile = self.root / str(int(user_id))
             profile.mkdir(exist_ok=True, mode=0o700)
-            runtime = Path(tempfile.mkdtemp(prefix='win2k-browser-'))
+            runtime = Path(tempfile.mkdtemp(prefix='pi2000-browser-'))
             # The sandbox owns profile files. Following a profile log symlink
             # here would let it overwrite files with the host service identity.
             logs = self.root.parent / 'browser-logs'

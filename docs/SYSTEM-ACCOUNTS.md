@@ -26,7 +26,7 @@ Legacy web users migrate on their next successful login, using the password they
 To explicitly link an existing Linux identity, run as the OS administrator **before that web account is migrated**:
 
 ```sh
-sudo /opt/win2k-admin/venv/bin/python /opt/win2k-admin/account_service.py link --web-id WEB_ID --linux-user EXISTING_USER
+sudo /opt/pi2000-admin/venv/bin/python /opt/pi2000-admin/account_service.py link --web-id WEB_ID --linux-user EXISTING_USER
 ```
 
 This changes web login to the existing Linux password and revokes previous web sessions. It preserves the OS password, home and permissions. It will not infer a link from matching usernames, replace an existing binding, or link a system UID. Linked local terminals currently use the existing SSH listener on loopback port 22.
@@ -40,7 +40,7 @@ Permanent deletion requires typing the exact web username. Managed Linux identit
 Creation is recorded as pending and inactive until OS provisioning completes. Retry New User with the same username to finish a pending account, or delete the pending account. No arbitrary existing Linux account is adopted. A crash precisely after `useradd` but before its UID is recorded requires root to inspect and explicitly recover that reserved identity:
 
 ```sh
-sudo /opt/win2k-admin/venv/bin/python /opt/win2k-admin/account_service.py recover --web-id WEB_ID --linux-user pi2k_WEB_ID
+sudo /opt/pi2000-admin/venv/bin/python /opt/pi2000-admin/account_service.py recover --web-id WEB_ID --linux-user pi2k_WEB_ID
 ```
 
 Then retry account creation or the legacy login. If a recorded UID/home changes unexpectedly, authentication is rejected for OS administrator investigation. Do not edit the registry from the web service account.

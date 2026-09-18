@@ -34,7 +34,7 @@ Application snapshots are not a checkpoint of an executing job.
 2. Inspect without changing application data:
 
    ```sh
-   sudo pi2000web recovery plan /var/backups/win2k/ARCHIVE.tar --output /root/recovery-preview.json
+   sudo pi2000web recovery plan /var/backups/pi2000/ARCHIVE.tar --output /root/recovery-preview.json
    ```
 
    For a source installation, substitute `./scripts/restore-backup.sh` for
@@ -46,8 +46,8 @@ Application snapshots are not a checkpoint of an executing job.
    window, stop the writers explicitly:
 
    ```sh
-   sudo systemctl stop win2k-backup.timer win2k-backup.service win2k-admin win2k-sessions pi2000-arduino pi2000-accounts pi2000-terminal pi2000-phpmyadmin
-   sudo pi2000web recovery plan /var/backups/win2k/ARCHIVE.tar --output /root/recovery-final.json
+   sudo systemctl stop pi2000-backup.timer pi2000-backup.service pi2000-admin pi2000-sessions pi2000-arduino pi2000-accounts pi2000-terminal pi2000-phpmyadmin
+   sudo pi2000web recovery plan /var/backups/pi2000/ARCHIVE.tar --output /root/recovery-final.json
    ```
 
    Use a new output filename for each plan. Generate the final plan after stopping
@@ -55,17 +55,17 @@ Application snapshots are not a checkpoint of an executing job.
 4. Review the final plan and supply its full `id`:
 
    ```sh
-   sudo pi2000web recovery apply /var/backups/win2k/ARCHIVE.tar --plan /root/recovery-final.json --confirm PLAN_ID
+   sudo pi2000web recovery apply /var/backups/pi2000/ARCHIVE.tar --plan /root/recovery-final.json --confirm PLAN_ID
    ```
 
    Apply refuses active services, managed-user processes, changed target state and
    a mismatched installed build. It restores managed identities with their original
    IDs, homes, shell/terminal policy and password records. Linked OS accounts and
    unrelated OS group memberships are preserved. Previous directories and a
-   private operation journal remain under `/var/backups/win2k/recovery-*`.
+   private operation journal remain under `/var/backups/pi2000/recovery-*`.
 5. Services remain stopped. Inspect restored owners/modes and identity mappings,
-   then start `pi2000-accounts`, `pi2000-terminal`, `win2k-sessions`,
-   `pi2000-arduino`, `pi2000-phpmyadmin`, `win2k-admin` and `win2k-backup.timer`.
+   then start `pi2000-accounts`, `pi2000-terminal`, `pi2000-sessions`,
+   `pi2000-arduino`, `pi2000-phpmyadmin`, `pi2000-admin` and `pi2000-backup.timer`.
    Run the installer doctor and verify login, per-user isolation, files and a
    managed terminal. Users must log in again; executing jobs do not resume.
 
@@ -86,7 +86,7 @@ printed public `age1...` recipient on the Pi. No destination or recovery key is
 created automatically.
 
 ```sh
-sudo pi2000web recovery export /var/backups/win2k/ARCHIVE.tar --to /media/backup/ARCHIVE.tar.age --recipient age1PUBLIC_RECIPIENT
+sudo pi2000web recovery export /var/backups/pi2000/ARCHIVE.tar --to /media/backup/ARCHIVE.tar.age --recipient age1PUBLIC_RECIPIENT
 ```
 
 Export first verifies the original archive, encrypts with the official age CLI,

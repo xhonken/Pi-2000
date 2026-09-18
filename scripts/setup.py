@@ -27,9 +27,9 @@ ROOT = Path(__file__).resolve().parents[1]
 CONFIG = Path('/etc/pi2000web/config.toml')
 ENV = Path('/etc/pi2000web/runtime.env')
 CADDY = Path('/etc/caddy/Caddyfile')
-STATE = Path('/var/lib/win2k-admin')
-APP = Path('/opt/win2k-admin')
-SITE = Path('/srv/win2k')
+STATE = Path('/var/lib/pi2000-admin')
+APP = Path('/opt/pi2000-admin')
+SITE = Path('/srv/pi2000')
 CA = Path('/var/lib/caddy/.local/share/caddy/pki/authorities/local/root.crt')
 BASE_PACKAGES = ['ffmpeg', 'python3-venv', 'caddy', 'sqlite3', 'git', 'ca-certificates', 'sudo', 'iproute2', 'iputils-ping', 'age', 'nodejs', 'bubblewrap', 'openssh-server', 'libpam0g', 'libpam-modules']
 BROWSER_PACKAGES = ['chromium', 'xvfb', 'pulseaudio', 'pulseaudio-utils', 'bubblewrap',
@@ -162,7 +162,7 @@ def existing_origin():
         for line in ENV.read_text().splitlines():
             if line.startswith('WIN2K_ORIGIN='):
                 return line.split('=', 1)[1].strip('"')
-    values = run('systemctl', 'show', 'win2k-admin', '--property=Environment', '--value', capture=True)
+    values = run('systemctl', 'show', 'pi2000-admin', '--property=Environment', '--value', capture=True)
     return next((v.split('=', 1)[1] for v in shlex.split(values) if v.startswith('WIN2K_ORIGIN=')), None)
 
 
@@ -196,12 +196,12 @@ def check_caddy_ownership(text, adopt):
         origin = existing_origin()
         if origin:
             host = urlsplit(origin).hostname
-            expected = ('{ admin unix//var/lib/caddy/win2k-admin/control.sock } '
+            expected = ('{ admin unix//var/lib/caddy/pi2000-admin/control.sock } '
                         f'http://{host} {{ bind {host} redir https://{host}{{uri}} permanent }} '
                         f'https://{host} {{ bind {host} tls internal header {{ '
                         'X-Content-Type-Options nosniff X-Frame-Options SAMEORIGIN Referrer-Policy same-origin } '
                         'handle /api/* { reverse_proxy 127.0.0.1:8765 } '
-                        'handle { root * /srv/win2k file_server } }')
+                        'handle { root * /srv/pi2000 file_server } }')
             if compact == expected:
                 return
     raise ValueError('Existing Caddyfile is not managed by Pi-2000. It was not changed. '
@@ -210,6 +210,9 @@ def check_caddy_ownership(text, adopt):
 
 
 def preflight(config, adopt=False, restart=False):
+    legacy = Path('/var/lib/win2k-admin')
+    if legacy.exists() and not legacy.is_symlink():
+        raise ValueError('Legacy system names detected. Run scripts/migrate-system.sh --plan before updating; do not create a second installation.')
     if os.geteuid() != 0:
         raise ValueError('Run with sudo. Use --check or --render-dir without sudo for a preview.')
     if not Path('/run/systemd/system').exists():
@@ -225,7 +228,7 @@ def preflight(config, adopt=False, restart=False):
         raise ValueError('The public hostname does not resolve on the Pi. Configure DNS or use its LAN IP.') from exc
     if CADDY.exists():
         check_caddy_ownership(CADDY.read_text(), adopt)
-    if active('win2k-sessions'):
+    if active('pi2000-sessions'):
         old = existing_origin()
         if old != config['network']['public_url'] and not restart:
             raise ValueError('Changing the public URL requires a worker restart. Re-run with '
@@ -238,7 +241,7 @@ def preflight(config, adopt=False, restart=False):
         fields = line.split()
         if len(fields) > 3 and fields[3].rsplit(':', 1)[-1] in ('80', '443') and '"caddy"' not in line:
             raise ValueError('Port 80 or 443 is occupied by another process. Resolve it before installation.')
-    if not active('win2k-admin') and any(len(line.split()) > 3 and line.split()[3].rsplit(':', 1)[-1] == '8765' for line in listeners.splitlines()):
+    if not active('pi2000-admin') and any(len(line.split()) > 3 and line.split()[3].rsplit(':', 1)[-1] == '8765' for line in listeners.splitlines()):
         raise ValueError('API port 8765 is occupied. Resolve it before installation.')
     bind = config['network']['bind_address']
     if bind:
@@ -278,7 +281,7 @@ def install_browser():
     run('sha256sum', '--check', '--quiet', 'SHA256SUMS', cwd=build)
     if (build / 'architecture').read_text().strip() != os.uname().machine:
         raise ValueError('Browser build architecture mismatch.')
-    venv = Path('/opt/win2k-browser/venv')
+    venv = Path('/opt/pi2000-browser/venv')
     run('python3', '-m', 'venv', venv)
     run(venv / 'bin/pip', 'install', '--no-index', '--find-links', build / 'wheels',
         '-r', ROOT / 'server/browser-requirements.txt')
@@ -310,7 +313,7 @@ def verify(config, compare=True):
         sys.path.insert(0, str(ROOT / 'server'))
         from deployment import selected, verify as verify_component
         verify_component(APP, 'server')
-        verify_component(Path('/srv/win2k'), 'web')
+        verify_component(Path('/srv/pi2000'), 'web')
         for name, source in selected(ROOT, 'server').items():
             if source.read_bytes() != (APP / name).read_bytes():
                 raise ValueError('Installed API source differs from checkout: ' + name)
@@ -335,11 +338,11 @@ def verify(config, compare=True):
     with sqlite3.connect('file:' + str(STATE / 'admin.sqlite3') + '?mode=ro', uri=True) as db:
         if db.execute('PRAGMA integrity_check').fetchone()[0] != 'ok' or db.execute('PRAGMA foreign_key_check').fetchone():
             raise ValueError('Database integrity check failed.')
-    for unit in ('win2k-admin', 'win2k-sessions', 'caddy', 'win2k-backup.timer', 'pi2000-phpmyadmin', 'pi2000-arduino'):
+    for unit in ('pi2000-admin', 'pi2000-sessions', 'caddy', 'pi2000-backup.timer', 'pi2000-phpmyadmin', 'pi2000-arduino'):
         if not active(unit):
             raise ValueError('Service is not active: ' + unit)
-    if subprocess.run(['runuser', '-u', 'win2k-admin', '--', 'test', '-r',
-                       '/var/lib/caddy/win2k-admin/control.sock']).returncode == 0:
+    if subprocess.run(['runuser', '-u', 'pi2000-admin', '--', 'test', '-r',
+                       '/var/lib/caddy/pi2000-admin/control.sock']).returncode == 0:
         raise ValueError('Application can access Caddy administration socket.')
     print('PASS: trusted HTTPS, desktop assets, private API, SQLite integrity and services.', flush=True)
 
@@ -353,7 +356,7 @@ def deploy(config, args):
     if old_config and old_config['features']['browser'] and not config['features']['browser']:
         raise ValueError('browser=false skips installation on a new Pi; it does not uninstall an existing browser.')
     if args.command == 'update' and config['features']['browser']:
-        browser_root = Path('/opt/win2k-browser')
+        browser_root = Path('/opt/pi2000-browser')
         required = ['browser-requirements.txt', 'browser-source-revision.txt']
         if not (browser_root / 'venv/bin/python').exists() or any(
                 not (browser_root / name).exists() or (browser_root / name).read_bytes() != (ROOT / 'server' / name).read_bytes()
@@ -361,7 +364,7 @@ def deploy(config, args):
             raise ValueError('Browser dependencies differ or are missing. Run install.sh with the installed configuration first.')
     backup = None
     if (STATE / 'admin.sqlite3').exists():
-        run('systemctl', 'start', 'win2k-backup.service')
+        run('systemctl', 'start', 'pi2000-backup.service')
         backup = Path(tempfile.mkdtemp(prefix='pi2000web-update-', dir='/var/backups'))
         for name, source in [('app', APP), ('site', SITE)]:
             shutil.copytree(source, backup / name, ignore=shutil.ignore_patterns('venv', '__pycache__'))
@@ -370,11 +373,11 @@ def deploy(config, args):
                 shutil.copy2(source, backup / name)
         print('Verified data backup and previous code snapshot:', backup, flush=True)
     install_system_packages(config, args.command)
-    ensure_account('win2k-admin', STATE)
+    ensure_account('pi2000-admin', STATE)
     run('install', '-d', '-m', '755', APP, SITE)
-    run('install', '-d', '-m', '700', '/var/backups/win2k')
-    run('install', '-d', '-o', 'caddy', '-g', 'caddy', '-m', '700', '/var/lib/caddy/win2k-admin')
-    if config['features']['browser'] and (args.command == 'install' or not Path('/opt/win2k-browser/venv/bin/python').exists()):
+    run('install', '-d', '-m', '700', '/var/backups/pi2000')
+    run('install', '-d', '-o', 'caddy', '-g', 'caddy', '-m', '700', '/var/lib/caddy/pi2000-admin')
+    if config['features']['browser'] and (args.command == 'install' or not Path('/opt/pi2000-browser/venv/bin/python').exists()):
         if args.command == 'update':
             raise ValueError('Browser dependencies are missing. Run install.sh with this configuration.')
         install_browser()
@@ -390,7 +393,7 @@ def deploy(config, args):
     # Keep metadata and locks owned by the service account, never recursively chown existing data.
     lock = STATE / 'files.lock'
     lock.touch(exist_ok=True)
-    entry = pwd.getpwnam('win2k-admin')
+    entry = pwd.getpwnam('pi2000-admin')
     os.chown(lock, entry.pw_uid, entry.pw_gid)
     lock.chmod(0o600)
     atomic(ENV, output['runtime.env'])
@@ -401,12 +404,12 @@ def deploy(config, args):
         run('bash', ROOT / 'scripts/publish-local.sh')
         if args.restart_sessions:
             print('Restarting session worker: existing terminal and browser jobs will end.', flush=True)
-            run('systemctl', 'restart', 'win2k-sessions')
+            run('systemctl', 'restart', 'pi2000-sessions')
         atomic(CADDY, output['Caddyfile'])
-        run('systemctl', 'enable', '--now', 'win2k-admin', 'caddy')
+        run('systemctl', 'enable', '--now', 'pi2000-admin', 'caddy')
         # Explicit address handles migration from a previously enabled TCP admin endpoint.
-        address = 'unix//var/lib/caddy/win2k-admin/control.sock'
-        if not Path('/var/lib/caddy/win2k-admin/control.sock').exists():
+        address = 'unix//var/lib/caddy/pi2000-admin/control.sock'
+        if not Path('/var/lib/caddy/pi2000-admin/control.sock').exists():
             address = '127.0.0.1:2019'
         run('caddy', 'reload', '--config', CADDY, '--adapter', 'caddyfile', '--address', address)
         for attempt in range(30):
@@ -417,23 +420,23 @@ def deploy(config, args):
                 if attempt == 29:
                     raise ValueError('Post-install check failed: ' + str(exc)) from exc
                 time.sleep(2)
-        run('systemctl', 'start', 'win2k-backup.service')
+        run('systemctl', 'start', 'pi2000-backup.service')
     except BaseException:
         # Retain backups and report the failure; never silently roll back a migrated DB.
         print('Installation did not complete. Check the error above and run doctor.sh after correcting it.', file=sys.stderr)
         if backup:
-            print('Previous code/configuration:', backup, '; verified data archives: /var/backups/win2k', file=sys.stderr)
+            print('Previous code/configuration:', backup, '; verified data archives: /var/backups/pi2000', file=sys.stderr)
         raise
     print('\nPi-2000 is ready at ' + config['network']['public_url'])
     print('Configuration: /etc/pi2000web/config.toml')
     if (STATE / 'initial-password.txt').exists():
         print('First login: admin. Read the generated password with:')
-        print('  sudo cat /var/lib/win2k-admin/initial-password.txt')
+        print('  sudo cat /var/lib/pi2000-admin/initial-password.txt')
     else:
         print('Existing accounts and passwords are unchanged.')
     if config['network']['tls'] == 'internal':
         print('Trust the local CA on each client; copy only root.crt, never root.key: ' + str(CA))
-    if active('win2k-sessions') and old_origin and not args.restart_sessions:
+    if active('pi2000-sessions') and old_origin and not args.restart_sessions:
         print('Existing terminal/browser sessions were preserved. Worker code changes apply on its next restart.')
 
 
@@ -457,7 +460,7 @@ def main():
                 args.render_dir.mkdir(parents=True, exist_ok=True)
                 for name, text in render(config).items():
                     atomic(args.render_dir / name, text)
-                for source in (ROOT / 'server').glob('win2k-*.*'):
+                for source in (ROOT / 'server').glob('pi2000-*.*'):
                     shutil.copy2(source, args.render_dir / source.name)
             return 0
         if args.command == 'doctor':

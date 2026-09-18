@@ -1,20 +1,20 @@
 [Unit]
 Description=Pi-2000 system account broker
 After=local-fs.target
-Before=win2k-admin.service win2k-sessions.service
+Before=pi2000-admin.service pi2000-sessions.service
 
 [Service]
 Type=simple
 User=root
-Group=win2k-admin
-ExecStart=/opt/win2k-admin/venv/bin/python /opt/win2k-admin/account_service.py serve
+Group=pi2000-admin
+ExecStart=/opt/pi2000-admin/venv/bin/python /opt/pi2000-admin/account_service.py serve
 RuntimeDirectory=pi2000-accounts
 RuntimeDirectoryMode=0750
 UMask=0077
 Restart=on-failure
 PrivateTmp=true
 ProtectSystem=true
-ReadWritePaths=/etc /var/lib/pi2000-accounts /var/lib/win2k-admin /home /var/spool
+ReadWritePaths=/etc /var/lib/pi2000-accounts /var/lib/pi2000-admin /home /var/spool
 ProtectKernelTunables=true
 ProtectKernelModules=true
 ProtectControlGroups=true

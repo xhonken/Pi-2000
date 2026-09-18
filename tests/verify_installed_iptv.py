@@ -19,7 +19,7 @@ from aiohttp import ClientSession,CookieJar,TCPConnector
 if os.geteuid()!=0:raise SystemExit('Run with sudo and the installed Python environment.')
 operator=os.environ.get('SUDO_USER')
 if not operator or operator=='root':raise SystemExit('Invoke through sudo from the desktop OS account.')
-sys.path.insert(0,'/opt/win2k-admin')
+sys.path.insert(0,'/opt/pi2000-admin')
 import app
 from session_store import SessionStore
 

@@ -28,9 +28,9 @@ sudo ./scripts/doctor.sh
 Open Browser and inspect the actual group (replace USER_ID with the numeric account ID):
 
 ```sh
-sudo cat /sys/fs/cgroup/system.slice/win2k-sessions.service/browser-USER_ID/memory.max
-sudo cat /sys/fs/cgroup/system.slice/win2k-sessions.service/browser-USER_ID/memory.high
-sudo cat /sys/fs/cgroup/system.slice/win2k-sessions.service/browser-USER_ID/memory.events
+sudo cat /sys/fs/cgroup/system.slice/pi2000-sessions.service/browser-USER_ID/memory.max
+sudo cat /sys/fs/cgroup/system.slice/pi2000-sessions.service/browser-USER_ID/memory.high
+sudo cat /sys/fs/cgroup/system.slice/pi2000-sessions.service/browser-USER_ID/memory.events
 ```
 
 Expected max: `1610612736`; high: `1073741824`. The authenticated `/api/browser/status` endpoint also reports `memory_hard_limit` for the current account's running Browser. An `oom_kill` increase records a kernel memory-limit kill; a crashed process without that evidence is reported as an unexpected stop.

@@ -24,7 +24,7 @@ import time
 import pam_auth
 
 ROOT = Path('/var/lib/pi2000-accounts')
-STATE = Path('/var/lib/win2k-admin')
+STATE = Path('/var/lib/pi2000-admin')
 SOCKET = '/run/pi2000-accounts/control.sock'
 LOCK = threading.RLock()
 
@@ -280,7 +280,7 @@ async def monitor():
         if changed:
             import session_proxy
             for uid in changed:
-                try: await session_proxy.control('/run/win2k-sessions/worker.sock','user',user_id=uid)
+                try: await session_proxy.control('/run/pi2000-sessions/worker.sock','user',user_id=uid)
                 except Exception: pass
 
 async def serve():
@@ -288,7 +288,7 @@ async def serve():
     async def handle(reader,writer):
         try:
             peer=writer.get_extra_info('socket').getsockopt(socket.SOL_SOCKET,socket.SO_PEERCRED,12)
-            if struct.unpack('3i',peer)[1] not in (0,pwd.getpwnam('win2k-admin').pw_uid): return
+            if struct.unpack('3i',peer)[1] not in (0,pwd.getpwnam('pi2000-admin').pw_uid): return
             if slots.locked(): raise Denied('Account service busy.',409)
             async with slots:
                 data=json.loads(await asyncio.wait_for(reader.readline(),10))
@@ -301,7 +301,7 @@ async def serve():
         finally: writer.close(); await writer.wait_closed()
     Path(SOCKET).unlink(missing_ok=True)
     server=await asyncio.start_unix_server(handle,path=SOCKET,limit=16384)
-    os.chown(SOCKET,0,pwd.getpwnam('win2k-admin').pw_gid); os.chmod(SOCKET,0o660)
+    os.chown(SOCKET,0,pwd.getpwnam('pi2000-admin').pw_gid); os.chmod(SOCKET,0o660)
     watcher=asyncio.create_task(monitor())
     async with server: await server.serve_forever()
 
@@ -309,7 +309,10 @@ if __name__=='__main__':
     parser=argparse.ArgumentParser(); parser.add_argument('command',choices=['serve','link','recover']);parser.add_argument('--web-id',type=int);parser.add_argument('--linux-user'); args=parser.parse_args()
     if os.geteuid()!=0: parser.error('Run as root.')
     setup_registry()
-    if args.command=='serve': asyncio.run(serve())
+    if args.command=='serve':
+        from process_identity import identify
+        identify('pi2000-accounts')
+        asyncio.run(serve())
     elif args.command=='recover':
         b=binding(args.web_id); p=pwd.getpwnam(args.linux_user)
         if not b or not b['managed'] or b['phase']!='reserved' or b['uid'] is not None or b['name']!=p.pw_name or b['home']!=p.pw_dir or p.pw_uid<1000: parser.error('Not an interrupted reserved identity.')

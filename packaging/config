@@ -11,7 +11,7 @@ fi
 
 # Existing accounts are never reset by package upgrades or reconfiguration.
 # A pending bootstrap is retried by postinst rather than treated as an upgrade.
-if [ "$requested" != true ] && [ -f /var/lib/win2k-admin/admin.sqlite3 ] && [ ! -f /var/lib/pi2000web/bootstrap-pending.json ]; then
+if [ "$requested" != true ] && [ -f /var/lib/pi2000-admin/admin.sqlite3 ] && [ ! -f /var/lib/pi2000web/bootstrap-pending.json ]; then
  db_set pi2000web/admin-password ''
  db_set pi2000web/admin-password-confirm ''
  exit 0

@@ -24,7 +24,7 @@ These are checkout tests, not proof that the new code is installed.
 Finish database operations before an update. From the development checkout:
 
 ```sh
-sudo /opt/win2k-admin/venv/bin/python tests/verify_installed_stabilization.py --update
+sudo /opt/pi2000-admin/venv/bin/python tests/verify_installed_stabilization.py --update
 ```
 
 This runs the normal updater and doctor, then uses a disposable ordinary account

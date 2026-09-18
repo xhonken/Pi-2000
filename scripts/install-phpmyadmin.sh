@@ -5,8 +5,8 @@ if ! dpkg-query -W phpmyadmin php8.4-fpm 2>/dev/null | awk 'END {exit NR!=2}'; t
   DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends phpmyadmin php-fpm php-mysql php-mbstring php-xml php-zip php-gd
 fi
 id pi2000-phpmyadmin >/dev/null 2>&1 || useradd --system --no-create-home --home-dir /var/lib/pi2000-phpmyadmin --shell /usr/sbin/nologin pi2000-phpmyadmin
-install -d -m 755 /opt/win2k-admin/phpmyadmin
-install -m 644 "$project_dir"/server/phpmyadmin/* /opt/win2k-admin/phpmyadmin/
+install -d -m 755 /opt/pi2000-admin/phpmyadmin
+install -m 644 "$project_dir"/server/phpmyadmin/* /opt/pi2000-admin/phpmyadmin/
 if [ ! -f /etc/phpmyadmin/config.inc.php.pi2000-before ]; then
   install -m 600 /etc/phpmyadmin/config.inc.php /etc/phpmyadmin/config.inc.php.pi2000-before
 fi
